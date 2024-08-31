@@ -1,5 +1,6 @@
 # Byls
-Byls es una aplicación para dispositivos móviles destinada a gestionar gastos personales, en ella los usuarios pueden manejar sus finanzas a partir de la creación de cuentas o billeteras que representan las diversas cuentas bancarias que puedes tener.
+Byls es una aplicación para dispositivos móviles destinada a gestionar gastos personales, en ella los usuarios pueden manejar sus finanzas a partir de la creación de cuentas o billeteras que representan las diversas cuentas bancarias, nichos de capital o montos de capital destinados a una función determinada.
+La aplicación ofrece gráficas, control de ingresos, control de egresos, transacciones entre billeteras o cuentas, ajustes para el tipo de divisa y entre otras funciones.
 
 **Carácterísticas de la Aplicación**
 
