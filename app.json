@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "curso2",
-    "slug": "curso2",
+    "name": "Byls",
+    "slug": "Byls",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/BylsRounds.png",
     "userInterfaceStyle": "light",
     "scheme": "byls",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/IconByls2.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,12 +17,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/BylsIcon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/BylsRounds.png"
     },
     "plugins": ["expo-router"]
   }
