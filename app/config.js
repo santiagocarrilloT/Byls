@@ -1,9 +1,8 @@
-import "@expo/metro-runtime";
-//importar la herramienta para que funcione nativewind
 import { NativeWindStyleSheet } from "nativewind";
+import { registerRootComponent } from "expo";
 
 NativeWindStyleSheet.setOutput({
   default: "native",
 });
 
-export { registerRootComponents };
+export { registerRootComponent };

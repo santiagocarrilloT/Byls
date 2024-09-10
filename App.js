@@ -9,8 +9,6 @@ NativeWindStyleSheet.setOutput({
   default: "native",
 });
 
-import {}
-
 export default function App() {
   return (
     <View className="flex-1 items-center justify-center bg-blue-300">
