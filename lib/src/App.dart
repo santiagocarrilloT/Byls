@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
           title: "Byls",
-          initialRoute: "SignIn",
+          initialRoute: "Home",
           routes: customRoutes(supabaseService),
           theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(

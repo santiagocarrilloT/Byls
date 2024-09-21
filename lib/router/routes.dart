@@ -3,6 +3,7 @@ import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
 import 'package:byls_app/src/pages/resetPassword.dart';
+import 'package:byls_app/src/pages/transaccion.dart';
 import 'package:byls_app/src/pages/newPassword.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ import 'package:go_router/go_router.dart';
   return {
     "SignIn": (context) => SignIn(supabaseService: supabaseService),
     "Home": (context) => Home(supabaseService: supabaseService),
+    "Transaccion": (context) => Transaccion(supabaseService:supabaseService),
     "SignUp": (context) => SignUp(supabaseService: supabaseService),
     "ResetPass": (context) => ResetPass(supabaseService: supabaseService),
     "NewPass": (context) => const NewPassword(),
