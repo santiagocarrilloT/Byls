@@ -1,7 +1,9 @@
+import 'package:byls_app/router/routes.dart';
 import 'package:byls_app/services/supabase_service.dart';
 import 'package:byls_app/src/pages/transaccion.dart';
 import 'package:flutter/material.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatefulWidget {
@@ -158,7 +160,7 @@ class _HomeState extends State<Home> {
         onPressed: () {
           // Acción al presionar el botón
           print("Agregar nuevo elemento");
-          Navigator.pushReplacementNamed(context, "Transaccion");
+          context.go('/transaccion');
         },
         backgroundColor: Colors.red,
         child: Icon(Icons.add),

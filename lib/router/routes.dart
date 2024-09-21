@@ -66,5 +66,14 @@ class CustomRoutes {
         );
       },
     ),
+    GoRoute(
+      path: '/transaccion',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const Transaccion(),
+        );
+      },
+    ),
   ];
 }
