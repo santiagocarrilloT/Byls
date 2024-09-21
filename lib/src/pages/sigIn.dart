@@ -1,31 +1,19 @@
 import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:byls_app/router/routes.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:byls_app/services/supabase_service.dart';
 import 'package:flutter/material.dart';
 
-late final AuthController authController;
-
 class SignIn extends StatefulWidget {
-  final SupabaseService supabaseService;
-  const SignIn({super.key, required this.supabaseService});
+  const SignIn({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SigInState createState() => _SigInState();
 }
 
 class _SigInState extends State<SignIn> {
-  //Inicializa authController aquí
-  /* @override
-  void initState() {
-    super.initState();
-    // Inicializa authController aquí
-    authController = AuthController();
-  } */
-
   @override
   Widget build(BuildContext context) {
-    authController = Provider.of<AuthController>(context);
     return const Scaffold(
       body: Stack(
         children: [
@@ -53,7 +41,10 @@ class _ContenidoState extends State<Contenido> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Logobyls(),
+          Padding(
+            padding: EdgeInsets.only(top: 70),
+            child: Logobyls(),
+          ),
           SizedBox(
             height: 30,
           ),
@@ -74,8 +65,8 @@ class Logobyls extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 150,
-          width: 150,
+          height: 90,
+          width: 90,
           child: Image.asset(
             "assets/Byls-transparent.png",
             fit: BoxFit.cover,
@@ -88,7 +79,7 @@ class Logobyls extends StatelessWidget {
           'Byls',
           style: TextStyle(
               color: Colors.black,
-              fontSize: 28,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter Tight'),
         ),
@@ -135,6 +126,18 @@ class _DatosState extends State<Datos> {
           ),
           TextFormField(
             controller: emailController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingrese su correo';
+              }
+              if (!value.contains('@')) {
+                return 'Por favor ingrese un correo válido';
+              }
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                return 'Ingresa un correo válido';
+              }
+              return null;
+            },
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
               hintText: 'Correo',
@@ -150,6 +153,24 @@ class _DatosState extends State<Datos> {
           ),
           TextFormField(
             controller: passwordController,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor ingrese su contraseña';
+              }
+              if (value.length < 6) {
+                return 'La contraseña debe tener al menos 6 caracteres';
+              }
+              if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                return 'La contraseña debe tener al menos una letra mayúscula';
+              }
+              if (!RegExp(r'[a-z]').hasMatch(value)) {
+                return 'La contraseña debe tener al menos una letra minúscula';
+              }
+              if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
+                return 'La contraseña debe tener al menos un carácter especial';
+              }
+              return null;
+            },
             obscureText: obs,
             decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -171,7 +192,7 @@ class _DatosState extends State<Datos> {
           ),
           const Remember(),
           const SizedBox(
-            height: 30,
+            height: 20,
           ),
           Botones(
             emailController: emailController,
@@ -205,7 +226,7 @@ class _RememberState extends State<Remember> {
         const Spacer(),
         TextButton(
           onPressed: () {
-            Navigator.pushNamed(context, 'ResetPass');
+            context.go('/resetPass');
           },
           style: TextButton.styleFrom(textStyle: const TextStyle(fontSize: 15)),
           child: const Text('¿Olvidaste tu contraseña?'),
@@ -226,6 +247,7 @@ class Botones extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
     return Column(
       children: [
         SizedBox(
@@ -236,7 +258,7 @@ class Botones extends StatelessWidget {
               try {
                 await authController.signInCt(
                     emailController.text, passwordController.text);
-                Navigator.pushReplacementNamed(context, 'Home');
+                context.go('/home');
               } catch (error) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error al iniciar sesión: $error')));
@@ -252,12 +274,12 @@ class Botones extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          height: 25,
+          height: 18,
           width: double.infinity,
         ),
         TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, 'SignUp');
+              context.go('/signUp');
             },
             child: const Text('¿No tienes cuenta?'))
       ],

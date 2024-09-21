@@ -1,18 +1,21 @@
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/services/supabase_service.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
-class ResetPass extends StatefulWidget {
-  const ResetPass({super.key});
+class NewPassword extends StatefulWidget {
+  //final String id;
+  const NewPassword({
+    super.key,
+    /*required this.id*/
+  });
 
   @override
   // ignore: library_private_types_in_public_api
-  _ResetPassState createState() => _ResetPassState();
+  _NewPassState createState() => _NewPassState();
 }
 
-class _ResetPassState extends State<ResetPass> {
+class _NewPassState extends State<NewPassword> {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
@@ -94,7 +97,7 @@ class Datos extends StatefulWidget {
 }
 
 class _DatosState extends State<Datos> {
-  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool obs = true;
   Icon icono = const Icon(Icons.remove_red_eye);
   @override
@@ -111,7 +114,7 @@ class _DatosState extends State<Datos> {
           const Align(
             alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
             child: Text(
-              'Recupera Tu Contraseña',
+              'Ingresa la Nueva Contraseña',
               style: TextStyle(
                   color: Colors.black,
                   fontSize: 16,
@@ -121,7 +124,7 @@ class _DatosState extends State<Datos> {
           const SizedBox(
             height: 8,
           ),
-          TextFormField(
+          /* TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
@@ -129,13 +132,19 @@ class _DatosState extends State<Datos> {
               hintStyle: TextStyle(color: Colors.grey),
               border: OutlineInputBorder(),
             ),
-          ),
+          ), */
           const SizedBox(
             height: 5,
           ),
-          /* TextFormField(
+          TextFormField(
             controller: passwordController,
             obscureText: obs,
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Por favor ingrese su contraseña';
+              }
+              return null;
+            },
             decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintStyle: const TextStyle(color: Colors.grey),
@@ -153,12 +162,12 @@ class _DatosState extends State<Datos> {
                     });
                   },
                 )),
-          ), */
+          ),
           const SizedBox(
             height: 30,
           ),
           Botones(
-            emailController: emailController,
+            passwordController: passwordController,
           ),
         ],
       ),
@@ -167,9 +176,9 @@ class _DatosState extends State<Datos> {
 }
 
 class Botones extends StatelessWidget {
-  final TextEditingController emailController;
+  final TextEditingController passwordController;
 
-  const Botones({super.key, required this.emailController});
+  const Botones({super.key, required this.passwordController});
 
   @override
   Widget build(BuildContext context) {
@@ -182,8 +191,10 @@ class Botones extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () async {
               try {
-                await authController.resetPasswordCt(emailController.text);
-                showValidateOTP(context, emailController.text);
+                //showValidateOTP(context);
+                /* await authController
+                    .verifyOTPandChangePassword(passwordController.text); */
+                //Navigator.pop(context);
               } catch (error) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error al crear cuenta: $error')));
@@ -204,84 +215,12 @@ class Botones extends StatelessWidget {
         ),
         TextButton(
             onPressed: () {
-              context.go('/signIn');
+              Navigator.pop(context);
             },
             child: const Text('Volver al Inicio Sesión')),
       ],
     );
   }
-}
-
-showValidateOTP(BuildContext context, String email) {
-  final codeOtp = TextEditingController();
-  final authController = Provider.of<AuthController>(context, listen: false);
-
-  Widget cancelButton = ElevatedButton(
-    style: ButtonStyle(
-      backgroundColor: WidgetStateProperty.all<Color>(Colors.grey),
-      shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-    ),
-    onPressed: () async {
-      Navigator.of(context).pop();
-    },
-    child: const Text("Cancelar"),
-  );
-
-  Widget continueButton = ElevatedButton(
-    style: ButtonStyle(
-      backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
-      shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-      ),
-    ),
-    onPressed: () async {
-      if (codeOtp.text.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Por favor ingrese un código')));
-        return;
-      } else {
-        final response = await authController.verifyOTPandChangePassword(
-          codeOtp.text,
-          email,
-        );
-
-        if (response) {
-          context.go('/newPass');
-        } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Código incorrecto')));
-        }
-      }
-    },
-    child: const Text("Ingresar"),
-  );
-
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text("Ingresar código de verificación"),
-        content: TextFormField(
-          controller: codeOtp,
-          decoration: const InputDecoration(
-            hintText: 'Código verificación',
-            hintStyle: TextStyle(color: Colors.grey),
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          cancelButton,
-          continueButton,
-        ],
-      );
-    },
-  );
 }
 
 class Fondo extends StatelessWidget {
