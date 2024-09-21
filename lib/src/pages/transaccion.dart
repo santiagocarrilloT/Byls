@@ -1,9 +1,11 @@
+import 'package:byls_app/src/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:byls_app/services/supabase_service.dart';
+import 'package:go_router/go_router.dart';
 
 
 class Transaccion extends StatefulWidget {
-  const Transaccion({super.key, required SupabaseService supabaseService});
+  const Transaccion({super.key});
   @override
   State<Transaccion> createState() => _TransaccionState();
 }
@@ -37,7 +39,7 @@ class _TransaccionState extends State<Transaccion> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, 'Home');
+            context.go("/home");
           },
         ),
         title: const Text("Transacción"),
