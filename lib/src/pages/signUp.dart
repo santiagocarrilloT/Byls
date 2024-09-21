@@ -193,7 +193,7 @@ class _RememberState extends State<Remember> {
   bool valor = false;
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return const Row(
       children: [
         /* Checkbox(
           value: valor,
@@ -201,7 +201,7 @@ class _RememberState extends State<Remember> {
               setState(() => valor == false ? valor = true : valor = false),
         ),
         const Text('Recordarme'), */
-        const Spacer(),
+        Spacer(),
         /* TextButton(
           onPressed: () {},
           style: TextButton.styleFrom(textStyle: const TextStyle(fontSize: 15)),

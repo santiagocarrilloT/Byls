@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:byls_app/main.dart';
 import 'package:byls_app/src/App.dart';
 
 void main() {
