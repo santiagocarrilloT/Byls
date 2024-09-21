@@ -1,13 +1,11 @@
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/services/supabase_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
-late final AuthController authController;
-
 class SignUp extends StatefulWidget {
-  final SupabaseService supabaseService;
-  const SignUp({super.key, required this.supabaseService});
+  const SignUp({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -15,16 +13,8 @@ class SignUp extends StatefulWidget {
 }
 
 class _SigUpState extends State<SignUp> {
-  /* @override
-  void initState() {
-    super.initState();
-    // Inicializa authController aquí
-    authController = AuthController();
-  } */
-
   @override
   Widget build(BuildContext context) {
-    authController = Provider.of<AuthController>(context);
     return const Scaffold(
       body: Stack(
         children: [
@@ -73,8 +63,8 @@ class Logobyls extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 150,
-          width: 150,
+          height: 100,
+          width: 100,
           child: Image.asset(
             "assets/Byls-transparent.png",
             fit: BoxFit.cover,
@@ -223,6 +213,7 @@ class Botones extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
     return Column(
       children: [
         SizedBox(
@@ -233,7 +224,7 @@ class Botones extends StatelessWidget {
               try {
                 await authController.signUpCt(
                     emailController.text, passwordController.text);
-                Navigator.pushReplacementNamed(context, 'Home');
+                context.go('/home');
               } catch (error) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Error al crear cuenta: $error')));
@@ -254,7 +245,7 @@ class Botones extends StatelessWidget {
         ),
         TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              context.go('/signIn');
             },
             child: const Text('Volver al Inicio Sesión')),
       ],
