@@ -63,8 +63,8 @@ class Logobyls extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 100,
-          width: 100,
+          height: 70,
+          width: 70,
           child: Image.asset(
             "assets/Byls-transparent.png",
             fit: BoxFit.cover,
@@ -97,6 +97,10 @@ class _DatosState extends State<Datos> {
   final emailController = TextEditingController();
   bool obs = true;
   Icon icono = const Icon(Icons.remove_red_eye);
+
+  //Variable del mensaje de error
+  String? messageError;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -118,6 +122,13 @@ class _DatosState extends State<Datos> {
                   fontWeight: FontWeight.bold),
             ),
           ),
+          const Align(
+            alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
+            child: Text(
+              'Ingresa tu correo, enviaremos un código de verificación',
+              style: TextStyle(color: Colors.black),
+            ),
+          ),
           const SizedBox(
             height: 8,
           ),
@@ -131,34 +142,20 @@ class _DatosState extends State<Datos> {
             ),
           ),
           const SizedBox(
-            height: 5,
+            height: 8,
           ),
-          /* TextFormField(
-            controller: passwordController,
-            obscureText: obs,
-            decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintStyle: const TextStyle(color: Colors.grey),
-                hintText: 'Contraseña',
-                suffixIcon: IconButton(
-                  icon: icono,
-                  onPressed: () {
-                    setState(() {
-                      obs
-                          ? (
-                              obs = false,
-                              icono = const Icon(Icons.visibility_off)
-                            )
-                          : (obs = true, icono = const Icon(Icons.visibility));
-                    });
-                  },
-                )),
-          ), */
+          // Mostrar mensaje de error
+          if (messageError != null) alertaPreventiva(messageError!),
           const SizedBox(
-            height: 30,
+            height: 8,
           ),
           Botones(
             emailController: emailController,
+            onError: (String error) {
+              setState(() {
+                messageError = error;
+              });
+            },
           ),
         ],
       ),
@@ -168,8 +165,10 @@ class _DatosState extends State<Datos> {
 
 class Botones extends StatelessWidget {
   final TextEditingController emailController;
+  final Function(String) onError;
 
-  const Botones({super.key, required this.emailController});
+  const Botones(
+      {super.key, required this.emailController, required this.onError});
 
   @override
   Widget build(BuildContext context) {
@@ -185,8 +184,15 @@ class Botones extends StatelessWidget {
                 await authController.resetPasswordCt(emailController.text);
                 showValidateOTP(context, emailController.text);
               } catch (error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al crear cuenta: $error')));
+                //onError(error.toString());
+                final String capturaError = error.toString();
+
+                if (capturaError.contains('Password recovery required email')) {
+                  return onError('Por favor, ingrese el correo');
+                }
+                if (capturaError.contains('User not found')) {
+                  return onError('Correo no válido');
+                }
               }
             },
             style: ButtonStyle(
@@ -254,8 +260,7 @@ showValidateOTP(BuildContext context, String email) {
         if (response) {
           context.go('/newPass');
         } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Código incorrecto')));
+          alertaPreventiva('Código incorrecto');
         }
       }
     },
@@ -297,4 +302,22 @@ class Fondo extends StatelessWidget {
               colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
     );
   }
+}
+
+Container alertaPreventiva(String mensaje) {
+  return Container(
+    padding: const EdgeInsets.all(8.5),
+    decoration: BoxDecoration(
+      color: const Color.fromRGBO(254, 207, 109, 1),
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Text(
+      mensaje,
+      style: const TextStyle(
+        color: Colors.black,
+        fontSize: 14,
+        fontWeight: FontWeight.normal,
+      ),
+    ),
+  );
 }

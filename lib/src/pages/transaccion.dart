@@ -1,8 +1,5 @@
-import 'package:byls_app/src/pages/home.dart';
 import 'package:flutter/material.dart';
-import 'package:byls_app/services/supabase_service.dart';
 import 'package:go_router/go_router.dart';
-
 
 class Transaccion extends StatefulWidget {
   const Transaccion({super.key});
@@ -20,7 +17,10 @@ class _TransaccionState extends State<Transaccion> {
     {'nombre': 'Moto', 'icono': Icons.motorcycle},
     {'nombre': 'Alimentos', 'icono': Icons.fastfood},
     {'nombre': 'Teléfono', 'icono': Icons.phone_android},
-    {'nombre': 'Gasolina', 'icono': Icons.local_gas_station,},
+    {
+      'nombre': 'Gasolina',
+      'icono': Icons.local_gas_station,
+    },
   ];
 
   final List<Map<String, dynamic>> ingresos = [
@@ -39,7 +39,7 @@ class _TransaccionState extends State<Transaccion> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go("/home");
+            context.go("/app_entry");
           },
         ),
         title: const Text("Transacción"),
@@ -111,7 +111,8 @@ class _TransaccionState extends State<Transaccion> {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: isSelected ? Color(0xFF00BFA5) : Colors.grey[300],
+                        backgroundColor:
+                            isSelected ? Color(0xFF00BFA5) : Colors.grey[300],
                         child: Icon(
                           category['icono'],
                           color: isSelected ? Colors.white : Colors.black,
@@ -137,5 +138,3 @@ class _TransaccionState extends State<Transaccion> {
     );
   }
 }
-
-
