@@ -30,7 +30,7 @@ class AuthController {
 
   Future<void> resetPasswordCt(String email) async {
     try {
-      final response = await _client.auth.resetPasswordForEmail(
+      await _client.auth.resetPasswordForEmail(
         email,
       );
     } catch (e) {
@@ -46,11 +46,24 @@ class AuthController {
         type: OtpType.recovery,
       );
 
+      // Verifica si el correo del usuario es igual al correo ingresado
       if (response.user?.email == email) {
         return true;
       } else {
         return false;
       }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  Future<void> updatePasswordCt(String new_password) async {
+    final session = _client.auth.currentSession;
+    if (session == null) {
+      throw Exception('No hay una sesión activa');
+    }
+    try {
+      await _client.auth.updateUser(UserAttributes(password: new_password));
     } catch (e) {
       throw Exception(e);
     }

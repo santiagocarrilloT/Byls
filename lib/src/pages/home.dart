@@ -6,6 +6,8 @@ import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'profile.dart';
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -15,13 +17,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 0;
-  BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
-  List<bool> _selections = List.generate(5, (_) => false); // Para los seleccionables
+  List<bool> _selections =
+      List.generate(5, (_) => false); // Para los seleccionables
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF26A69A),
         leading: IconButton(
           icon: const Icon(Icons.home),
           onPressed: () {
@@ -29,19 +32,36 @@ class _HomeState extends State<Home> {
           },
         ),
         title: const Text("Home"),
+        actions: const [
+          /* IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              context.read<AuthController>().signOutCt();
+              context.go('/signIn');
+            },
+          ), */
+        ],
+        //Línea resaltada
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0), // Altura de la línea
+          child: Container(
+            color: Colors.black, // Color de la línea resaltada
+            height: 1.0, // Altura de la línea
+          ),
+        ),
       ),
       body: Stack(
         children: [
           // Fondo de color
           Container(
-            color: Color(0xFF26A69A),            
+            color: const Color(0xFF26A69A),
           ),
           // Parte superior con el borde redondeado
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.15, 
+            top: MediaQuery.of(context).size.height * 0.15,
             left: 0,
             right: 0,
-            bottom: 0, 
+            bottom: 0,
             child: Container(
               decoration: const BoxDecoration(
                 color: Color(0xFF006064),
@@ -66,11 +86,13 @@ class _HomeState extends State<Home> {
           ),
           // Textos "Gastos" e "Ingreso"
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.20, // Un poco más abajo de la división
+            top: MediaQuery.of(context).size.height *
+                0.20, // Un poco más abajo de la división
             left: 0,
             right: 0,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround, // Para que los textos queden separados
+              mainAxisAlignment: MainAxisAlignment
+                  .spaceAround, // Para que los textos queden separados
               children: [
                 GestureDetector(
                   onTap: () {
@@ -105,15 +127,17 @@ class _HomeState extends State<Home> {
           ),
           // Cuadro centrado con seleccionables
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.25, // Ajuste para centrarlo
+            top: MediaQuery.of(context).size.height *
+                0.25, // Ajuste para centrarlo
             left: 30,
             right: 30,
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20), // Bordes semi-redondeados
-                boxShadow: [
+                borderRadius:
+                    BorderRadius.circular(20), // Bordes semi-redondeados
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,
                     blurRadius: 10,
@@ -136,11 +160,21 @@ class _HomeState extends State<Home> {
                     borderRadius: BorderRadius.circular(10),
                     isSelected: _selections,
                     children: const [
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Día')),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Semana')),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Mes')),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Año')),
-                      Padding(padding: EdgeInsets.symmetric(horizontal: 12), child: Text('Periodo')),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('Día')),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('Semana')),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('Mes')),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('Año')),
+                      Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text('Periodo')),
                     ],
                     onPressed: (int index) {
                       setState(() {
@@ -163,21 +197,9 @@ class _HomeState extends State<Home> {
           context.go('/transaccion');
         },
         backgroundColor: Colors.red,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        selectedItemColor: const Color(0xFF00BFA5),
-        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
-        type: _bottomNavType,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        items: _navBarItems,
-      ),
     );
   }
 }
