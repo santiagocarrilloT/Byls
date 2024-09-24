@@ -24,12 +24,17 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       child: MaterialApp.router(
-          routerConfig: CustomRoutes.router,
-          debugShowCheckedModeBanner: false,
-          title: "Byls",
-          theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color.fromARGB(255, 4, 117, 51)))),
+        color: const Color(0xFF006064),
+        routerConfig: CustomRoutes.router,
+        debugShowCheckedModeBanner: false,
+        title: "Byls",
+        theme: ThemeData(
+          scaffoldBackgroundColor: const Color(0xFF006064),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 4, 117, 51),
+          ),
+        ),
+      ),
     );
   }
 }
