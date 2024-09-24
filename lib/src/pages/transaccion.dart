@@ -96,9 +96,12 @@ class _TransaccionState extends State<Transaccion> {
             child: GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, // Aumentamos el número de columnas para agrupar más
-                crossAxisSpacing: 10,  // Reducimos el espacio horizontal entre iconos
-                mainAxisSpacing: 10,   // Reducimos el espacio vertical entre iconos
+                crossAxisCount:
+                    4, // Aumentamos el número de columnas para agrupar más
+                crossAxisSpacing:
+                    10, // Reducimos el espacio horizontal entre iconos
+                mainAxisSpacing:
+                    10, // Reducimos el espacio vertical entre iconos
               ),
               itemCount: categories.length,
               itemBuilder: (context, index) {
@@ -115,19 +118,23 @@ class _TransaccionState extends State<Transaccion> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircleAvatar(
-                        radius: 25,  // Reducimos el tamaño del círculo
-                        backgroundColor: isSelected ? Color(0xFF00BFA5) : Colors.grey[300],
+                        radius: 25, // Reducimos el tamaño del círculo
+                        backgroundColor:
+                            isSelected ? Color(0xFF00BFA5) : Colors.grey[300],
                         child: Icon(
                           category['icono'],
                           color: isSelected ? Colors.white : Colors.black,
                           size: 25,
                         ),
                       ),
-                      const SizedBox(height: 5), // Reducimos el espacio entre el icono y el texto
+                      const SizedBox(
+                          height:
+                              5), // Reducimos el espacio entre el icono y el texto
                       Text(
                         category['nombre'],
                         style: const TextStyle(
-                          fontSize: 12,  // Reducimos el tamaño del texto para mejor ajuste
+                          fontSize:
+                              12, // Reducimos el tamaño del texto para mejor ajuste
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -170,7 +177,8 @@ class _TransaccionState extends State<Transaccion> {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          selectedDate = DateTime.now().subtract(Duration(days: 1));
+                          selectedDate =
+                              DateTime.now().subtract(Duration(days: 1));
                         });
                       },
                       child: const Text('Ayer'),
@@ -178,7 +186,8 @@ class _TransaccionState extends State<Transaccion> {
                     TextButton(
                       onPressed: () {
                         setState(() {
-                          selectedDate = DateTime.now().subtract(Duration(days: 7));
+                          selectedDate =
+                              DateTime.now().subtract(Duration(days: 7));
                         });
                       },
                       child: const Text('Último'),
@@ -255,16 +264,28 @@ class _TransaccionState extends State<Transaccion> {
                 ),
 
                 const SizedBox(height: 10),
-                
+
                 // Botón de confirmación
                 ElevatedButton(
                   onPressed: () {
-                    if (selectedCategory != null && montoController.text.isNotEmpty) {
-                      print('Transacción añadida:');
+                    if (selectedCategory != null &&
+                        montoController.text.isNotEmpty) {
+                      if ((isGastosSelected )){
+                         print('Transacción añadida:');
                       print('Categoría: $selectedCategory');
                       print('Monto: ${montoController.text}');
                       print('Comentario: ${comentarioController.text}');
                       print('Fecha: $selectedDate');
+                      print('Categoria Transaccion : gastos');
+                      } else{
+                         print('Transacción añadida:');
+                      print('Categoría: $selectedCategory');
+                      print('Monto: ${montoController.text}');
+                      print('Comentario: ${comentarioController.text}');
+                      print('Fecha: $selectedDate');
+                      print('Categoria Transaccion : ingresos ');
+                      }
+                  
                     } else {
                       print('Faltan datos para la transacción');
                     }
@@ -315,3 +336,4 @@ class _TransaccionState extends State<Transaccion> {
     );
   }
 }
+
