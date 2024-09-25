@@ -23,33 +23,6 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF26A69A),
-        leading: IconButton(
-          icon: const Icon(Icons.home),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, 'Home');
-          },
-        ),
-        title: const Text("Home"),
-        actions: const [
-          /* IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthController>().signOutCt();
-              context.go('/signIn');
-            },
-          ), */
-        ],
-        //Línea resaltada
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0), // Altura de la línea
-          child: Container(
-            color: Colors.black, // Color de la línea resaltada
-            height: 1.0, // Altura de la línea
-          ),
-        ),
-      ),
       body: Stack(
         children: [
           // Fondo de color
