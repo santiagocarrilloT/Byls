@@ -27,7 +27,7 @@ class CustomRoutes {
   static final GoRouter router = GoRouter(
     routes: _routes, // Lista de rutas
     //errorBuilder: (context, state) => ErrorScreen(),
-    initialLocation: '/transaccion', // Ruta inicial
+    initialLocation: '/home', // Ruta inicial
   );
 
   static final List<GoRoute> _routes = [

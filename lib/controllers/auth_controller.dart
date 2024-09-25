@@ -72,13 +72,7 @@ class AuthController {
   User? get currentUser => _client.auth.currentUser;
 
   // Función para insertar una transacción
-  Future<void> insertarTransaccion({
-    required String descripcion,
-    required int nombre_categoria,
-    required double montoTransaccion,
-    required String tipoTransaccion, // 'Ingreso' o 'Gasto'
-    required DateTime fechaTransaccion,
-  }) async {
+  Future<void> insertarTransaccion(String descripcion,String nombre_categoria,double montoTransaccion,String tipoTransaccion,DateTime fechaTransaccion) async {
     final response = await _client
         .from('transacciones')
         .insert({
@@ -88,7 +82,7 @@ class AuthController {
           'fecha_transaccion': fechaTransaccion.toIso8601String(),
           'nombre_categoria': nombre_categoria,
           // 'id_cuenta': idCuenta, // Añádelo cuando tengas el id_cuenta
-        });
+        },);
 
     if (response.error != null) {
       throw Exception('Error al insertar la transacción: ${response.error!.message}');

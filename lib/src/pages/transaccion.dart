@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class Transaccion extends StatefulWidget {
   const Transaccion({super.key});
@@ -77,15 +78,6 @@ class _TransaccionState extends State<Transaccion> {
       print('Tipo de Transacción: $tipoTransaccion');
       print('Fecha de Transacción: $selectedDate');
 
-      // Llamar al método insertarTransaccion del AuthController
-      await authController.insertarTransaccion(
-        descripcion: _descripcionController.text,
-        nombre_categoria: idCategoria,
-        montoTransaccion: double.parse(_cantidadController.text),
-        tipoTransaccion: tipoTransaccion,
-        fechaTransaccion: selectedDate,
-      );
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Transacción guardada con éxito')),
       );
@@ -102,6 +94,7 @@ class _TransaccionState extends State<Transaccion> {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Provider.of<AuthController>(context);
     final categories = isGastosSelected ? gastos : ingresos;
 
     return Scaffold(
@@ -274,7 +267,15 @@ class _TransaccionState extends State<Transaccion> {
               // Botón para guardar transacción
               Center(
                 child: ElevatedButton(
-                  onPressed: _guardarTransaccion,
+                  onPressed: () async {
+                    if (isGastosSelected){
+                      print("Gastos seleccionado");
+                      await authController.insertarTransaccion(_descripcionController.text, selectedCategory!, double.parse(_cantidadController.text), 'Gasto', selectedDate);
+                    } else {
+                      print("Ingreso seleccionado");
+                      await authController.insertarTransaccion(_descripcionController.text, selectedCategory!, double.parse(_cantidadController.text), 'Ingreso', selectedDate);
+                    }
+                  },
                   child: const Text('Guardar Transacción'),
                 ),
               ),
