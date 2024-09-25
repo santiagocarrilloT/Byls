@@ -1,3 +1,4 @@
+import 'package:byls_app/controllers/Transaccion_provider.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
@@ -201,7 +202,13 @@ class _HomeState extends State<Home> {
                                 },
                               ),
                               onTap: () {
-                                context.go('/transaccion');
+                                final transaccionProvider =
+                                    Provider.of<TransaccionProvider>(context,
+                                        listen: false);
+                                transaccionProvider.setCurrentTransaccion(
+                                    futureIngresos[index]);
+                                context.go('/transaccionEdit',
+                                    extra: futureIngresos[index]);
                               },
                             ),
                           );

@@ -1,3 +1,4 @@
+import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
@@ -7,6 +8,7 @@ import 'package:byls_app/src/pages/newPassword.dart';
 import 'package:byls_app/src/pages/app_entry.dart';
 import 'package:byls_app/src/pages/graphics.dart';
 import 'package:byls_app/src/pages/report.dart';
+import 'package:byls_app/src/pages/transaccion_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -95,6 +97,16 @@ class CustomRoutes {
         return MaterialPage(
           key: state.pageKey,
           child: const Transaccion(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/transaccionEdit',
+      pageBuilder: (context, state) {
+        final IncomeModel transaccion = state.extra as IncomeModel;
+        return MaterialPage(
+          key: state.pageKey,
+          child: TransaccionEdit(transaccion: transaccion),
         );
       },
     ),
