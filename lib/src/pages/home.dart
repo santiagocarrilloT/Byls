@@ -1,12 +1,12 @@
-import 'package:byls_app/router/routes.dart';
-import 'package:byls_app/services/supabase_service.dart';
+import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:byls_app/models/cuenta_model.dart';
+import 'package:byls_app/models/transacciones_model.dart';
+import 'package:byls_app/controllers/ingresos_controller.dart';
+import 'package:byls_app/models/user_model.dart';
 import 'package:byls_app/src/pages/transaccion.dart';
 import 'package:flutter/material.dart';
-import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-import 'profile.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,9 +16,54 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _selectedIndex = 0;
-  List<bool> _selections =
+  IngresosController ingresosController = IngresosController();
+  List<CuentaModel> cuentas = [];
+  int? selectedCuentaId;
+  final List<bool> _selections =
       List.generate(5, (_) => false); // Para los seleccionables
+
+  //Mostrar transacción (Ingresos)
+  List<IncomeModel> futureIngresos = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCuentas();
+  }
+
+  // Método para obtener las cuentas del usuario logueado
+  Future<void> fetchCuentas() async {
+    final authService = Provider.of<AuthController>(context, listen: false);
+    final userId = authService.currentUser?.id;
+    final cuentasUsuario = await CuentaModel.getCuentas(userId!);
+    setState(() {
+      cuentas = cuentasUsuario;
+      if (cuentas.isNotEmpty) {
+        selectedCuentaId = cuentas[0].idCuenta;
+        fetchTransacciones(
+            selectedCuentaId!); // Llama traer los ingresos de esa cuenta
+      }
+    });
+  }
+
+  // Método para obtener los ingresos a partir del idCuenta seleccionado
+  void fetchTransacciones(int idCuenta) async {
+    try {
+      List<IncomeModel> transacciones =
+          await IncomeModel.getTransacciones(idCuenta);
+
+      setState(() {
+        futureIngresos = transacciones;
+      });
+
+      //Mostrar datos de la transacción
+      /* print(futureIngresos[0].nombreCategoria);
+      print(futureIngresos[0].montoTransaccion);
+      print(futureIngresos[0].fechaTransaccion); */
+    } catch (e) {
+      print('Error fetching transacciones: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,15 +77,7 @@ class _HomeState extends State<Home> {
           },
         ),
         title: const Text("Home"),
-        actions: const [
-          /* IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              context.read<AuthController>().signOutCt();
-              context.go('/signIn');
-            },
-          ), */
-        ],
+        actions: const [],
         //Línea resaltada
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0), // Altura de la línea
@@ -71,62 +108,113 @@ class _HomeState extends State<Home> {
                 ),
               ),
               child: Center(
+                // Textos "Gastos" e "Ingreso"
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      "Selected Page: ${_navBarItems[_selectedIndex].label}",
-                      style: const TextStyle(fontSize: 24, color: Colors.white),
+                    const SizedBox(
+                      height: 18,
                     ),
-                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .spaceAround, // Para que los textos queden separados
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            // Acción cuando se toque "Gastos"
+                            print("Gastos seleccionado");
+                          },
+                          child: const Text(
+                            'Gastos',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            // Acción cuando se toque "Ingreso"
+                            print("Ingreso seleccionado");
+                          },
+                          child: const Text(
+                            'Ingreso',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    // Lista de transacciones
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: futureIngresos.length,
+                        //itemCount: _images.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 5.0, horizontal: 10.0),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF7BAFB3),
+                              border: Border.all(
+                                color: const Color(0xFF7BAFB3),
+                              ),
+                              borderRadius: BorderRadius.circular(
+                                  10.0), // Bordes redondeados
+                            ),
+                            child: ListTile(
+                              title: Text(
+                                '${futureIngresos[index].nombreCategoria}',
+                                style:
+                                    const TextStyle(color: Color(0xFF505050)),
+                              ),
+                              leading: Hero(
+                                tag: index,
+                                child: const Padding(
+                                  padding: EdgeInsets.all(4.0),
+                                  child: Icon(
+                                    Icons.house,
+                                    color: Color(0xFF505050),
+                                  ),
+                                ),
+                              ),
+                              trailing: IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Color.fromARGB(255, 226, 63, 52)),
+                                onPressed: () async {
+                                  // Acción al presionar el icono de basura
+                                  try {
+                                    await ingresosController.deleteIngreso(
+                                        futureIngresos[index]
+                                            .idTransaccion
+                                            .toString());
+                                  } catch (e) {
+                                    print(e);
+                                  }
+                                },
+                              ),
+                              onTap: () {
+                                context.go('/transaccion');
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
             ),
           ),
-          // Textos "Gastos" e "Ingreso"
-          Positioned(
-            top: MediaQuery.of(context).size.height *
-                0.20, // Un poco más abajo de la división
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment
-                  .spaceAround, // Para que los textos queden separados
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    // Acción cuando se toque "Gastos"
-                    print("Gastos seleccionado");
-                  },
-                  child: const Text(
-                    'Gastos',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    // Acción cuando se toque "Ingreso"
-                    print("Ingreso seleccionado");
-                  },
-                  child: const Text(
-                    'Ingreso',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           // Cuadro centrado con seleccionables
-          Positioned(
+          /* Positioned(
             top: MediaQuery.of(context).size.height *
                 0.25, // Ajuste para centrarlo
             left: 30,
@@ -156,7 +244,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ToggleButtons(
+                  /* ToggleButtons(
                     borderRadius: BorderRadius.circular(10),
                     isSelected: _selections,
                     children: const [
@@ -183,17 +271,17 @@ class _HomeState extends State<Home> {
                         }
                       });
                     },
-                  ),
+                  ), */
                 ],
               ),
             ),
           ),
+        */
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Acción al presionar el botón
-          print("Agregar nuevo elemento");
           context.go('/transaccion');
         },
         backgroundColor: Colors.red,
@@ -204,7 +292,7 @@ class _HomeState extends State<Home> {
   }
 }
 
-const _navBarItems = [
+/* const _navBarItems = [
   BottomNavigationBarItem(
     icon: Icon(Icons.account_balance_wallet_outlined),
     activeIcon: Icon(Icons.account_balance_wallet),
@@ -229,4 +317,43 @@ const _navBarItems = [
     activeIcon: Icon(Icons.person_rounded),
     label: 'Perfil',
   ),
+]; */
+
+class SecondPage extends StatelessWidget {
+  final int heroTag;
+  const SecondPage({required this.heroTag});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Hero ListView Page 2")),
+      body: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Hero(
+                tag: heroTag,
+                child: Image.network(_images[heroTag]),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              "Content goes here",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+final List<String> _images = [
+  'https://images.pexels.com/photos/167699/pexels-photo-167699.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260',
+  'https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+  'https://images.pexels.com/photos/273935/pexels-photo-273935.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+  'https://images.pexels.com/photos/1591373/pexels-photo-1591373.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+  'https://images.pexels.com/photos/462024/pexels-photo-462024.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
+  'https://images.pexels.com/photos/325185/pexels-photo-325185.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500'
 ];

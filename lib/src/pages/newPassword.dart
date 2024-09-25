@@ -1,5 +1,4 @@
 import 'package:byls_app/controllers/auth_controller.dart';
-import 'package:byls_app/services/supabase_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';

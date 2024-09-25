@@ -1,5 +1,4 @@
 import 'package:byls_app/controllers/auth_controller.dart';
-import 'package:byls_app/router/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -275,10 +274,11 @@ class Botones extends StatelessWidget {
           width: double.infinity,
         ),
         TextButton(
-            onPressed: () {
-              context.go('/signUp');
-            },
-            child: const Text('¿No tienes cuenta?'))
+          onPressed: () {
+            context.go('/signUp');
+          },
+          child: const Text('¿No tienes cuenta?'),
+        ),
       ],
     );
   }
