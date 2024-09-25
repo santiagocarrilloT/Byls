@@ -12,20 +12,21 @@ class IngresosController {
   }
 
   Future<void> updateIngreso(
-      String idIngreso,
-      String idCuenta,
-      String nombreCategoria,
-      int montoTransaccion,
-      String tipoTransaccion,
-      String descripcion) async {
+    String idIngreso,
+    String descripcion,
+    double montoTransaccion,
+    String tipoTransaccion,
+    DateTime fechaTransaccion,
+    String nombreCategoria,
+  ) async {
     final response =
         await Supabase.instance.client.from('transacciones').update({
-      'id_cuenta': idCuenta,
-      'nombre_categoria': nombreCategoria,
+      'descripcion': descripcion,
       'monto_transaccion': montoTransaccion,
       'tipo_transaccion': tipoTransaccion,
-      'descripcion': descripcion,
-    }).eq('id', idIngreso);
+      'fecha_transaccion': fechaTransaccion.toIso8601String(),
+      'nombre_categoria': nombreCategoria,
+    }).eq('id_transaccion', idIngreso);
     if (response.error != null) {
       throw Exception(response.error!.message);
     }

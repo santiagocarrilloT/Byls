@@ -1,3 +1,4 @@
+import 'package:byls_app/controllers/Transaccion_provider.dart';
 import 'package:byls_app/router/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
@@ -19,6 +20,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => TransaccionProvider()),
         Provider<AuthController>(
           create: (_) => AuthController(),
         ),
