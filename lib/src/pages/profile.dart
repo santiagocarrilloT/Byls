@@ -1,3 +1,4 @@
+import 'package:byls_app/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,6 +14,25 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
+  UserModel? usuarioDatos;
+
+  @override
+  void initState() {
+    super.initState();
+    // Llamamos a la función para obtener los datos del usuario al iniciar la vista
+    _getUsuarioActual();
+  }
+
+  // Función para obtener los datos del usuario
+  Future<void> _getUsuarioActual() async {
+    UserModel? usuario = await UserModel.getUsuarioActual();
+
+    // Actualizamos el estado con los datos del usuario
+    setState(() {
+      usuarioDatos = usuario;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
@@ -21,17 +41,17 @@ class _ProfileViewState extends State<ProfileView> {
         children: [
           Container(
             color: const Color(0xFF00BFA5),
-            child: const Padding(
-              padding: EdgeInsets.only(left: 20, right: 20, top: 35),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 35),
               child: Row(
                 children: [
-                  Icon(Icons.person, size: 70, color: Color(0xFF000000)),
-                  SizedBox(
+                  const Icon(Icons.person, size: 70, color: Color(0xFF000000)),
+                  const SizedBox(
                     width: 30,
                   ),
                   Text(
-                    "data",
-                    style: TextStyle(
+                    usuarioDatos?.email ?? "",
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 30,
                     ),
