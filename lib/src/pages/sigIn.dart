@@ -262,7 +262,7 @@ class Botones extends StatelessWidget {
             },
             style: ButtonStyle(
                 backgroundColor:
-                    WidgetStateProperty.all<Color>(const Color(0xFF00BFA5))),
+                    WidgetStateProperty.all<Color>(const Color(0xFFFF8A65))),
             child: const Text(
               'Iniciar Sesión',
               style: TextStyle(color: Colors.white),

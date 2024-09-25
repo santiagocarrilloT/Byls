@@ -27,9 +27,6 @@ class IngresosController {
       'fecha_transaccion': fechaTransaccion.toIso8601String(),
       'nombre_categoria': nombreCategoria,
     }).eq('id_transaccion', idIngreso);
-    if (response.error != null) {
-      throw Exception(response.error!.message);
-    }
   }
 
   Future<void> deleteIngreso(String idIngreso) async {
@@ -37,8 +34,5 @@ class IngresosController {
         .from('transacciones')
         .delete()
         .eq('id_transaccion', idIngreso);
-    if (response.error != null) {
-      throw Exception(response.error!.message);
-    }
   }
 }

@@ -275,6 +275,13 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                           selectedDate,
                           selectedCategory!,
                         );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Transacción actualizada con éxito'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        context.go("/app_entry");
                       } else {
                         await ingresosController.updateIngreso(
                           transaccion.idTransaccion.toString(),
@@ -284,15 +291,14 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                           selectedDate,
                           selectedCategory!,
                         );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Transacción actualizada con éxito'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                        context.go("/app_entry");
                       }
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Transacción actualizada con éxito'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                      context.go("/app_entry");
                     } catch (e) {
                       print(e);
                       ScaffoldMessenger.of(context).showSnackBar(

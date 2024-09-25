@@ -40,12 +40,12 @@ class _ProfileViewState extends State<ProfileView> {
       child: Column(
         children: [
           Container(
-            color: const Color(0xFF00BFA5),
+            color: const Color.fromARGB(230, 91, 255, 173),
             child: Padding(
               padding: const EdgeInsets.only(left: 20, right: 20, top: 35),
               child: Row(
                 children: [
-                  const Icon(Icons.person, size: 70, color: Color(0xFF000000)),
+                  const Icon(Icons.person, size: 60, color: Color(0xFF000000)),
                   const SizedBox(
                     width: 30,
                   ),
@@ -53,7 +53,7 @@ class _ProfileViewState extends State<ProfileView> {
                     usuarioDatos?.email ?? "",
                     style: const TextStyle(
                       color: Colors.black,
-                      fontSize: 30,
+                      fontSize: 20,
                     ),
                   )
                 ],

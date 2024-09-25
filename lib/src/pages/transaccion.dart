@@ -280,6 +280,7 @@ class _TransaccionState extends State<Transaccion> {
                           double.parse(_cantidadController.text),
                           'Gasto',
                           selectedDate);
+                      context.go("/app_entry");
                     } else {
                       print("Ingreso seleccionado");
                       await authController.insertarTransaccion(
@@ -288,6 +289,7 @@ class _TransaccionState extends State<Transaccion> {
                           double.parse(_cantidadController.text),
                           'Ingreso',
                           selectedDate);
+                      context.go("/app_entry");
                     }
                   },
                   child: const Text('Guardar Transacción'),
