@@ -27,6 +27,7 @@ class _NavigationClassState extends State<NavigationClass> {
     return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(230, 255, 255, 255),
         currentIndex: _selectedIndex,
         selectedItemColor: const Color(0xFF00BFA5),
         unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),

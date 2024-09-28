@@ -142,22 +142,23 @@ class _DatosState extends State<Datos> {
             controller: passwordController,
             obscureText: obs,
             decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintStyle: const TextStyle(color: Colors.grey),
-                hintText: 'Contraseña',
-                suffixIcon: IconButton(
-                  icon: icono,
-                  onPressed: () {
-                    setState(() {
-                      obs
-                          ? (
-                              obs = false,
-                              icono = const Icon(Icons.visibility_off)
-                            )
-                          : (obs = true, icono = const Icon(Icons.visibility));
-                    });
-                  },
-                )),
+              border: const OutlineInputBorder(),
+              hintStyle: const TextStyle(color: Colors.grey),
+              hintText: 'Contraseña',
+              suffixIcon: IconButton(
+                icon: icono,
+                onPressed: () {
+                  setState(() {
+                    obs
+                        ? (
+                            obs = false,
+                            icono = const Icon(Icons.visibility_off)
+                          )
+                        : (obs = true, icono = const Icon(Icons.visibility));
+                  });
+                },
+              ),
+            ),
           ),
           const SizedBox(
             height: 8,
@@ -168,8 +169,8 @@ class _DatosState extends State<Datos> {
             height: 8,
           ),
           Botones(
-            emailController: emailController.text,
-            passwordController: passwordController.text,
+            emailController: emailController,
+            passwordController: passwordController,
             onError: (String error) {
               setState(() {
                 messageError = error;
@@ -213,8 +214,8 @@ class _DatosState extends State<Datos> {
 } */
 
 class Botones extends StatelessWidget {
-  final String emailController;
-  final String passwordController;
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
   final Function(String) onError;
 
   const Botones({
@@ -235,15 +236,16 @@ class Botones extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () async {
               // Validar errores de correo
-              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(emailController) &&
-                  emailController.isNotEmpty) {
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                      .hasMatch(emailController.text) &&
+                  emailController.text.isNotEmpty) {
                 return onError(
                     'Ingresa un correo válido (ejemplo@dominio.com)');
               }
 
               // Validar errores de contraseña
-              if (passwordController.length < 6 &&
-                  passwordController.isNotEmpty) {
+              if (passwordController.text.length < 6 &&
+                  passwordController.text.isNotEmpty) {
                 return onError(
                     'La contraseña debe tener al menos 6 caracteres');
               }
@@ -266,9 +268,11 @@ class Botones extends StatelessWidget {
               } */
 
               // Crear cuenta
+              print(passwordController.text);
+              print(emailController.text);
               try {
-                await authController.signInCt(
-                    emailController, passwordController);
+                await authController.signUpCt(
+                    emailController.text, passwordController.text);
                 context.go('/app_entry');
               } catch (error) {
                 final String capturaError = error.toString();
@@ -283,7 +287,7 @@ class Botones extends StatelessWidget {
             },
             style: ButtonStyle(
                 backgroundColor:
-                    WidgetStateProperty.all<Color>(const Color(0xFF00BFA5))),
+                    WidgetStateProperty.all<Color>(const Color(0xFFFF8A65))),
             child: const Text(
               'Iniciar Sesión',
               style: TextStyle(color: Colors.white),

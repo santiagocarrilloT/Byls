@@ -69,8 +69,8 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF26A69A),
+      /* appBar: AppBar(
+        backgroundColor: const Color.fromARGB(230, 91, 255, 173),
         leading: IconButton(
           icon: const Icon(Icons.home),
           onPressed: () {
@@ -87,12 +87,12 @@ class _HomeState extends State<Home> {
             height: 1.0, // Altura de la línea
           ),
         ),
-      ),
+      ), */
       body: Stack(
         children: [
           // Fondo de color
           Container(
-            color: const Color(0xFF26A69A),
+            color: const Color.fromARGB(230, 91, 255, 173),
           ),
           // Parte superior con el borde redondeado
           Positioned(
@@ -163,9 +163,9 @@ class _HomeState extends State<Home> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 5.0, horizontal: 10.0),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF7BAFB3),
+                              color: const Color(0xFFF5F5F5),
                               border: Border.all(
-                                color: const Color(0xFF7BAFB3),
+                                color: const Color(0xFF00BFA5),
                               ),
                               borderRadius: BorderRadius.circular(
                                   10.0), // Bordes redondeados
@@ -174,7 +174,7 @@ class _HomeState extends State<Home> {
                               title: Text(
                                 '${futureIngresos[index].nombreCategoria}',
                                 style:
-                                    const TextStyle(color: Color(0xFF505050)),
+                                    const TextStyle(color: Color(0xFF4E4E4E)),
                               ),
                               leading: Hero(
                                 tag: index,
@@ -182,24 +182,60 @@ class _HomeState extends State<Home> {
                                   padding: EdgeInsets.all(4.0),
                                   child: Icon(
                                     Icons.house,
-                                    color: Color(0xFF505050),
+                                    color: Color(0xFF4E4E4E),
                                   ),
                                 ),
                               ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete,
-                                    color: Color.fromARGB(255, 226, 63, 52)),
-                                onPressed: () async {
-                                  // Acción al presionar el icono de basura
-                                  try {
-                                    await ingresosController.deleteIngreso(
-                                        futureIngresos[index]
-                                            .idTransaccion
-                                            .toString());
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                },
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '\$ ${futureIngresos[index].montoTransaccion}',
+                                    style: const TextStyle(
+                                      color: Color(0xFF4E4E4E),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () async {
+                                      // Acción al presionar el icono de basura
+                                      try {
+                                        await ingresosController.deleteIngreso(
+                                            futureIngresos[index]
+                                                .idTransaccion
+                                                .toString());
+                                        setState(() {
+                                          futureIngresos.removeAt(
+                                              index); // Eliminar el elemento de la lista
+                                        });
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Transacción eliminada correctamente'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                        context.go('/app_entry');
+                                      } catch (e) {
+                                        //Recargar la página
+
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Error al eliminar transacción'),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ],
                               ),
                               onTap: () {
                                 final transaccionProvider =
@@ -291,7 +327,7 @@ class _HomeState extends State<Home> {
           // Acción al presionar el botón
           context.go('/transaccion');
         },
-        backgroundColor: Colors.red,
+        backgroundColor: const Color(0xFFFF6F61),
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
