@@ -1,5 +1,5 @@
 import 'package:byls_app/controllers/auth_controller.dart';
-import 'package:byls_app/services/supabase_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
@@ -66,8 +66,8 @@ class Logobyls extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 100,
-          width: 100,
+          height: 70,
+          width: 70,
           child: Image.asset(
             "assets/Byls-transparent.png",
             fit: BoxFit.cover,
@@ -97,9 +97,14 @@ class Datos extends StatefulWidget {
 }
 
 class _DatosState extends State<Datos> {
+  final confirmPasswordController = TextEditingController();
   final passwordController = TextEditingController();
-  bool obs = true;
+  bool obs1 = true;
+  bool obs2 = true;
   Icon icono = const Icon(Icons.remove_red_eye);
+
+  String? messageError;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -121,53 +126,87 @@ class _DatosState extends State<Datos> {
                   fontWeight: FontWeight.bold),
             ),
           ),
+          Container(
+            padding: const EdgeInsets.all(8.5),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 70, 194, 80),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: const Text(
+              '¡Genial, ahora ingresa la nueva contraseña!',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
           const SizedBox(
             height: 8,
           ),
-          /* TextFormField(
-            controller: emailController,
+          TextFormField(
+            controller: passwordController,
+            obscureText: obs1,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              hintText: 'Correo',
-              hintStyle: TextStyle(color: Colors.grey),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: 'Contraseña',
+              hintStyle: const TextStyle(color: Colors.grey),
+              border: const OutlineInputBorder(),
+              suffixIcon: IconButton(
+                icon: icono,
+                onPressed: () {
+                  setState(() {
+                    obs1
+                        ? (
+                            obs1 = false,
+                            icono = const Icon(Icons.visibility_off)
+                          )
+                        : (obs1 = true, icono = const Icon(Icons.visibility));
+                  });
+                },
+              ),
             ),
-          ), */
+          ),
           const SizedBox(
             height: 5,
           ),
           TextFormField(
-            controller: passwordController,
-            obscureText: obs,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Por favor ingrese su contraseña';
-              }
-              return null;
-            },
+            controller: confirmPasswordController,
+            obscureText: obs2,
             decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintStyle: const TextStyle(color: Colors.grey),
-                hintText: 'Contraseña',
-                suffixIcon: IconButton(
-                  icon: icono,
-                  onPressed: () {
-                    setState(() {
-                      obs
-                          ? (
-                              obs = false,
-                              icono = const Icon(Icons.visibility_off)
-                            )
-                          : (obs = true, icono = const Icon(Icons.visibility));
-                    });
-                  },
-                )),
+              border: const OutlineInputBorder(),
+              hintStyle: const TextStyle(color: Colors.grey),
+              hintText: 'Confirma contraseña',
+              suffixIcon: IconButton(
+                icon: icono,
+                onPressed: () {
+                  setState(() {
+                    obs2
+                        ? (
+                            obs2 = false,
+                            icono = const Icon(Icons.visibility_off)
+                          )
+                        : (obs2 = true, icono = const Icon(Icons.visibility));
+                  });
+                },
+              ),
+            ),
           ),
           const SizedBox(
-            height: 30,
+            height: 8,
+          ),
+          if (messageError != null) alertaPreventiva(messageError!),
+          const SizedBox(
+            height: 8,
           ),
           Botones(
             passwordController: passwordController,
+            confirmPasswordController: confirmPasswordController,
+            onError: (String error) {
+              setState(() {
+                messageError = error;
+              });
+            },
           ),
         ],
       ),
@@ -177,8 +216,14 @@ class _DatosState extends State<Datos> {
 
 class Botones extends StatelessWidget {
   final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
+  final Function(String) onError;
 
-  const Botones({super.key, required this.passwordController});
+  const Botones(
+      {super.key,
+      required this.passwordController,
+      required this.confirmPasswordController,
+      required this.onError});
 
   @override
   Widget build(BuildContext context) {
@@ -190,14 +235,33 @@ class Botones extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () async {
+              // Validar que los campos no estén vacíos
+              if (passwordController.text.isEmpty ||
+                  confirmPasswordController.text.isEmpty) {
+                return onError('Las contraseñas no pueden estar vacías');
+              }
+              if (passwordController.text.length < 6 &&
+                  confirmPasswordController.text.length < 6) {
+                return onError(
+                    'La contraseña debe tener al menos 6 caracteres');
+              }
+              if (passwordController.text != confirmPasswordController.text) {
+                return onError('Las contraseñas no coinciden');
+              }
+
               try {
                 //showValidateOTP(context);
-                /* await authController
-                    .verifyOTPandChangePassword(passwordController.text); */
-                //Navigator.pop(context);
+                await authController.updatePasswordCt(passwordController.text);
+                context.go('/app_entry');
               } catch (error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al crear cuenta: $error')));
+                final String capturaError = error.toString();
+
+                if (capturaError.contains(
+                    'New password should be different from the old password')) {
+                  return onError(
+                      'La nueva contraseña debe ser diferente a la anterior');
+                }
+                //return onError(error.toString());
               }
             },
             style: ButtonStyle(
@@ -210,14 +274,15 @@ class Botones extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          height: 25,
+          height: 8,
           width: double.infinity,
         ),
-        TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Volver al Inicio Sesión')),
+        /* TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Volver atrás'),
+        ), */
       ],
     );
   }
@@ -236,4 +301,22 @@ class Fondo extends StatelessWidget {
               colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
     );
   }
+}
+
+Container alertaPreventiva(String mensaje) {
+  return Container(
+    padding: const EdgeInsets.all(8.5),
+    decoration: BoxDecoration(
+      color: const Color.fromRGBO(254, 207, 109, 1),
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Text(
+      mensaje,
+      style: const TextStyle(
+        color: Colors.black,
+        fontSize: 14,
+        fontWeight: FontWeight.normal,
+      ),
+    ),
+  );
 }

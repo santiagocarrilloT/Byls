@@ -1,5 +1,4 @@
 import 'package:byls_app/controllers/auth_controller.dart';
-import 'package:byls_app/router/routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +45,7 @@ class _ContenidoState extends State<Contenido> {
             child: Logobyls(),
           ),
           SizedBox(
-            height: 30,
+            height: 20,
           ),
           Datos(),
         ],
@@ -65,8 +64,8 @@ class Logobyls extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 90,
-          width: 90,
+          height: 70,
+          width: 70,
           child: Image.asset(
             "assets/Byls-transparent.png",
             fit: BoxFit.cover,
@@ -100,6 +99,10 @@ class _DatosState extends State<Datos> {
   final passwordController = TextEditingController();
   bool obs = true;
   Icon icono = const Icon(Icons.remove_red_eye);
+
+  // Variable para manejar el mensaje de error
+  String? messageError;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -112,7 +115,7 @@ class _DatosState extends State<Datos> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Align(
-            alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
+            alignment: Alignment.centerLeft,
             child: Text(
               'Bienvenido de Nuevo',
               style: TextStyle(
@@ -126,18 +129,6 @@ class _DatosState extends State<Datos> {
           ),
           TextFormField(
             controller: emailController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su correo';
-              }
-              if (!value.contains('@')) {
-                return 'Por favor ingrese un correo válido';
-              }
-              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                return 'Ingresa un correo válido';
-              }
-              return null;
-            },
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
               hintText: 'Correo',
@@ -146,57 +137,50 @@ class _DatosState extends State<Datos> {
             ),
           ),
           const SizedBox(
-            height: 5,
-          ),
-          const SizedBox(
-            height: 5,
+            height: 8,
           ),
           TextFormField(
             controller: passwordController,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingrese su contraseña';
-              }
-              if (value.length < 6) {
-                return 'La contraseña debe tener al menos 6 caracteres';
-              }
-              if (!RegExp(r'[A-Z]').hasMatch(value)) {
-                return 'La contraseña debe tener al menos una letra mayúscula';
-              }
-              if (!RegExp(r'[a-z]').hasMatch(value)) {
-                return 'La contraseña debe tener al menos una letra minúscula';
-              }
-              if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(value)) {
-                return 'La contraseña debe tener al menos un carácter especial';
-              }
-              return null;
-            },
             obscureText: obs,
             decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintStyle: const TextStyle(color: Colors.grey),
-                hintText: 'Contraseña',
-                suffixIcon: IconButton(
-                  icon: icono,
-                  onPressed: () {
-                    setState(() {
-                      obs
-                          ? (
-                              obs = false,
-                              icono = const Icon(Icons.visibility_off)
-                            )
-                          : (obs = true, icono = const Icon(Icons.visibility));
-                    });
-                  },
-                )),
+              border: const OutlineInputBorder(),
+              hintStyle: const TextStyle(color: Colors.grey),
+              hintText: 'Contraseña',
+              suffixIcon: IconButton(
+                icon: icono,
+                onPressed: () {
+                  setState(() {
+                    obs
+                        ? (
+                            obs = false,
+                            icono = const Icon(Icons.visibility_off)
+                          )
+                        : (obs = true, icono = const Icon(Icons.visibility));
+                  });
+                },
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 4,
+          ),
+          // Mostrar mensaje de error aquí
+          if (messageError != null) alertaPreventiva(messageError!),
+          const SizedBox(
+            height: 8,
           ),
           const Remember(),
           const SizedBox(
-            height: 20,
+            height: 8,
           ),
           Botones(
             emailController: emailController,
             passwordController: passwordController,
+            onError: (String error) {
+              setState(() {
+                messageError = error;
+              });
+            },
           ),
         ],
       ),
@@ -239,11 +223,14 @@ class _RememberState extends State<Remember> {
 class Botones extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final Function(String) onError;
 
-  const Botones(
-      {super.key,
-      required this.emailController,
-      required this.passwordController});
+  const Botones({
+    super.key,
+    required this.emailController,
+    required this.passwordController,
+    required this.onError,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -258,15 +245,24 @@ class Botones extends StatelessWidget {
               try {
                 await authController.signInCt(
                     emailController.text, passwordController.text);
-                context.go('/home');
+                context.go('/app_entry');
               } catch (error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al iniciar sesión: $error')));
+                final capturaError = error.toString();
+                if (capturaError.contains('missing email or phone')) {
+                  return onError('Por favor, ingrese correo y contraseña');
+                }
+                if (capturaError.contains('Invalid login credentials')) {
+                  return onError('Contraseña o correo incorrecto');
+                }
+                if (capturaError.contains('user-disabled')) {
+                  return onError('Usuario deshabilitado');
+                }
+                return onError('Error desconocido');
               }
             },
             style: ButtonStyle(
                 backgroundColor:
-                    WidgetStateProperty.all<Color>(const Color(0xFF00BFA5))),
+                    WidgetStateProperty.all<Color>(const Color(0xFFFF8A65))),
             child: const Text(
               'Iniciar Sesión',
               style: TextStyle(color: Colors.white),
@@ -274,14 +270,15 @@ class Botones extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          height: 18,
+          height: 14,
           width: double.infinity,
         ),
         TextButton(
-            onPressed: () {
-              context.go('/signUp');
-            },
-            child: const Text('¿No tienes cuenta?'))
+          onPressed: () {
+            context.go('/signUp');
+          },
+          child: const Text('¿No tienes cuenta?'),
+        ),
       ],
     );
   }
@@ -300,4 +297,22 @@ class Fondo extends StatelessWidget {
               colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
     );
   }
+}
+
+Container alertaPreventiva(String mensaje) {
+  return Container(
+    padding: const EdgeInsets.all(8.5),
+    decoration: BoxDecoration(
+      color: const Color.fromRGBO(254, 207, 109, 1),
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Text(
+      mensaje,
+      style: const TextStyle(
+        color: Colors.black,
+        fontSize: 14,
+        fontWeight: FontWeight.normal,
+      ),
+    ),
+  );
 }

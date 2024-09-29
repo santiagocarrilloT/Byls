@@ -1,3 +1,4 @@
+import 'package:byls_app/controllers/Transaccion_provider.dart';
 import 'package:byls_app/router/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
@@ -19,17 +20,23 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => TransaccionProvider()),
         Provider<AuthController>(
           create: (_) => AuthController(),
         ),
       ],
       child: MaterialApp.router(
-          routerConfig: CustomRoutes.router,
-          debugShowCheckedModeBanner: false,
-          title: "Byls",
-          theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-                  seedColor: const Color.fromARGB(255, 4, 117, 51)))),
+        color: const Color(0xFF006064),
+        routerConfig: CustomRoutes.router,
+        debugShowCheckedModeBanner: false,
+        title: "Byls",
+        theme: ThemeData(
+          scaffoldBackgroundColor: const Color(0xFF006064),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 4, 117, 51),
+          ),
+        ),
+      ),
     );
   }
 }

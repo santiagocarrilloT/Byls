@@ -1,5 +1,4 @@
 import 'package:byls_app/controllers/auth_controller.dart';
-import 'package:byls_app/services/supabase_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -63,8 +62,8 @@ class Logobyls extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
-          height: 100,
-          width: 100,
+          height: 70,
+          width: 70,
           child: Image.asset(
             "assets/Byls-transparent.png",
             fit: BoxFit.cover,
@@ -98,6 +97,8 @@ class _DatosState extends State<Datos> {
   final passwordController = TextEditingController();
   bool obs = true;
   Icon icono = const Icon(Icons.remove_red_eye);
+
+  String? messageError;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -141,30 +142,40 @@ class _DatosState extends State<Datos> {
             controller: passwordController,
             obscureText: obs,
             decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintStyle: const TextStyle(color: Colors.grey),
-                hintText: 'Contraseña',
-                suffixIcon: IconButton(
-                  icon: icono,
-                  onPressed: () {
-                    setState(() {
-                      obs
-                          ? (
-                              obs = false,
-                              icono = const Icon(Icons.visibility_off)
-                            )
-                          : (obs = true, icono = const Icon(Icons.visibility));
-                    });
-                  },
-                )),
+              border: const OutlineInputBorder(),
+              hintStyle: const TextStyle(color: Colors.grey),
+              hintText: 'Contraseña',
+              suffixIcon: IconButton(
+                icon: icono,
+                onPressed: () {
+                  setState(() {
+                    obs
+                        ? (
+                            obs = false,
+                            icono = const Icon(Icons.visibility_off)
+                          )
+                        : (obs = true, icono = const Icon(Icons.visibility));
+                  });
+                },
+              ),
+            ),
           ),
-          const Remember(),
           const SizedBox(
-            height: 30,
+            height: 8,
+          ),
+          // Mostrar mensaje de error
+          if (messageError != null) alertaPreventiva(messageError!),
+          const SizedBox(
+            height: 8,
           ),
           Botones(
             emailController: emailController,
             passwordController: passwordController,
+            onError: (String error) {
+              setState(() {
+                messageError = error;
+              });
+            },
           ),
         ],
       ),
@@ -172,14 +183,14 @@ class _DatosState extends State<Datos> {
   }
 }
 
-class Remember extends StatefulWidget {
+/*class Remember extends StatefulWidget {
   const Remember({super.key});
 
   @override
   State<Remember> createState() => _RememberState();
 }
 
-class _RememberState extends State<Remember> {
+ class _RememberState extends State<Remember> {
   bool valor = false;
   @override
   Widget build(BuildContext context) {
@@ -200,16 +211,19 @@ class _RememberState extends State<Remember> {
       ],
     );
   }
-}
+} */
 
 class Botones extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final Function(String) onError;
 
-  const Botones(
-      {super.key,
-      required this.emailController,
-      required this.passwordController});
+  const Botones({
+    super.key,
+    required this.emailController,
+    required this.passwordController,
+    required this.onError,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -221,33 +235,74 @@ class Botones extends StatelessWidget {
           height: 50,
           child: ElevatedButton(
             onPressed: () async {
+              // Validar errores de correo
+              if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                      .hasMatch(emailController.text) &&
+                  emailController.text.isNotEmpty) {
+                return onError(
+                    'Ingresa un correo válido (ejemplo@dominio.com)');
+              }
+
+              // Validar errores de contraseña
+              if (passwordController.text.length < 6 &&
+                  passwordController.text.isNotEmpty) {
+                return onError(
+                    'La contraseña debe tener al menos 6 caracteres');
+              }
+              //Validaciones deshabilitadas por el momento
+              /* if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                      .hasMatch(passwordController) &&
+                  passwordController.isNotEmpty) {
+                onError(
+                    'La contraseña debe tener al menos un carácter especial');
+              }
+              if (!RegExp(r'[a-z]').hasMatch(passwordController) &&
+                  passwordController.isNotEmpty) {
+                onError(
+                    'La contraseña debe tener al menos una letra minúscula');
+              }
+              if (!RegExp(r'[A-Z]').hasMatch(passwordController) &&
+                  passwordController.isNotEmpty) {
+                onError(
+                    'La contraseña debe tener al menos una letra mayúscula');
+              } */
+
+              // Crear cuenta
+              print(passwordController.text);
+              print(emailController.text);
               try {
                 await authController.signUpCt(
                     emailController.text, passwordController.text);
-                context.go('/home');
+                context.go('/app_entry');
               } catch (error) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error al crear cuenta: $error')));
+                final String capturaError = error.toString();
+
+                if (capturaError.contains('missing email or phone')) {
+                  return onError('Por favor, ingrese correo y contraseña');
+                }
+                if (capturaError.contains('Invalid login credentials')) {
+                  return onError('Verifica tu correo o contraseña');
+                }
               }
             },
             style: ButtonStyle(
                 backgroundColor:
-                    WidgetStateProperty.all<Color>(const Color(0xFF00BFA5))),
+                    WidgetStateProperty.all<Color>(const Color(0xFFFF8A65))),
             child: const Text(
-              'Crear Cuenta',
+              'Iniciar Sesión',
               style: TextStyle(color: Colors.white),
             ),
           ),
         ),
         const SizedBox(
-          height: 25,
+          height: 14,
           width: double.infinity,
         ),
         TextButton(
             onPressed: () {
               context.go('/signIn');
             },
-            child: const Text('Volver al Inicio Sesión')),
+            child: const Text('Volver al Inicio'))
       ],
     );
   }
@@ -266,4 +321,22 @@ class Fondo extends StatelessWidget {
               colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
     );
   }
+}
+
+Container alertaPreventiva(String mensaje) {
+  return Container(
+    padding: const EdgeInsets.all(8.5),
+    decoration: BoxDecoration(
+      color: const Color.fromRGBO(254, 207, 109, 1),
+      borderRadius: BorderRadius.circular(15),
+    ),
+    child: Text(
+      mensaje,
+      style: const TextStyle(
+        color: Colors.black,
+        fontSize: 14,
+        fontWeight: FontWeight.normal,
+      ),
+    ),
+  );
 }

@@ -30,7 +30,7 @@ class AuthController {
 
   Future<void> resetPasswordCt(String email) async {
     try {
-      final response = await _client.auth.resetPasswordForEmail(
+      await _client.auth.resetPasswordForEmail(
         email,
       );
     } catch (e) {
@@ -46,6 +46,7 @@ class AuthController {
         type: OtpType.recovery,
       );
 
+      // Verifica si el correo del usuario es igual al correo ingresado
       if (response.user?.email == email) {
         return true;
       } else {
@@ -56,5 +57,37 @@ class AuthController {
     }
   }
 
+  Future<void> updatePasswordCt(String new_password) async {
+    final session = _client.auth.currentSession;
+    if (session == null) {
+      throw Exception('No hay una sesión activa');
+    }
+    try {
+      await _client.auth.updateUser(UserAttributes(password: new_password));
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
   User? get currentUser => _client.auth.currentUser;
+
+  // Función para insertar una transacción
+  Future<void> insertarTransaccion(
+      String descripcion,
+      String nombre_categoria,
+      double montoTransaccion,
+      String tipoTransaccion,
+      DateTime fechaTransaccion) async {
+    final response = await _client.from('transacciones').insert(
+      {
+        'id_cuenta': '5',
+        'descripcion': descripcion,
+        'monto_transaccion': montoTransaccion,
+        'tipo_transaccion': tipoTransaccion,
+        'fecha_transaccion': fechaTransaccion.toIso8601String(),
+        'nombre_categoria': nombre_categoria,
+        // 'id_cuenta': idCuenta, // Añádelo cuando tengas el id_cuenta
+      },
+    );
+  }
 }

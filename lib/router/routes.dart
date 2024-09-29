@@ -1,10 +1,14 @@
-import 'package:byls_app/services/supabase_service.dart';
+import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
 import 'package:byls_app/src/pages/resetPassword.dart';
 import 'package:byls_app/src/pages/transaccion.dart';
 import 'package:byls_app/src/pages/newPassword.dart';
+import 'package:byls_app/src/pages/app_entry.dart';
+import 'package:byls_app/src/pages/graphics.dart';
+import 'package:byls_app/src/pages/report.dart';
+import 'package:byls_app/src/pages/transaccion_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -37,10 +41,31 @@ class CustomRoutes {
       ),
     ),
     GoRoute(
+      path: '/app_entry',
+      pageBuilder: (context, state) => MaterialPage(
+        key: state.pageKey,
+        child: const NavigationClass(),
+      ),
+    ),
+    GoRoute(
       path: '/home',
       pageBuilder: (context, state) => MaterialPage(
         key: state.pageKey,
         child: const Home(),
+      ),
+    ),
+    GoRoute(
+      path: '/graficos',
+      pageBuilder: (context, state) => MaterialPage(
+        key: state.pageKey,
+        child: const Graphics_View(),
+      ),
+    ),
+    GoRoute(
+      path: '/informe',
+      pageBuilder: (context, state) => MaterialPage(
+        key: state.pageKey,
+        child: const Report_View(),
       ),
     ),
     GoRoute(
@@ -72,6 +97,16 @@ class CustomRoutes {
         return MaterialPage(
           key: state.pageKey,
           child: const Transaccion(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/transaccionEdit',
+      pageBuilder: (context, state) {
+        final IncomeModel transaccion = state.extra as IncomeModel;
+        return MaterialPage(
+          key: state.pageKey,
+          child: TransaccionEdit(transaccion: transaccion),
         );
       },
     ),
