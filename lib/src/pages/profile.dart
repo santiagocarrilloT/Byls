@@ -42,12 +42,12 @@ class _ProfileViewState extends State<ProfileView> {
           Container(
             color: const Color.fromARGB(230, 91, 255, 173),
             child: Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 35),
+              padding: const EdgeInsets.only(left: 10, right: 20, top: 35),
               child: Row(
                 children: [
                   const Icon(Icons.person, size: 60, color: Color(0xFF000000)),
                   const SizedBox(
-                    width: 30,
+                    width: 10,
                   ),
                   Text(
                     usuarioDatos?.email ?? "",

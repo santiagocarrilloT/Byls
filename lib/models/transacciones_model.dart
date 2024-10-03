@@ -1,6 +1,5 @@
 // ignore: depend_on_referenced_packages
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:byls_app/models/user_model.dart';
 
 class IncomeModel {
   final int idTransaccion;

@@ -1,12 +1,10 @@
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
 import 'package:byls_app/models/transacciones_model.dart';
-import 'package:byls_app/src/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class TransaccionEdit extends StatefulWidget {
   final IncomeModel transaccion;
@@ -83,7 +81,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
     final categories = isGastosSelected ? gastos : ingresos;
 
     return Scaffold(
@@ -94,7 +91,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
             context.go("/app_entry");
           },
         ),
-        title: const Text("Transacción"),
+        title: const Text("Editar Transacción"),
       ),
       backgroundColor: const Color(0xFF006064),
       body: Padding(

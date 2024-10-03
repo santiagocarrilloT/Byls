@@ -1,5 +1,5 @@
+import 'package:byls_app/src/pages/accountsUser.dart';
 import 'package:byls_app/src/pages/graphics.dart';
-import 'package:byls_app/src/pages/report.dart';
 import 'package:flutter/material.dart';
 import 'home.dart';
 import 'profile.dart';
@@ -18,7 +18,7 @@ class _NavigationClassState extends State<NavigationClass> {
   static final List<Widget> _pages = <Widget>[
     const Home(),
     const Graphics_View(),
-    const Report_View(), // Pantalla de inicio
+    const AccountsUser(), // Pantalla de inicio
     const ProfileView(), // Pantalla de perfil
   ];
 
@@ -61,7 +61,7 @@ const _navBarItems = [
   BottomNavigationBarItem(
     icon: Icon(Icons.document_scanner_outlined),
     activeIcon: Icon(Icons.document_scanner_rounded),
-    label: 'Informe',
+    label: 'Cuentas',
   ),
   BottomNavigationBarItem(
     icon: Icon(Icons.person_outline_rounded),

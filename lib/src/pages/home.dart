@@ -94,6 +94,13 @@ class _HomeState extends State<Home> {
           Container(
             color: const Color.fromARGB(230, 91, 255, 173),
           ),
+          TextButton(
+            onPressed: () {
+              // Acción al presionar el botón
+              context.go('/nuevaCuenta', extra: null);
+            },
+            child: const Text('Nueva Cuenta'),
+          ),
           // Parte superior con el borde redondeado
           Positioned(
             top: MediaQuery.of(context).size.height * 0.15,
@@ -160,6 +167,7 @@ class _HomeState extends State<Home> {
                         //itemCount: _images.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Container(
+                            // Margen y decoración de la lista
                             margin: const EdgeInsets.symmetric(
                                 vertical: 5.0, horizontal: 10.0),
                             decoration: BoxDecoration(
@@ -170,6 +178,7 @@ class _HomeState extends State<Home> {
                               borderRadius: BorderRadius.circular(
                                   10.0), // Bordes redondeados
                             ),
+                            // Elementos de la lista
                             child: ListTile(
                               title: Text(
                                 '${futureIngresos[index].nombreCategoria}',

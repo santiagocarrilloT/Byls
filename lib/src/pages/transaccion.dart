@@ -1,6 +1,5 @@
 import 'package:byls_app/controllers/auth_controller.dart';
-import 'package:byls_app/models/transacciones_model.dart';
-import 'package:byls_app/src/pages/home.dart';
+import 'package:byls_app/controllers/ingresos_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -53,47 +52,9 @@ class _TransaccionState extends State<Transaccion> {
     }
   }
 
+  IngresosController ingresosController = IngresosController();
   // Crea una instancia de AuthController
   final AuthController authController = AuthController();
-
-  Future<void> _guardarTransaccion() async {
-    if (selectedCategory == null ||
-        _cantidadController.text.isEmpty ||
-        _descripcionController.text.isEmpty) {
-      // Mostrar un mensaje de error si falta algún campo
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, completa todos los campos.')),
-      );
-      return;
-    }
-
-    try {
-      final idCategoria = isGastosSelected
-          ? gastos.firstWhere((g) => g['nombre'] == selectedCategory)['id']
-          : ingresos.firstWhere((i) => i['nombre'] == selectedCategory)['id'];
-
-      final tipoTransaccion = isGastosSelected ? 'Gasto' : 'Ingreso';
-
-      // Prints para depuración
-      print('Descripción: ${_descripcionController.text}');
-      print('ID Categoría: $idCategoria');
-      print('Monto: ${_cantidadController.text}');
-      print('Tipo de Transacción: $tipoTransaccion');
-      print('Fecha de Transacción: $selectedDate');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transacción guardada con éxito')),
-      );
-
-      // Redirigir al usuario después de guardar la transacción
-      context.go("/home");
-    } catch (e) {
-      print('Error al guardar la transacción: $e'); // Print para ver el error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar la transacción: $e')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

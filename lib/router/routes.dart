@@ -1,5 +1,7 @@
+import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/src/pages/home.dart';
+import 'package:byls_app/src/pages/accountsForm.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
 import 'package:byls_app/src/pages/resetPassword.dart';
@@ -30,6 +32,13 @@ class CustomRoutes {
     routes: _routes, // Lista de rutas
     //errorBuilder: (context, state) => ErrorScreen(),
     initialLocation: '/signIn', // Ruta inicial
+    initialExtra: null, // Extra inicial
+  );
+  static final GoRouter routerInit = GoRouter(
+    routes: _routes, // Lista de rutas
+    //errorBuilder: (context, state) => ErrorScreen(),
+    initialLocation: '/app_entry', // Ruta inicial
+    initialExtra: null, // Extra inicial
   );
 
   static final List<GoRoute> _routes = [
@@ -107,6 +116,18 @@ class CustomRoutes {
         return MaterialPage(
           key: state.pageKey,
           child: TransaccionEdit(transaccion: transaccion),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/nuevaCuenta',
+      pageBuilder: (context, state) {
+        final CuentaModel? cuenta = state.extra as CuentaModel?;
+        return MaterialPage(
+          key: state.pageKey,
+          child: NewAccountMoney(
+            cuenta: cuenta,
+          ),
         );
       },
     ),

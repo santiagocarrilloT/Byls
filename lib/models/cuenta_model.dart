@@ -6,6 +6,7 @@ class CuentaModel {
   final String nombreCuenta;
   final double saldo;
   final String? tipoMoneda;
+  final String? icono;
 
   CuentaModel({
     required this.idCuenta,
@@ -13,6 +14,7 @@ class CuentaModel {
     required this.nombreCuenta,
     required this.saldo,
     this.tipoMoneda,
+    this.icono,
   });
 
   // Método para convertir un mapa en una instancia de CuentaModel
@@ -23,6 +25,7 @@ class CuentaModel {
       nombreCuenta: map['nombre_cuenta'],
       saldo: map['saldo']?.toDouble() ?? 0.0,
       tipoMoneda: map['tipo_moneda'],
+      icono: map['iconoCuenta'],
     );
   }
 
@@ -34,6 +37,7 @@ class CuentaModel {
       'nombre_cuenta': nombreCuenta,
       'saldo': saldo,
       'tipo_moneda': tipoMoneda,
+      'iconoCuenta': icono,
     };
   }
 
@@ -45,10 +49,8 @@ class CuentaModel {
         .eq('uid', userId);
 
     final List<CuentaModel> cuentasUsuario = [];
-    if (cuentas != null) {
-      for (final item in cuentas) {
-        cuentasUsuario.add(CuentaModel.fromMap(item));
-      }
+    for (final item in cuentas) {
+      cuentasUsuario.add(CuentaModel.fromMap(item));
     }
     return cuentasUsuario;
   }
