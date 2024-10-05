@@ -40,7 +40,7 @@ class _HomeState extends State<Home> {
     setState(() {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
-        selectedCuentaId = cuentas[0].idCuenta;
+        selectedCuentaId = cuentas[3].idCuenta;
         fetchTransacciones(
             selectedCuentaId!); // Llama traer los ingresos de esa cuenta
       }

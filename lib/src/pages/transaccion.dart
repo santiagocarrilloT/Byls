@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:byls_app/src/pages/crearCategoria.dart';
+import 'package:byls_app/models/categorias.dart';
 
 class Transaccion extends StatefulWidget {
   const Transaccion({super.key});
@@ -14,31 +16,13 @@ class Transaccion extends StatefulWidget {
 }
 
 class _TransaccionState extends State<Transaccion> {
-  bool isGastosSelected = true; // Para alternar entre Gastos e Ingresos
-  String? selectedCategory; // Para almacenar la categoría seleccionada
-  DateTime selectedDate =
-      DateTime.now(); // Fecha seleccionada (por defecto, la actual)
-  final TextEditingController _cantidadController =
-      TextEditingController(); // Controlador para la cantidad
-  final TextEditingController _descripcionController =
-      TextEditingController(); // Controlador para la descripción
+  bool isGastosSelected = true; // Alternar entre Gastos e Ingresos
+  String? selectedCategory; // Categoría seleccionada
+  DateTime selectedDate = DateTime.now(); // Fecha seleccionada
+  final TextEditingController _cantidadController = TextEditingController();
+  final TextEditingController _descripcionController = TextEditingController();
 
-  final List<Map<String, dynamic>> gastos = [
-    {'nombre': 'Casa', 'icono': Icons.home, 'id': 1},
-    {'nombre': 'Educación', 'icono': Icons.school, 'id': 2},
-    {'nombre': 'Moto', 'icono': Icons.motorcycle, 'id': 3},
-    {'nombre': 'Alimentos', 'icono': Icons.fastfood, 'id': 4},
-    {'nombre': 'Teléfono', 'icono': Icons.phone_android, 'id': 5},
-    {'nombre': 'Gasolina', 'icono': Icons.local_gas_station, 'id': 6},
-  ];
-
-  final List<Map<String, dynamic>> ingresos = [
-    {'nombre': 'Salario', 'icono': Icons.attach_money, 'id': 7},
-    {'nombre': 'Venta', 'icono': Icons.store, 'id': 8},
-    {'nombre': 'Inversiones', 'icono': Icons.trending_up, 'id': 9},
-  ];
-
-  // Función para abrir el selector de fecha
+  //Función para seleccionar la fecha
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -68,27 +52,24 @@ class _TransaccionState extends State<Transaccion> {
     }
 
     try {
-      final idCategoria = isGastosSelected
-          ? gastos.firstWhere((g) => g['nombre'] == selectedCategory)['id']
-          : ingresos.firstWhere((i) => i['nombre'] == selectedCategory)['id'];
-
+      final double cantidad = double.parse(_cantidadController.text);
       final tipoTransaccion = isGastosSelected ? 'Gasto' : 'Ingreso';
 
-      // Prints para depuración
-      print('Descripción: ${_descripcionController.text}');
-      print('ID Categoría: $idCategoria');
-      print('Monto: ${_cantidadController.text}');
-      print('Tipo de Transacción: $tipoTransaccion');
-      print('Fecha de Transacción: $selectedDate');
+      // Insertar la transacción en la base de datos usando AuthController
+      await authController.insertarTransaccion(
+        _descripcionController.text,
+        selectedCategory!,
+        cantidad,
+        tipoTransaccion,
+        selectedDate,
+      );
 
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Transacción guardada con éxito')),
       );
-
-      // Redirigir al usuario después de guardar la transacción
-      context.go("/home");
+      context.go("/app_entry");
     } catch (e) {
-      print('Error al guardar la transacción: $e'); // Print para ver el error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al guardar la transacción: $e')),
       );
@@ -97,8 +78,8 @@ class _TransaccionState extends State<Transaccion> {
 
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
-    final categories = isGastosSelected ? gastos : ingresos;
+    // Obtener las categorías según el tipo seleccionado
+    final categories = isGastosSelected ? categoriasGasto : categoriasIngreso;
 
     return Scaffold(
       appBar: AppBar(
@@ -117,7 +98,6 @@ class _TransaccionState extends State<Transaccion> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Selector de Gastos e Ingreso
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -125,7 +105,7 @@ class _TransaccionState extends State<Transaccion> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = true;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
@@ -143,7 +123,7 @@ class _TransaccionState extends State<Transaccion> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = false;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
@@ -160,27 +140,56 @@ class _TransaccionState extends State<Transaccion> {
                 ],
               ),
               const SizedBox(height: 20),
-
-              // Categorías
               SizedBox(
-                height: 350, // Altura para hacer scroll a las categorias
+                height: 350,
                 child: GridView.builder(
                   scrollDirection: Axis.vertical,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Tres columnas
+                    crossAxisCount: 3,
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 15,
-                    childAspectRatio: 1, // Ajustar la proporción del ítem
+                    childAspectRatio: 1,
                   ),
-                  itemCount: categories.length,
+                  itemCount: categories.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == categories.length) {
+                      return GestureDetector(
+                        onTap: () {
+                          // Al tocar, redirigir a la ventana de crear categoría
+                          context.go("/crearCategoria");
+                        },
+                        child: const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.grey,
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.black,
+                                size: 30,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Crear',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
                     final category = categories[index];
-                    final isSelected = category['nombre'] == selectedCategory;
+                    final isSelected = category.nombre == selectedCategory;
 
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedCategory = category['nombre'];
+                          selectedCategory = category.nombre;
                         });
                       },
                       child: Column(
@@ -189,17 +198,17 @@ class _TransaccionState extends State<Transaccion> {
                           CircleAvatar(
                             radius: 30,
                             backgroundColor: isSelected
-                                ? const Color(0xFF00BFA5)
-                                : Colors.grey[300],
+                                ? const Color.fromARGB(255, 0, 0, 0)
+                                : category.color,
                             child: Icon(
-                              category['icono'],
+                              category.icono,
                               color: isSelected ? Colors.white : Colors.black,
                               size: 30,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            category['nombre'],
+                            category.nombre,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -212,8 +221,6 @@ class _TransaccionState extends State<Transaccion> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Selector de fecha
               Row(
                 children: [
                   const Icon(Icons.calendar_today, color: Colors.grey),
@@ -230,15 +237,12 @@ class _TransaccionState extends State<Transaccion> {
                 ],
               ),
               const SizedBox(height: 20),
-
-              // Campo para ingresar la cantidad
               TextField(
                 style: const TextStyle(color: Colors.white),
                 controller: _cantidadController,
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter
-                      .digitsOnly, // Solo números permitidos
+                  FilteringTextInputFormatter.digitsOnly,
                 ],
                 decoration: const InputDecoration(
                   labelText: 'Cantidad',
@@ -251,8 +255,6 @@ class _TransaccionState extends State<Transaccion> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Campo para la descripción
               TextField(
                 style: const TextStyle(color: Colors.white),
                 controller: _descripcionController,
@@ -268,30 +270,9 @@ class _TransaccionState extends State<Transaccion> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Botón para guardar transacción
               Center(
                 child: ElevatedButton(
-                  onPressed: () async {
-                    if (isGastosSelected) {
-                      print("Gastos seleccionado");
-                      await authController.insertarTransaccion(
-                          _descripcionController.text,
-                          selectedCategory!,
-                          double.parse(_cantidadController.text),
-                          'Gasto',
-                          selectedDate);
-                      context.go("/app_entry");
-                    } else {
-                      print("Ingreso seleccionado");
-                      await authController.insertarTransaccion(
-                          _descripcionController.text,
-                          selectedCategory!,
-                          double.parse(_cantidadController.text),
-                          'Ingreso',
-                          selectedDate);
-                      context.go("/app_entry");
-                    }
-                  },
+                  onPressed: _guardarTransaccion,
                   child: const Text('Guardar Transacción'),
                 ),
               ),

@@ -1,4 +1,5 @@
 import 'package:byls_app/models/transacciones_model.dart';
+import 'package:byls_app/src/pages/crearCategoria.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
@@ -107,6 +108,15 @@ class CustomRoutes {
         return MaterialPage(
           key: state.pageKey,
           child: TransaccionEdit(transaccion: transaccion),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/crearCategoria',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: CrearCategoriaScreen(),
         );
       },
     ),

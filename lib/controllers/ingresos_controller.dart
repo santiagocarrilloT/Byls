@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class IngresosController {
+  //
   Future<void> createIngreso(String concepto, double monto) async {
     final user = Supabase.instance.client.auth.currentUser;
     final response = await Supabase.instance.client
