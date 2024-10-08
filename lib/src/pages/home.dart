@@ -1,5 +1,6 @@
 import 'package:byls_app/controllers/Transaccion_provider.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:byls_app/models/categoriasUsuario_model.dart';
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
@@ -325,7 +326,7 @@ class _HomeState extends State<Home> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Acción al presionar el botón
-          context.go('/transaccion');
+          context.go('/transaccion', extra: CategoriasusuarioModel.getCategoriasUsuario());
         },
         backgroundColor: const Color(0xFFFF6F61),
         child: const Icon(Icons.add),

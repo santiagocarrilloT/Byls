@@ -1,3 +1,5 @@
+import 'package:byls_app/models/categoriasPredeterminadas.dart';
+import 'package:byls_app/models/categoriasUsuario_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/src/pages/crearCategoria.dart';
 import 'package:byls_app/src/pages/home.dart';
@@ -12,6 +14,7 @@ import 'package:byls_app/src/pages/report.dart';
 import 'package:byls_app/src/pages/transaccion_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 
 /* Map<String, WidgetBuilder> customRoutes(SupabaseService supabaseService) {
   return {
@@ -95,9 +98,10 @@ class CustomRoutes {
     GoRoute(
       path: '/transaccion',
       pageBuilder: (context, state) {
+        final CategoriasusuarioModel? categoriasusuarioModel = state.extra as CategoriasusuarioModel?;
         return MaterialPage(
           key: state.pageKey,
-          child: const Transaccion(),
+          child: Transaccion(categoriasUsuario: categoriasusuarioModel),
         );
       },
     ),

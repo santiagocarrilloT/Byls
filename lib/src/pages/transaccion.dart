@@ -1,4 +1,5 @@
 import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:byls_app/models/categoriasUsuario_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:flutter/material.dart';
@@ -7,20 +8,35 @@ import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:byls_app/src/pages/crearCategoria.dart';
-import 'package:byls_app/models/categorias.dart';
+import 'package:byls_app/models/categoriasPredeterminadas.dart';
+import 'package:byls_app/controllers/categoriasUsuario_controller.dart';
+import 'package:byls_app/models/categorias_model.dart';
+import 'package:byls_app/models/categoriasUsuario_model.dart';
+import 'package:byls_app/models/categoriasUsuario.dart';
+
 
 class Transaccion extends StatefulWidget {
-  const Transaccion({super.key});
+  final CategoriasusuarioModel? categoriasUsuario;
+  const Transaccion({super.key, required this.categoriasUsuario});
   @override
-  State<Transaccion> createState() => _TransaccionState();
+  State<Transaccion> createState() => _TransaccionState(categoriasUsuario: categoriasUsuario);
 }
 
 class _TransaccionState extends State<Transaccion> {
+  final CategoriasusuarioModel? categoriasUsuario;
+  _TransaccionState({required this.categoriasUsuario});
+
   bool isGastosSelected = true; // Alternar entre Gastos e Ingresos
   String? selectedCategory; // Categoría seleccionada
   DateTime selectedDate = DateTime.now(); // Fecha seleccionada
   final TextEditingController _cantidadController = TextEditingController();
   final TextEditingController _descripcionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    categoriasUsu();
+  }
 
   //Función para seleccionar la fecha
   Future<void> _selectDate(BuildContext context) async {
@@ -76,10 +92,40 @@ class _TransaccionState extends State<Transaccion> {
     }
   }
 
+  List<CategoriasusuarioModel> categoriasG = [];
+  List<CategoriasusuarioModel> categoriasI = [];
+
+  // Funcion para traer las categorias del usuario
+  void categoriasUsu() async {
+  try {
+    final userId = Provider.of<AuthController>(context, listen: false).currentUser?.id;
+    List<CategoriasusuarioModel> categoriasUsu = await CategoriasusuarioModel.getCategoriasUsuario();
+    
+    List<CategoriasusuarioModel> gasto = [];
+    List<CategoriasusuarioModel> ingreso = [];
+
+    for (var categoria in categoriasUsu) {
+      if (categoria.tipoCategoria == 'Gasto') {
+        gasto.add(categoria);
+      } else if (categoria.tipoCategoria == 'Ingreso') {
+        ingreso.add(categoria);
+      }
+    }
+
+    setState(() {
+      categoriasG = gasto;
+      categoriasI = ingreso;
+    });
+  } catch (e) {
+    print('Error fetching cuentas: $e');
+  }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Obtener las categorías según el tipo seleccionado
     final categories = isGastosSelected ? categoriasGasto : categoriasIngreso;
+    final categoriasUser = isGastosSelected ? coleccionesCategoriasusuario.iconosGastos: coleccionesCategoriasusuario.iconosIngresos;
 
     return Scaffold(
       appBar: AppBar(
@@ -153,7 +199,7 @@ class _TransaccionState extends State<Transaccion> {
                   itemCount: categories.length + 1,
                   itemBuilder: (context, index) {
                     if (index == categories.length) {
-                      return GestureDetector(
+                      /* return GestureDetector(
                         onTap: () {
                           // Al tocar, redirigir a la ventana de crear categoría
                           context.go("/crearCategoria");
@@ -180,6 +226,26 @@ class _TransaccionState extends State<Transaccion> {
                             ),
                           ],
                         ),
+                      ); */
+                      return GridView.builder(
+                        scrollDirection: Axis.vertical,
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 15,
+                            mainAxisSpacing: 15,
+                            childAspectRatio: 1,
+                          ),
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) {
+                            final categoryUser = categoriasUser[index];
+                            final isSelected = categoryUser == selectedCategory;
+                            var iconoUsuario = categoriasUser.keys.elementAt(index);
+                            var nombreIcono = categoriasUser.values.elementAt(isGastosSelected 
+                              ? categoriasG.indexWhere((element) => element.iconoCategoria == iconoUsuario) 
+                              : categoriasI.indexWhere((element) => element.iconoCategoria == iconoUsuario)
+                          );
+                          print(nombreIcono);
+                          },
                       );
                     }
 

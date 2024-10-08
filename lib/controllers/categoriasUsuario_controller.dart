@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AuthController {
+class CategoriasNewController {
   // Función para insertar una nueva categoría en Supabase
   Future<void> insertarCategoria(String nombre, String color, String tipo, String icono) async {
     final user = Supabase.instance.client.auth.currentUser;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:byls_app/controllers/categoriasNew_controller.dart'; // Importamos el AuthController
+import 'package:byls_app/controllers/categoriasUsuario_controller.dart'; // Importamos el AuthController
 
 class CrearCategoriaScreen extends StatefulWidget {
   @override
@@ -15,7 +15,7 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
   IconData? iconoSeleccionado;
 
   // Crea una instancia de AuthController
-  final AuthController authController = AuthController();
+  final CategoriasNewController authController = CategoriasNewController();
 
   // Iconos para categorías de gastos y sus nombres
   final Map<IconData, String> iconosGastos = {
