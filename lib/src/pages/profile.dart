@@ -63,7 +63,7 @@ class _ProfileViewState extends State<ProfileView> {
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFF006064),
+                color: Color.fromARGB(255, 125, 124, 221),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20.0),
                   topRight: Radius.circular(20.0),

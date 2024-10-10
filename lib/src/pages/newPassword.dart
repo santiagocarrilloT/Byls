@@ -110,7 +110,7 @@ class _DatosState extends State<Datos> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 194, 192, 212),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -150,7 +150,7 @@ class _DatosState extends State<Datos> {
             keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
               hintText: 'Contraseña',
-              hintStyle: const TextStyle(color: Colors.grey),
+              hintStyle: const TextStyle(color: Color.fromARGB(255, 97, 95, 109)),
               border: const OutlineInputBorder(),
               suffixIcon: IconButton(
                 icon: icono,
@@ -298,7 +298,7 @@ class Fondo extends StatelessWidget {
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
+              colors: [Color.fromARGB(255, 124, 131, 226), Color.fromARGB(255, 152, 153, 230)])),
     );
   }
 }

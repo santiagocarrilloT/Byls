@@ -92,7 +92,7 @@ class _HomeState extends State<Home> {
         children: [
           // Fondo de color
           Container(
-            color: const Color.fromARGB(230, 91, 255, 173),
+            color: const Color.fromARGB(230, 91, 135, 255),
           ),
           // Parte superior con el borde redondeado
           Positioned(
@@ -102,7 +102,7 @@ class _HomeState extends State<Home> {
             bottom: 0,
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFF006064),
+                color: Color.fromARGB(255, 0, 10, 100),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(50),
                   topRight: Radius.circular(50),
@@ -142,7 +142,7 @@ class _HomeState extends State<Home> {
                           child: const Text(
                             'Ingreso',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Color.fromARGB(255, 255, 255, 255),
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -163,9 +163,9 @@ class _HomeState extends State<Home> {
                             margin: const EdgeInsets.symmetric(
                                 vertical: 5.0, horizontal: 10.0),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF5F5F5),
+                              color: const Color.fromARGB(255, 209, 209, 226),
                               border: Border.all(
-                                color: const Color(0xFF00BFA5),
+                                color: const Color.fromARGB(255, 137, 0, 191),
                               ),
                               borderRadius: BorderRadius.circular(
                                   10.0), // Bordes redondeados

@@ -105,7 +105,7 @@ class _DatosState extends State<Datos> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 197, 213, 243),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
