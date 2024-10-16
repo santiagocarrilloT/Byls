@@ -1,8 +1,5 @@
-import 'package:byls_app/src/pages/home.dart';
 import 'package:flutter/material.dart';
-import 'package:byls_app/services/supabase_service.dart';
-import 'package:go_router/go_router.dart';
-
+import 'package:table_calendar/table_calendar.dart';
 
 class Transaccion extends StatefulWidget {
   const Transaccion({super.key});
@@ -11,84 +8,34 @@ class Transaccion extends StatefulWidget {
 }
 
 class _TransaccionState extends State<Transaccion> {
-  bool isGastosSelected = true; // Para alternar entre Gastos e Ingresos
-  String? selectedCategory; // Para almacenar la categoría seleccionada
+  bool isGastosSelected = true;
+  String? selectedCategory;
+  DateTime? selectedDate;
+  bool showCalendar = false;
+  final TextEditingController montoController = TextEditingController();
+  final TextEditingController comentarioController = TextEditingController();
+  final TextEditingController etiquetaController = TextEditingController();
+
+  Map<DateTime, String> etiquetas = {};
 
   final List<Map<String, dynamic>> gastos = [
     {'nombre': 'Casa', 'icono': Icons.home},
     {'nombre': 'Educación', 'icono': Icons.school},
     {'nombre': 'Moto', 'icono': Icons.motorcycle},
     {'nombre': 'Alimentos', 'icono': Icons.fastfood},
-    {'nombre': 'Teléfono', 'icono': Icons.phone_android},
-    {'nombre': 'Gasolina', 'icono': Icons.local_gas_station,},
+    {'nombre': 'Teléfono', 'icono': Icons.phone},
+    {'nombre': 'Gasolina', 'icono': Icons.local_gas_station},
   ];
 
   final List<Map<String, dynamic>> ingresos = [
-    {'nombre': 'Salario', 'icono': Icons.attach_money, 'id': 7},
-    {'nombre': 'Venta', 'icono': Icons.store, 'id': 8},
-    {'nombre': 'Inversiones', 'icono': Icons.trending_up, 'id': 9},
+    {'nombre': 'Salario', 'icono': Icons.attach_money},
+    {'nombre': 'Venta', 'icono': Icons.store},
+    {'nombre': 'Inversiones', 'icono': Icons.trending_up},
+    {'nombre': 'Otro', 'icono': Icons.more_horiz},
   ];
-
-  // Función para abrir el selector de fecha
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
-    }
-  }
-
-  // Crea una instancia de AuthController
-  final AuthController authController = AuthController();
-
-  Future<void> _guardarTransaccion() async {
-    if (selectedCategory == null ||
-        _cantidadController.text.isEmpty ||
-        _descripcionController.text.isEmpty) {
-      // Mostrar un mensaje de error si falta algún campo
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, completa todos los campos.')),
-      );
-      return;
-    }
-
-    try {
-      final idCategoria = isGastosSelected
-          ? gastos.firstWhere((g) => g['nombre'] == selectedCategory)['id']
-          : ingresos.firstWhere((i) => i['nombre'] == selectedCategory)['id'];
-
-      final tipoTransaccion = isGastosSelected ? 'Gasto' : 'Ingreso';
-
-      // Prints para depuración
-      print('Descripción: ${_descripcionController.text}');
-      print('ID Categoría: $idCategoria');
-      print('Monto: ${_cantidadController.text}');
-      print('Tipo de Transacción: $tipoTransaccion');
-      print('Fecha de Transacción: $selectedDate');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transacción guardada con éxito')),
-      );
-
-      // Redirigir al usuario después de guardar la transacción
-      context.go("/home");
-    } catch (e) {
-      print('Error al guardar la transacción: $e'); // Print para ver el error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar la transacción: $e')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
     final categories = isGastosSelected ? gastos : ingresos;
 
     return Scaffold(
@@ -96,13 +43,14 @@ class _TransaccionState extends State<Transaccion> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go("/home");
+            Navigator.pop(context);
           },
         ),
         title: const Text("Transacción"),
       ),
       body: Column(
         children: [
+          // Botones de Gastos/Ingreso
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -110,9 +58,8 @@ class _TransaccionState extends State<Transaccion> {
                 onTap: () {
                   setState(() {
                     isGastosSelected = true;
-                    selectedCategory = null; // Reiniciar la selección
+                    selectedCategory = null;
                   });
-                  print("Gastos seleccionado");
                 },
                 child: Text(
                   'Gastos',
@@ -127,9 +74,8 @@ class _TransaccionState extends State<Transaccion> {
                 onTap: () {
                   setState(() {
                     isGastosSelected = false;
-                    selectedCategory = null; // Reiniciar la selección
+                    selectedCategory = null;
                   });
-                  print("Ingreso seleccionado");
                 },
                 child: Text(
                   'Ingreso',
@@ -142,14 +88,20 @@ class _TransaccionState extends State<Transaccion> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+
+          const SizedBox(height: 10),
+
+          // Lista de categorías
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // Tres columnas
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
+                crossAxisCount:
+                    4, // Aumentamos el número de columnas para agrupar más
+                crossAxisSpacing:
+                    10, // Reducimos el espacio horizontal entre iconos
+                mainAxisSpacing:
+                    10, // Reducimos el espacio vertical entre iconos
               ),
               itemCount: categories.length,
               itemBuilder: (context, index) {
@@ -161,25 +113,28 @@ class _TransaccionState extends State<Transaccion> {
                     setState(() {
                       selectedCategory = category['nombre'];
                     });
-                    print('${category['nombre']} seleccionado');
                   },
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       CircleAvatar(
-                        radius: 30,
-                        backgroundColor: isSelected ? Color(0xFF00BFA5) : Colors.grey[300],
+                        radius: 25, // Reducimos el tamaño del círculo
+                        backgroundColor:
+                            isSelected ? Color(0xFF00BFA5) : Colors.grey[300],
                         child: Icon(
                           category['icono'],
                           color: isSelected ? Colors.white : Colors.black,
-                          size: 30,
+                          size: 25,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(
+                          height:
+                              5), // Reducimos el espacio entre el icono y el texto
                       Text(
                         category['nombre'],
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize:
+                              12, // Reducimos el tamaño del texto para mejor ajuste
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -189,10 +144,196 @@ class _TransaccionState extends State<Transaccion> {
               },
             ),
           ),
+
+          // Calendario y campos en la parte inferior
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 3,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                // Botones de fechas y calendario
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedDate = DateTime.now();
+                        });
+                      },
+                      child: const Text('Hoy'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedDate =
+                              DateTime.now().subtract(Duration(days: 1));
+                        });
+                      },
+                      child: const Text('Ayer'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          selectedDate =
+                              DateTime.now().subtract(Duration(days: 7));
+                        });
+                      },
+                      child: const Text('Último'),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.calendar_today),
+                      onPressed: () {
+                        setState(() {
+                          showCalendar = !showCalendar;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+
+                // Calendario desplegable
+                if (showCalendar)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(10),
+                      elevation: 5,
+                      child: TableCalendar(
+                        firstDay: DateTime.utc(2010, 10, 16),
+                        lastDay: DateTime.utc(2030, 3, 14),
+                        focusedDay: selectedDate ?? DateTime.now(),
+                        onDaySelected: (selectedDay, focusedDay) {
+                          setState(() {
+                            selectedDate = selectedDay;
+                            showCalendar = false;
+                          });
+                          _mostrarDialogoEtiqueta(context, selectedDay);
+                        },
+                        calendarStyle: CalendarStyle(
+                          todayDecoration: BoxDecoration(
+                            color: Color(0xFF00BFA5),
+                            shape: BoxShape.circle,
+                          ),
+                          selectedDecoration: BoxDecoration(
+                            color: Colors.blue,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                const SizedBox(height: 10),
+
+                // Campo de monto y comentario
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: montoController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Monto',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextFormField(
+                        controller: comentarioController,
+                        decoration: const InputDecoration(
+                          labelText: 'Comentario',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 10),
+
+                // Botón de confirmación
+                ElevatedButton(
+                  onPressed: () {
+                    if (selectedCategory != null &&
+                        montoController.text.isNotEmpty) {
+                      if ((isGastosSelected )){
+                         print('Transacción añadida:');
+                      print('Categoría: $selectedCategory');
+                      print('Monto: ${montoController.text}');
+                      print('Comentario: ${comentarioController.text}');
+                      print('Fecha: $selectedDate');
+                      print('Categoria Transaccion : gastos');
+                      } else{
+                         print('Transacción añadida:');
+                      print('Categoría: $selectedCategory');
+                      print('Monto: ${montoController.text}');
+                      print('Comentario: ${comentarioController.text}');
+                      print('Fecha: $selectedDate');
+                      print('Categoria Transaccion : ingresos ');
+                      }
+                  
+                    } else {
+                      print('Faltan datos para la transacción');
+                    }
+                  },
+                  child: const Text('Agregar Transacción'),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
-}
 
+  // Función para mostrar un cuadro de diálogo para añadir una etiqueta
+  void _mostrarDialogoEtiqueta(BuildContext context, DateTime selectedDay) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Agregar Etiqueta'),
+          content: TextField(
+            controller: etiquetaController,
+            decoration: const InputDecoration(
+              hintText: 'Escribe una etiqueta',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  etiquetas[selectedDay] = etiquetaController.text;
+                });
+                etiquetaController.clear();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
 

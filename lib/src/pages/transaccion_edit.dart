@@ -1,7 +1,6 @@
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
 import 'package:byls_app/models/transacciones_model.dart';
-import 'package:byls_app/src/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -10,27 +9,23 @@ import 'package:provider/provider.dart';
 
 class TransaccionEdit extends StatefulWidget {
   final IncomeModel transaccion;
+  
   const TransaccionEdit({super.key, required this.transaccion});
+  
   @override
-  State<TransaccionEdit> createState() =>
-      _TransaccionEditState(transaccion: transaccion);
+  State<TransaccionEdit> createState() => _TransaccionEditState(transaccion: transaccion);
 }
 
 class _TransaccionEditState extends State<TransaccionEdit> {
   IngresosController ingresosController = IngresosController();
-
-  //Datos que vienen desde la transacción seleccionada
   final IncomeModel transaccion;
   _TransaccionEditState({required this.transaccion});
 
   bool isGastosSelected = true;
-  String? selectedCategory; // Para almacenar la categoría seleccionada
-  DateTime selectedDate =
-      DateTime.now(); // Fecha seleccionada (por defecto, la actual)
-  final TextEditingController _cantidadController =
-      TextEditingController(); // Controlador para cantidad
-  final TextEditingController _descripcionController =
-      TextEditingController(); // Controlador para descripción
+  String? selectedCategory;
+  DateTime selectedDate = DateTime.now();
+  final TextEditingController _cantidadController = TextEditingController();
+  final TextEditingController _descripcionController = TextEditingController();
 
   final List<Map<String, dynamic>> gastos = [
     {'nombre': 'Casa', 'icono': Icons.home, 'id': 1},
@@ -47,7 +42,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     {'nombre': 'Inversiones', 'icono': Icons.trending_up, 'id': 9},
   ];
 
-  // Función para abrir el selector de fecha
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -62,7 +56,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     }
   }
 
-  // Crea una instancia de AuthController
   final AuthController authController = AuthController();
 
   @override
@@ -111,15 +104,13 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = true;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
                       'Gastos',
                       style: TextStyle(
-                        color: isGastosSelected
-                            ? const Color(0xFF00BFA5)
-                            : Colors.black,
+                        color: isGastosSelected ? const Color(0xFF00BFA5) : Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -129,15 +120,13 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = false;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
                       'Ingreso',
                       style: TextStyle(
-                        color: !isGastosSelected
-                            ? const Color(0xFF00BFA5)
-                            : Colors.black,
+                        color: !isGastosSelected ? const Color(0xFF00BFA5) : Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -149,14 +138,14 @@ class _TransaccionEditState extends State<TransaccionEdit> {
 
               // Categorías
               SizedBox(
-                height: 350, // Altura para hacer scroll a las categorias
+                height: 350,
                 child: GridView.builder(
                   scrollDirection: Axis.vertical,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Tres columnas
+                    crossAxisCount: 3,
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 15,
-                    childAspectRatio: 1, // Ajustar la proporción del ítem
+                    childAspectRatio: 1,
                   ),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
@@ -174,9 +163,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         children: [
                           CircleAvatar(
                             radius: 30,
-                            backgroundColor: isSelected
-                                ? const Color(0xFF00BFA5)
-                                : Colors.grey[300],
+                            backgroundColor: isSelected ? const Color(0xFF00BFA5) : Colors.grey[300],
                             child: Icon(
                               category['icono'],
                               color: isSelected ? Colors.white : Colors.black,
@@ -223,8 +210,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                 controller: _cantidadController,
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter
-                      .digitsOnly, // Solo números permitidos
+                  FilteringTextInputFormatter.digitsOnly,
                 ],
                 decoration: const InputDecoration(
                   labelText: 'Cantidad',
@@ -254,6 +240,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                 ),
               ),
               const SizedBox(height: 20),
+
               // Botón para guardar transacción
               Center(
                 child: ElevatedButton(
@@ -266,39 +253,22 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   ),
                   onPressed: () async {
                     try {
-                      if (isGastosSelected) {
-                        await ingresosController.updateIngreso(
-                          transaccion.idTransaccion.toString(),
-                          _descripcionController.text,
-                          double.parse(_cantidadController.text),
-                          'Gasto',
-                          selectedDate,
-                          selectedCategory!,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Transacción actualizada con éxito'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        context.go("/app_entry");
-                      } else {
-                        await ingresosController.updateIngreso(
-                          transaccion.idTransaccion.toString(),
-                          _descripcionController.text,
-                          double.parse(_cantidadController.text),
-                          'Ingreso',
-                          selectedDate,
-                          selectedCategory!,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Transacción actualizada con éxito'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        context.go("/app_entry");
-                      }
+                      await ingresosController.updateIngreso(
+                        transaccion.idTransaccion.toString(),
+                        _descripcionController.text,
+                        double.parse(_cantidadController.text),
+                        isGastosSelected ? 'Gasto' : 'Ingreso',
+                        selectedDate,
+                        selectedCategory!,
+                      );
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Transacción actualizada con éxito'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      context.go("/app_entry");
                     } catch (e) {
                       print(e);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -308,27 +278,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         ),
                       );
                     }
-                    /* if (isGastosSelected) {
-                      print("Gastos seleccionado");
-                      await ingresosController.updateIngreso(
-                        transaccion.idTransaccion.toString(),
-                        _descripcionController.text,
-                        double.parse(_cantidadController.text),
-                        'Gasto',
-                        selectedDate,
-                        selectedCategory!,
-                      );
-                    } else {
-                      print("Ingreso seleccionado");
-                      await ingresosController.updateIngreso(
-                        transaccion.idTransaccion.toString(),
-                        _descripcionController.text,
-                        double.parse(_cantidadController.text),
-                        'Ingreso',
-                        selectedDate,
-                        selectedCategory!,
-                      );
-                    } */
                   },
                   child: const Icon(Icons.edit_document),
                 ),

@@ -14,6 +14,18 @@ class CuentaModel {
     required this.saldo,
     this.tipoMoneda,
   });
+  
+  // Método para obtener el saldo de una cuenta específica
+static Future<double> getSaldoCuenta(int idCuenta) async {
+  final response = await Supabase.instance.client
+      .from('cuentas')
+      .select('saldo')
+      .eq('idcuenta', idCuenta)
+      .single();  // Obtener solo un resultado
+
+  return (response['saldo'] as num).toDouble();
+}
+
 
   // Método para convertir un mapa en una instancia de CuentaModel
   factory CuentaModel.fromMap(Map<String, dynamic> map) {
@@ -53,3 +65,4 @@ class CuentaModel {
     return cuentasUsuario;
   }
 }
+
