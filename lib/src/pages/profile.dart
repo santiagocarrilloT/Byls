@@ -79,7 +79,9 @@ class _ProfileViewState extends State<ProfileView> {
                       style: TextStyle(
                           color: Colors.white), // Cambiar color del texto
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      context.go('/settings');
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.lock_reset, color: Colors.white),

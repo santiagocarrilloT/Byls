@@ -5,14 +5,23 @@ import 'home.dart';
 import 'profile.dart';
 
 class NavigationClass extends StatefulWidget {
-  const NavigationClass({super.key});
+  final int? seleccionarVentana;
+  const NavigationClass({super.key, this.seleccionarVentana});
 
   @override
-  State<NavigationClass> createState() => _NavigationClassState();
+  State<NavigationClass> createState() =>
+      _NavigationClassState(seleccionarVentana: seleccionarVentana);
 }
 
 class _NavigationClassState extends State<NavigationClass> {
   int _selectedIndex = 0;
+  int? seleccionarVentana;
+  _NavigationClassState({this.seleccionarVentana}) {
+    if (seleccionarVentana != null) {
+      _selectedIndex = seleccionarVentana!;
+      seleccionarVentana = null;
+    }
+  }
   BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
 
   static final List<Widget> _pages = <Widget>[
@@ -34,7 +43,11 @@ class _NavigationClassState extends State<NavigationClass> {
         type: _bottomNavType,
         onTap: (index) {
           setState(() {
-            _selectedIndex = index;
+            if (seleccionarVentana != null) {
+              _selectedIndex = seleccionarVentana!;
+            } else {
+              _selectedIndex = index;
+            }
           });
         },
         items: _navBarItems,

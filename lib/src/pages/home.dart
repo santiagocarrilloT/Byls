@@ -24,6 +24,7 @@ class _HomeState extends State<Home> {
       List.generate(5, (_) => false); // Para los seleccionables
 
   //Mostrar transacción (Ingresos)
+
   List<IncomeModel> futureIngresos = [];
 
   @override
@@ -40,7 +41,7 @@ class _HomeState extends State<Home> {
     setState(() {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
-        selectedCuentaId = cuentas[0].idCuenta;
+        selectedCuentaId = cuentas[1].idCuenta;
         fetchTransacciones(
             selectedCuentaId!); // Llama traer los ingresos de esa cuenta
       }
