@@ -21,7 +21,7 @@ class IncomeModel {
     this.nombreCategoria,
   });
 
-  // Crear una instancia de TransaccionModel desde un Map
+  // Crear una instancia de IncomeModel desde un Map
   factory IncomeModel.fromMap(Map<String, dynamic> map) {
     return IncomeModel(
       idTransaccion: map['id_transaccion'],
@@ -34,7 +34,7 @@ class IncomeModel {
     );
   }
 
-  // Convertir la instancia de TransaccionModel a Map
+  // Convertir la instancia de IncomeModel a Map
   Map<String, dynamic> toMap() {
     return {
       'id_transaccion': idTransaccion,
@@ -47,6 +47,25 @@ class IncomeModel {
     };
   }
 
+  // Getter para saber si es un ingreso
+  bool get esIngreso => tipoTransaccion.toLowerCase() == 'ingreso';
+
+  // Agregar getters para las propiedades que se están usando en home.dart
+  DateTime get fecha => fechaTransaccion; // Acceder a la fecha de la transacción
+  String get nombreTransaccion => descripcion ?? 'Transacción'; // Descripción como nombre
+  String get tipo => tipoTransaccion; // Tipo de transacción
+  double get monto => montoTransaccion; // Monto de la transacción
+
+  // Método para traer todas las transacciones
+  static Future<List<IncomeModel>> getTodasTransacciones() async {
+    final response = await Supabase.instance.client
+        .from('transacciones')
+        .select();
+
+    final List<dynamic> data = response;
+    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+  }
+
   // Método para traer las transacciones filtradas por idCuenta
   static Future<List<IncomeModel>> getTransacciones(int idCuenta) async {
     final response = await Supabase.instance.client
@@ -54,8 +73,38 @@ class IncomeModel {
         .select()
         .eq('id_cuenta', idCuenta); // Filtrando por id_cuenta
 
-    //Ver el tipo de datos de response
-    //print(response.runtimeType);
+    final List<dynamic> data = response;
+    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+  }
+
+  // Nuevo: Método para traer transacciones filtradas por periodo
+  static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(String periodo) async {
+    DateTime now = DateTime.now();
+    DateTime startDate;
+
+    switch (periodo) {
+      case 'Día':
+        startDate = DateTime(now.year, now.month, now.day);
+        break;
+      case 'Semana':
+        startDate = now.subtract(Duration(days: now.weekday - 1));
+        break;
+      case 'Mes':
+        startDate = DateTime(now.year, now.month, 1);
+        break;
+      case 'Año':
+        startDate = DateTime(now.year, 1, 1);
+        break;
+      default:
+        throw ArgumentError('Periodo no válido');
+    }
+
+    final response = await Supabase.instance.client
+        .from('transacciones')
+        .select()
+        .gte('fecha_transaccion', startDate.toIso8601String())
+        .lte('fecha_transaccion', now.toIso8601String());
+
     final List<dynamic> data = response;
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
   }
