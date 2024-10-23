@@ -1,34 +1,38 @@
 import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:byls_app/controllers/cuenta_controller.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
+import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class TransaccionEdit extends StatefulWidget {
   final IncomeModel transaccion;
+
   const TransaccionEdit({super.key, required this.transaccion});
+
   @override
   State<TransaccionEdit> createState() =>
       _TransaccionEditState(transaccion: transaccion);
 }
 
 class _TransaccionEditState extends State<TransaccionEdit> {
+  List<CuentaModel> cuentas = [];
+  CuentaController cuentaController = CuentaController();
+  final AuthController authController = AuthController();
   IngresosController ingresosController = IngresosController();
-
-  //Datos que vienen desde la transacción seleccionada
   final IncomeModel transaccion;
   _TransaccionEditState({required this.transaccion});
 
   bool isGastosSelected = true;
-  String? selectedCategory; // Para almacenar la categoría seleccionada
-  DateTime selectedDate =
-      DateTime.now(); // Fecha seleccionada (por defecto, la actual)
-  final TextEditingController _cantidadController =
-      TextEditingController(); // Controlador para cantidad
-  final TextEditingController _descripcionController =
-      TextEditingController(); // Controlador para descripción
+  String? selectedCategory;
+  DateTime selectedDate = DateTime.now();
+  int? selectedCuentaId;
+  final TextEditingController _cantidadController = TextEditingController();
+  final TextEditingController _descripcionController = TextEditingController();
 
   final List<Map<String, dynamic>> gastos = [
     {'nombre': 'Casa', 'icono': Icons.home, 'id': 1},
@@ -45,7 +49,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     {'nombre': 'Inversiones', 'icono': Icons.trending_up, 'id': 9},
   ];
 
-  // Función para abrir el selector de fecha
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -60,9 +63,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     }
   }
 
-  // Crea una instancia de AuthController
-  final AuthController authController = AuthController();
-
   @override
   void initState() {
     super.initState();
@@ -70,6 +70,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     selectedDate = transaccion.fechaTransaccion;
     _cantidadController.text = transaccion.montoTransaccion.toString();
     _descripcionController.text = transaccion.descripcion!;
+    fetchCuentas();
   }
 
   @override
@@ -77,6 +78,18 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     _cantidadController.dispose();
     _descripcionController.dispose();
     super.dispose();
+  }
+
+  Future<void> fetchCuentas() async {
+    final authService = Provider.of<AuthController>(context, listen: false);
+    final userId = authService.currentUser?.id;
+    final cuentasUsuario = await CuentaModel.getCuentas(userId!);
+    setState(() {
+      cuentas = cuentasUsuario;
+      if (cuentas.isNotEmpty) {
+        selectedCuentaId = cuentas[0].idCuenta;
+      }
+    });
   }
 
   @override
@@ -100,6 +113,67 @@ class _TransaccionEditState extends State<TransaccionEdit> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 7),
+
+              // Campo para ingresar la cantidad
+              TextField(
+                style: const TextStyle(color: Colors.white),
+                controller: _cantidadController,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                decoration: const InputDecoration(
+                  labelText: 'Cantidad',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.attach_money),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // Selector de cuenta
+              DropdownButtonFormField(
+                value: selectedCuentaId,
+                style: const TextStyle(color: Color(0xFF00BFA5)),
+                dropdownColor: const Color(0xFF00BFA5),
+                items: cuentas
+                    .map((cuenta) => DropdownMenuItem(
+                          value: cuenta.idCuenta,
+                          child: Text(
+                            cuenta.nombreCuenta,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (int? newValue) {
+                  setState(() {
+                    selectedCuentaId = newValue;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Cuenta',
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.account_balance_wallet,
+                    color: Color(0xFF00BFA5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                ),
+              ),
+
               // Selector de Gastos e Ingreso
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -108,7 +182,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = true;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
@@ -126,7 +200,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = false;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
@@ -146,14 +220,14 @@ class _TransaccionEditState extends State<TransaccionEdit> {
 
               // Categorías
               SizedBox(
-                height: 350, // Altura para hacer scroll a las categorias
+                height: 350,
                 child: GridView.builder(
                   scrollDirection: Axis.vertical,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Tres columnas
+                    crossAxisCount: 3,
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 15,
-                    childAspectRatio: 1, // Ajustar la proporción del ítem
+                    childAspectRatio: 1,
                   ),
                   itemCount: categories.length,
                   itemBuilder: (context, index) {
@@ -194,7 +268,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Selector de fecha
               Row(
@@ -212,28 +286,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-
-              // Campo para ingresar la cantidad
-              TextField(
-                style: const TextStyle(color: Colors.white),
-                controller: _cantidadController,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter
-                      .digitsOnly, // Solo números permitidos
-                ],
-                decoration: const InputDecoration(
-                  labelText: 'Cantidad',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Campo para la descripción
               TextField(
@@ -251,6 +304,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                 ),
               ),
               const SizedBox(height: 20),
+
               // Botón para guardar transacción
               Center(
                 child: ElevatedButton(
@@ -262,40 +316,45 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     ),
                   ),
                   onPressed: () async {
+                    // Cuenta seleccionada
+                    String idCuentaSelec = (cuentas
+                            .firstWhere((element) =>
+                                element.idCuenta == selectedCuentaId)
+                            .idCuenta)
+                        .toString();
+                    // Saldo de la cuenta seleccionada
+                    double saldo = (cuentas
+                            .firstWhere((element) =>
+                                element.idCuenta == selectedCuentaId)
+                            .saldo)
+                        .toDouble();
                     try {
-                      if (isGastosSelected) {
-                        await ingresosController.updateIngreso(
-                          transaccion.idTransaccion.toString(),
-                          _descripcionController.text,
+                      //Actualizar transacción
+                      await ingresosController.updateIngreso(
+                        idCuentaSelec,
+                        transaccion.idTransaccion.toString(),
+                        _descripcionController.text,
+                        double.parse(_cantidadController.text),
+                        isGastosSelected ? 'Gasto' : 'Ingreso',
+                        selectedDate,
+                        selectedCategory!,
+                      );
+
+                      //Actualizar saldo de la cuenta
+                      cuentaController.actualizarSaldo(
+                          saldo,
+                          idCuentaSelec,
                           double.parse(_cantidadController.text),
-                          'Gasto',
-                          selectedDate,
-                          selectedCategory!,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Transacción actualizada con éxito'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        context.go("/app_entry");
-                      } else {
-                        await ingresosController.updateIngreso(
-                          transaccion.idTransaccion.toString(),
-                          _descripcionController.text,
-                          double.parse(_cantidadController.text),
-                          'Ingreso',
-                          selectedDate,
-                          selectedCategory!,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Transacción actualizada con éxito'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        context.go("/app_entry");
-                      }
+                          isGastosSelected ? false : true);
+
+                      //Mostrar mensaje de transacción actualizada
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Transacción actualizada con éxito'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      context.go("/app_entry");
                     } catch (e) {
                       print(e);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -305,27 +364,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         ),
                       );
                     }
-                    /* if (isGastosSelected) {
-                      print("Gastos seleccionado");
-                      await ingresosController.updateIngreso(
-                        transaccion.idTransaccion.toString(),
-                        _descripcionController.text,
-                        double.parse(_cantidadController.text),
-                        'Gasto',
-                        selectedDate,
-                        selectedCategory!,
-                      );
-                    } else {
-                      print("Ingreso seleccionado");
-                      await ingresosController.updateIngreso(
-                        transaccion.idTransaccion.toString(),
-                        _descripcionController.text,
-                        double.parse(_cantidadController.text),
-                        'Ingreso',
-                        selectedDate,
-                        selectedCategory!,
-                      );
-                    } */
                   },
                   child: const Icon(Icons.edit_document),
                 ),

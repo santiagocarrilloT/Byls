@@ -1,5 +1,7 @@
 import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:byls_app/controllers/cuenta_controller.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
+import 'package:byls_app/models/cuenta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +23,9 @@ class _TransaccionState extends State<Transaccion> {
       TextEditingController(); // Controlador para la cantidad
   final TextEditingController _descripcionController =
       TextEditingController(); // Controlador para la descripción
+  List<CuentaModel> cuentas = [];
+  int? selectedCuentaId;
+  CuentaController cuentaController = CuentaController();
 
   final List<Map<String, dynamic>> gastos = [
     {'nombre': 'Casa', 'icono': Icons.home, 'id': 1},
@@ -36,6 +41,12 @@ class _TransaccionState extends State<Transaccion> {
     {'nombre': 'Venta', 'icono': Icons.store, 'id': 8},
     {'nombre': 'Inversiones', 'icono': Icons.trending_up, 'id': 9},
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCuentas();
+  }
 
   // Función para abrir el selector de fecha
   Future<void> _selectDate(BuildContext context) async {
@@ -56,9 +67,21 @@ class _TransaccionState extends State<Transaccion> {
   // Crea una instancia de AuthController
   final AuthController authController = AuthController();
 
+  Future<void> fetchCuentas() async {
+    final authService = Provider.of<AuthController>(context, listen: false);
+    final userId = authService.currentUser?.id;
+    final cuentasUsuario = await CuentaModel.getCuentas(userId!);
+    setState(() {
+      cuentas = cuentasUsuario;
+      if (cuentas.isNotEmpty) {
+        selectedCuentaId = cuentas[0].idCuenta;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
+    //final authController = Provider.of<AuthController>(context);
     final categories = isGastosSelected ? gastos : ingresos;
 
     return Scaffold(
@@ -73,11 +96,74 @@ class _TransaccionState extends State<Transaccion> {
       ),
       backgroundColor: const Color(0xFF006064),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10.0),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(
+                height: 7,
+              ),
+              // Campo para ingresar la cantidad
+              TextField(
+                style: const TextStyle(color: Colors.white),
+                controller: _cantidadController,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter
+                      .digitsOnly, // Solo números permitidos
+                ],
+                decoration: const InputDecoration(
+                  labelText: 'Cantidad',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.attach_money),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // Selector de cuenta
+              DropdownButtonFormField(
+                value: selectedCuentaId,
+                style: const TextStyle(color: Color(0xFF00BFA5)),
+                dropdownColor: const Color(0xFF00BFA5),
+                items: cuentas
+                    .map((cuenta) => DropdownMenuItem(
+                          value: cuenta.idCuenta,
+                          child: Text(
+                            cuenta.nombreCuenta,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (int? newValue) {
+                  setState(() {
+                    selectedCuentaId = newValue;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Cuenta',
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.account_balance_wallet,
+                    color: Color(0xFF00BFA5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                ),
+              ),
+
               // Selector de Gastos e Ingreso
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -172,7 +258,7 @@ class _TransaccionState extends State<Transaccion> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Selector de fecha
               Row(
@@ -190,34 +276,13 @@ class _TransaccionState extends State<Transaccion> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-
-              // Campo para ingresar la cantidad
-              TextField(
-                style: const TextStyle(color: Colors.white),
-                controller: _cantidadController,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter
-                      .digitsOnly, // Solo números permitidos
-                ],
-                decoration: const InputDecoration(
-                  labelText: 'Cantidad',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Campo para la descripción
               TextField(
                 style: const TextStyle(color: Colors.white),
                 controller: _descripcionController,
-                maxLines: 3,
+                maxLines: 2,
                 decoration: const InputDecoration(
                   labelText: 'Descripción',
                   labelStyle: TextStyle(color: Colors.white),
@@ -229,29 +294,82 @@ class _TransaccionState extends State<Transaccion> {
                 ),
               ),
               const SizedBox(height: 20),
+
               // Botón para guardar transacción
               Center(
                 child: ElevatedButton(
                   onPressed: () async {
-                    if (isGastosSelected) {
-                      print("Gastos seleccionado");
-                      await authController.insertarTransaccion(
-                          _descripcionController.text,
-                          selectedCategory!,
-                          double.parse(_cantidadController.text),
-                          'Gasto',
-                          selectedDate);
-                      context.go("/app_entry");
-                    } else {
-                      print("Ingreso seleccionado");
-                      await authController.insertarTransaccion(
-                          _descripcionController.text,
-                          selectedCategory!,
-                          double.parse(_cantidadController.text),
-                          'Ingreso',
-                          selectedDate);
-                      context.go("/app_entry");
+                    String idCuentaSelec = (cuentas
+                            .firstWhere((element) =>
+                                element.idCuenta == selectedCuentaId)
+                            .idCuenta)
+                        .toString();
+                    double saldo = (cuentas
+                            .firstWhere((element) =>
+                                element.idCuenta == selectedCuentaId)
+                            .saldo)
+                        .toDouble();
+                    try {
+                      if (isGastosSelected) {
+                        //Insertar gasto
+                        await ingresosController.insertarTransaccion(
+                            idCuentaSelec,
+                            _descripcionController.text,
+                            selectedCategory!,
+                            double.parse(_cantidadController.text),
+                            'Gasto',
+                            selectedDate);
+
+                        //Actualizar saldo de la cuenta
+                        cuentaController.actualizarSaldo(saldo, idCuentaSelec,
+                            double.parse(_cantidadController.text), false);
+
+                        //Mostrar mensaje de gasto guardado
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Gasto guardado'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+
+                        //Redirigir a la pantalla de ingresos
+                        context.go("/app_entry");
+                      } else {
+                        //Insertar ingreso
+                        await ingresosController.insertarTransaccion(
+                            idCuentaSelec,
+                            _descripcionController.text,
+                            selectedCategory!,
+                            double.parse(_cantidadController.text),
+                            'Ingreso',
+                            selectedDate);
+
+                        //Actualizar saldo de la cuenta
+                        cuentaController.actualizarSaldo(saldo, idCuentaSelec,
+                            double.parse(_cantidadController.text), true);
+
+                        //Mostrar mensaje de ingreso guardado
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Ingreso guardado'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+
+                        //Redirigir a la pantalla de ingresos
+                        context.go("/app_entry");
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(isGastosSelected
+                              ? 'Error al guardar gasto'
+                              : 'Error al guardar ingreso'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
+                    //Cuenta que fue seleccionada
                   },
                   child: const Text('Guardar Transacción'),
                 ),

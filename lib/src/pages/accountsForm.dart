@@ -4,7 +4,6 @@ import 'package:byls_app/models/icon_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class NewAccountMoney extends StatefulWidget {
   final CuentaModel? cuenta;
@@ -48,7 +47,6 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
 
   @override
   Widget build(BuildContext context) {
-    var icono;
     const categories = IconsByls.colecctionIcons;
     return Scaffold(
       appBar: AppBar(
@@ -213,12 +211,14 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                           GoRouter.of(context).go('/app_entry');
                         } catch (e) {
                           //Mens
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(cuenta == null
-                                ? 'Error al crear cuenta'
-                                : 'Error al actualizar cuenta'),
-                            backgroundColor: Colors.red,
-                          ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(cuenta == null
+                                  ? 'Error al crear cuenta'
+                                  : 'Error al actualizar cuenta'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
                         }
                       },
                       style: ButtonStyle(

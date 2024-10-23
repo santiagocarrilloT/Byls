@@ -1,8 +1,5 @@
 import 'package:byls_app/controllers/auth_controller.dart';
-import 'package:byls_app/controllers/cambioDivisa_controller.dart';
-import 'package:byls_app/models/conversor_model.dart';
 import 'package:byls_app/models/cuenta_model.dart';
-import 'package:byls_app/router/routes.dart';
 import 'package:byls_app/services/conversorMoneda_service.dart';
 import 'package:byls_app/services/exchange_rate.dart';
 import 'package:flutter/material.dart';
@@ -245,7 +242,6 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
               style: const TextStyle(color: Colors.white),
             ),
             onTap: () async {
-              //Funciona correctamente el cambio de divisa
               /* await _convertCurrency(tipoCambio);
 
               CambiosDivisaController conversorModel = CambiosDivisaController(
@@ -253,9 +249,7 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
                   tipoMoneda: tipoCambio);
 
               conversorModel.convertirDivisas(); */
-              //Redirigir a la página de ajustes
               showValidateOTP(context, nuevaDivisa);
-              //GoRouter.of(context).go('/settings');
             },
           ),
         ),

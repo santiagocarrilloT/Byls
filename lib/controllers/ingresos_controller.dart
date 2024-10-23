@@ -23,6 +23,7 @@ class IngresosController {
   }
 
   Future<void> updateIngreso(
+    String idCuenta,
     String idIngreso,
     String descripcion,
     double montoTransaccion,
@@ -31,6 +32,7 @@ class IngresosController {
     String nombreCategoria,
   ) async {
     await Supabase.instance.client.from('transacciones').update({
+      'id_cuenta': idCuenta,
       'descripcion': descripcion,
       'monto_transaccion': montoTransaccion,
       'tipo_transaccion': tipoTransaccion,
