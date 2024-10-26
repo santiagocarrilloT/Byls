@@ -1,4 +1,3 @@
-import 'package:byls_app/models/cuenta_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -44,11 +43,11 @@ class _OpcionesState extends State<Opciones> {
             ),
             ListTile(
               title: const Text(
-                'Tema oscuro',
+                'Cuenta Inicial',
                 style: TextStyle(color: Colors.white),
               ),
               leading: const Icon(
-                Icons.dark_mode,
+                Icons.star,
                 color: Colors.white,
               ),
               onTap: () => {},
@@ -56,6 +55,19 @@ class _OpcionesState extends State<Opciones> {
           value: false,
           onChanged: (value) {},
         ), */
+            ),
+            ListTile(
+              title: const Text(
+                'Visualización Saldos',
+                style: TextStyle(color: Colors.white),
+              ),
+              leading: const Icon(
+                Icons.remove_red_eye,
+                color: Colors.white,
+              ),
+              onTap: () => {
+                //context.go('/visualizacionSaldos'),
+              },
             ),
           ],
         ),

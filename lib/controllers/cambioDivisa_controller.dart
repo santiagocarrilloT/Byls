@@ -1,8 +1,5 @@
-import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
-import 'package:byls_app/models/user_model.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CambiosDivisaController {

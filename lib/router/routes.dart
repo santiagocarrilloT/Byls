@@ -1,5 +1,6 @@
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
+import 'package:byls_app/src/pages/crearCategoria.dart';
 import 'package:byls_app/src/pages/currencyConvert.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/accountsForm.dart';
@@ -12,6 +13,7 @@ import 'package:byls_app/src/pages/newPassword.dart';
 import 'package:byls_app/src/pages/app_entry.dart';
 import 'package:byls_app/src/pages/graphics.dart';
 import 'package:byls_app/src/pages/transaccion_edit.dart';
+import 'package:byls_app/src/pages/transfer_accounts.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -116,14 +118,21 @@ class CustomRoutes {
       },
     ),
     GoRoute(
-      path: '/nuevaCuenta',
+      path: '/NuevaCuenta',
       pageBuilder: (context, state) {
         final CuentaModel? cuenta = state.extra as CuentaModel?;
         return MaterialPage(
           key: state.pageKey,
-          child: NewAccountMoney(
-            cuenta: cuenta,
-          ),
+          child: NewAccountMoney(cuenta: cuenta),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/crearCategoria',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: CrearCategoriaScreen(),
         );
       },
     ),
@@ -144,6 +153,14 @@ class CustomRoutes {
           child: const ConversorDivisas(),
         );
       },
-    )
+    ),
+    GoRoute(
+        path: '/transferenciaCuentas',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+            key: state.pageKey,
+            child: const TransferAccounts(),
+          );
+        }),
   ];
 }

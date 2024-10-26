@@ -11,7 +11,7 @@ class CuentaController {
     if (user == null) {
       return;
     }
-    final response = await Supabase.instance.client.from('cuentas').insert({
+    await Supabase.instance.client.from('cuentas').insert({
       'uid': user.id,
       'saldo': saldo,
       'nombre_cuenta': nombre,
@@ -32,7 +32,7 @@ class CuentaController {
     if (user == null) {
       return;
     }
-    final response = await Supabase.instance.client.from('cuentas').update({
+    await Supabase.instance.client.from('cuentas').update({
       'saldo': saldo,
       'nombre_cuenta': nombre,
       'tipo_moneda': tipoMoneda,
@@ -41,7 +41,7 @@ class CuentaController {
   }
 
   Future<void> deleteCuenta(String idCuenta) async {
-    final response = await Supabase.instance.client
+    await Supabase.instance.client
         .from('cuentas')
         .delete()
         .eq('idcuenta', idCuenta);
@@ -53,7 +53,6 @@ class CuentaController {
     double montoTransaccion,
     bool tipoTransaccion,
   ) async {
-    
     //Si tipoTransaccion es true, es un ingreso, si es false, es un egreso
     await Supabase.instance.client.from('cuentas').update({
       'saldo': saldo + (tipoTransaccion ? montoTransaccion : -montoTransaccion),

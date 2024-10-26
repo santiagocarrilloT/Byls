@@ -91,36 +91,54 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(230, 91, 255, 173),
         title: Center(
-          child: DropdownButton(
-            value: selectedCuentaId,
-            icon: const Icon(Icons.arrow_downward, color: Color(0xFF006064)),
-            iconSize: 24,
-            elevation: 16,
-            style: const TextStyle(color: Color(0xFF006064)),
-            dropdownColor: const Color(0xFF00BFA5),
-            underline: Container(
-              height: 2,
-              color: const Color(0xFF006064),
-            ),
-            onChanged: (int? newValue) {
-              setState(
-                () {
-                  selectedCuentaId = newValue;
-                  cargarSaldoCuenta(selectedCuentaId!);
-                  cargarTransacciones();
-                },
-              );
-            },
-            items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
-              return DropdownMenuItem<int>(
-                value: cuenta.idCuenta,
-                child: Text(
-                  cuenta.nombreCuenta,
-                  style: const TextStyle(color: Colors.black),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownButton(
+                value: selectedCuentaId,
+                icon:
+                    const Icon(Icons.arrow_downward, color: Color(0xFF006064)),
+                iconSize: 24,
+                elevation: 16,
+                style: const TextStyle(color: Color(0xFF006064)),
+                dropdownColor: const Color(0xFF00BFA5),
+                underline: Container(
+                  height: 2,
+                  color: const Color(0xFF006064),
                 ),
-              );
-            }).toList(),
-            borderRadius: BorderRadius.circular(10.0),
+                onChanged: (int? newValue) {
+                  setState(
+                    () {
+                      selectedCuentaId = newValue;
+                      cargarSaldoCuenta(selectedCuentaId!);
+                      cargarTransacciones();
+                    },
+                  );
+                },
+                items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
+                  return DropdownMenuItem<int>(
+                    value: cuenta.idCuenta,
+                    child: Text(
+                      cuenta.nombreCuenta,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  );
+                }).toList(),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+
+              const SizedBox(width: 10),
+
+              // Botón para recargar saldo y transacciones
+              IconButton(
+                icon: const Icon(Icons.post_add, color: Color(0xFF006064)),
+                onPressed: () {
+                  context.go('/NuevaCuenta');
+                  /* cargarSaldoCuenta(selectedCuentaId!);
+                  cargarTransacciones(); */
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -289,7 +307,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                IconButton(
+                               /* IconButton(
                                   icon: const Icon(Icons.delete,
                                       color: Colors.red),
                                   onPressed: () async {
@@ -309,6 +327,7 @@ class _HomeState extends State<Home> {
                                           backgroundColor: Colors.green,
                                         ),
                                       );
+                                      context.go('/app_entry');
                                     } catch (e) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
@@ -321,6 +340,7 @@ class _HomeState extends State<Home> {
                                     }
                                   },
                                 ),
+                             */
                               ],
                             ),
                             onTap: () {

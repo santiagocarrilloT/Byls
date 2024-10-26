@@ -54,8 +54,10 @@ class _AccountsUserState extends State<AccountsUser> {
           Container(
             color: const Color.fromARGB(230, 91, 255, 173),
           ),
-          Align(
-            alignment: Alignment.topCenter,
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.02,
+            left: 0,
+            right: 0,
             child: Column(
               children: [
                 Padding(
@@ -70,14 +72,20 @@ class _AccountsUserState extends State<AccountsUser> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 17.5),
+
+                //Botones de transferir y historial
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            context.go('/transferenciaCuentas');
+                          },
                           child: const Icon(
                             Icons.swap_horiz,
                             color: Color(0xFF006064),
@@ -94,6 +102,7 @@ class _AccountsUserState extends State<AccountsUser> {
                     ),
                     const SizedBox(width: 80.0),
                     Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton(
                           onPressed: () {},
@@ -129,78 +138,76 @@ class _AccountsUserState extends State<AccountsUser> {
                   topRight: Radius.circular(50),
                 ),
               ),
-              child: Center(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 40.0),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: futureCuenta.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          var icono;
-                          if (futureCuenta[index].icono != null) {
-                            icono = IconsByls.colecctionIcons.firstWhere(
-                                (element) =>
-                                    element['nombre'] ==
-                                    futureCuenta[index].icono)['icono'];
-                          } else {
-                            icono = Icons.account_balance_wallet;
-                          }
+              child: Column(
+                children: [
+                  const SizedBox(height: 40.0),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: futureCuenta.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        var icono;
+                        if (futureCuenta[index].icono != null) {
+                          icono = IconsByls.colecctionIcons.firstWhere(
+                              (element) =>
+                                  element['nombre'] ==
+                                  futureCuenta[index].icono)['icono'];
+                        } else {
+                          icono = Icons.account_balance_wallet;
+                        }
 
-                          //Margen y decoración de la lista
-                          return Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10.0),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFF5F5F5),
-                              border: Border.all(
-                                color: const Color(0xFF00BFA5),
-                              ),
-                              borderRadius: BorderRadius.circular(10.0),
+                        //Margen y decoración de la lista
+                        return Container(
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 10.0),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF5F5F5),
+                            border: Border.all(
+                              color: const Color(0xFF00BFA5),
                             ),
-                            child: ListTile(
-                              title: Text(
-                                futureCuenta[index].nombreCuenta,
-                                style: const TextStyle(
-                                  color: Color(0xFF4E4E4E),
-                                ),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              futureCuenta[index].nombreCuenta,
+                              style: const TextStyle(
+                                color: Color(0xFF4E4E4E),
                               ),
-                              leading: Hero(
-                                tag: index,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Icon(icono),
-                                  /* Icon(
+                            ),
+                            leading: Hero(
+                              tag: index,
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(icono),
+                                /* Icon(
                                     Icons.account_balance_wallet,
                                     color: Color(0xFF4E4E4E),
                                   ),*/
-                                ),
                               ),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '\$ ${futureCuenta[index].saldo}',
-                                    style: const TextStyle(
-                                        color: Color(0xFF4E4E4E),
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16.0),
-                                  )
-                                ],
-                              ),
-                              onTap: () {
-                                context.go(
-                                  '/nuevaCuenta',
-                                  extra: futureCuenta[index],
-                                );
-                              },
                             ),
-                          );
-                        },
-                      ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '\$ ${futureCuenta[index].saldo}',
+                                  style: const TextStyle(
+                                      color: Color(0xFF4E4E4E),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0),
+                                )
+                              ],
+                            ),
+                            onTap: () {
+                              context.go(
+                                '/nuevaCuenta',
+                                extra: futureCuenta[index],
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
