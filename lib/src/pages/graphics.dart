@@ -16,7 +16,7 @@ class Categoria {
 }
 
 final List<Categoria> categoriasGasto = [
-  Categoria(nombre: 'Casa', icono: Icons.home, color: Colors.blue),
+  Categoria(nombre: 'Casa', icono: Icons.home, color: const Color.fromARGB(255, 127, 54, 244)),
   Categoria(nombre: 'Educación', icono: Icons.school, color: Colors.green),
   Categoria(nombre: 'Gasolina', icono: Icons.local_gas_station, color: Colors.red),
   Categoria(nombre: 'Moto', icono: Icons.motorcycle, color: Colors.purple),
