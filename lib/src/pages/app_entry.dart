@@ -17,7 +17,7 @@ class _NavigationClassState extends State<NavigationClass> {
 
   static final List<Widget> _pages = <Widget>[
     const Home(),
-    const Graphics_View(),
+    const GraphicsView(),
     const Report_View(), // Pantalla de inicio
     const ProfileView(), // Pantalla de perfil
   ];
@@ -53,6 +53,7 @@ const _navBarItems = [
     icon: Icon(Icons.analytics_outlined),
     activeIcon: Icon(Icons.analytics),
     label: 'Gráficos',
+    
   ),
   /* BottomNavigationBarItem(
     icon: SizedBox.shrink(), // Espacio vacío para el botón central
