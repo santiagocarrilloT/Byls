@@ -209,9 +209,15 @@ class _TransaccionEditState extends State<TransaccionEdit> {
             onPressed: () async {
               try {
                 if (transaccion.tipoTransaccion == 'Ingreso') {
+                  // Saldo de la cuenta seleccionada
+                  double saldo = (cuentas
+                          .firstWhere(
+                              (element) => element.idCuenta == selectedCuentaId)
+                          .saldo)
+                      .toDouble();
                   //Actualizar saldo de la cuenta
                   cuentaController.actualizarSaldo(
-                      transaccion.montoTransaccion,
+                      saldo,
                       transaccion.idCuenta.toString(),
                       transaccion.montoTransaccion,
                       false);
