@@ -196,8 +196,11 @@ class _TransaccionEditState extends State<TransaccionEdit> {
         actions: [
           //Notificación de transacción
           IconButton(
-            icon: const Icon(Icons.notification_add, color: Color.fromARGB(255, 63, 158, 81)),
-            onPressed: () async {},
+            icon: const Icon(Icons.notification_add,
+                color: Color.fromARGB(255, 63, 158, 81)),
+            onPressed: () async {
+              context.go('/configurarNotificaciones');
+            },
           ),
 
           //Eliminar transacción

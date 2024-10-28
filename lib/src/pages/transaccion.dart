@@ -149,7 +149,9 @@ class _TransaccionState extends State<Transaccion> {
           IconButton(
             icon: const Icon(Icons.notification_add,
                 color: Color.fromARGB(255, 63, 158, 81)),
-            onPressed: () async {},
+            onPressed: () async {
+              context.go('/configurarNotificaciones');
+            },
           ),
         ],
       ),

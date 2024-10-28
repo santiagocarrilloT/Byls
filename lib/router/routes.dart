@@ -4,6 +4,7 @@ import 'package:byls_app/src/pages/crearCategoria.dart';
 import 'package:byls_app/src/pages/currencyConvert.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/accountsForm.dart';
+import 'package:byls_app/src/pages/notificationsTransactions.dart';
 import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
@@ -155,12 +156,22 @@ class CustomRoutes {
       },
     ),
     GoRoute(
-        path: '/transferenciaCuentas',
-        pageBuilder: (context, state) {
-          return MaterialPage(
-            key: state.pageKey,
-            child: const TransferAccounts(),
-          );
-        }),
+      path: '/transferenciaCuentas',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const TransferAccounts(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/configurarNotificaciones',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const NotificationsTransactions(),
+        );
+      },
+    ),
   ];
 }
