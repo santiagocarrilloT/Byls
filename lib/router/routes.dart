@@ -73,7 +73,7 @@ class CustomRoutes {
       path: '/graficos',
       pageBuilder: (context, state) => MaterialPage(
         key: state.pageKey,
-        child: const Graphics_View(),
+        child: const GraphicsView(),
       ),
     ),
     GoRoute(
