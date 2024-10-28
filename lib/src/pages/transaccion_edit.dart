@@ -1,7 +1,10 @@
 import 'package:byls_app/controllers/auth_controller.dart';
+import 'package:byls_app/controllers/cuenta_controller.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
+import 'package:byls_app/models/categorias.dart';
+import 'package:byls_app/models/categorias_usuario.dart';
+import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
-import 'package:byls_app/src/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -10,44 +13,65 @@ import 'package:provider/provider.dart';
 
 class TransaccionEdit extends StatefulWidget {
   final IncomeModel transaccion;
+
   const TransaccionEdit({super.key, required this.transaccion});
+
   @override
   State<TransaccionEdit> createState() =>
       _TransaccionEditState(transaccion: transaccion);
 }
 
 class _TransaccionEditState extends State<TransaccionEdit> {
+  List<CuentaModel> cuentas = [];
+  CuentaController cuentaController = CuentaController();
+  final AuthController authController = AuthController();
   IngresosController ingresosController = IngresosController();
-
-  //Datos que vienen desde la transacción seleccionada
   final IncomeModel transaccion;
   _TransaccionEditState({required this.transaccion});
 
   bool isGastosSelected = true;
-  String? selectedCategory; // Para almacenar la categoría seleccionada
-  DateTime selectedDate =
-      DateTime.now(); // Fecha seleccionada (por defecto, la actual)
-  final TextEditingController _cantidadController =
-      TextEditingController(); // Controlador para cantidad
-  final TextEditingController _descripcionController =
-      TextEditingController(); // Controlador para descripción
+  String? selectedCategory;
+  DateTime selectedDate = DateTime.now();
+  int? selectedCuentaId;
+  final TextEditingController _cantidadController = TextEditingController();
+  final TextEditingController _descripcionController = TextEditingController();
 
-  final List<Map<String, dynamic>> gastos = [
-    {'nombre': 'Casa', 'icono': Icons.home, 'id': 1},
-    {'nombre': 'Educación', 'icono': Icons.school, 'id': 2},
-    {'nombre': 'Moto', 'icono': Icons.motorcycle, 'id': 3},
-    {'nombre': 'Alimentos', 'icono': Icons.fastfood, 'id': 4},
-    {'nombre': 'Teléfono', 'icono': Icons.phone_android, 'id': 5},
-    {'nombre': 'Gasolina', 'icono': Icons.local_gas_station, 'id': 6},
-  ];
+  List<CategoriasusuarioModel> categoriasGastoUsuario = [];
+  List<CategoriasusuarioModel> categoriasIngresoUsuario = [];
 
-  final List<Map<String, dynamic>> ingresos = [
-    {'nombre': 'Salario', 'icono': Icons.attach_money, 'id': 7},
-    {'nombre': 'Venta', 'icono': Icons.store, 'id': 8},
-    {'nombre': 'Inversiones', 'icono': Icons.trending_up, 'id': 9},
-  ];
+  bool isLoading = true;
 
-  // Función para abrir el selector de fecha
+  // Método para cargar las categorías del usuario
+  Future<void> _cargarCategoriasUsuario() async {
+    try {
+      final authService = Provider.of<AuthController>(context, listen: false);
+      final uid = authService.currentUser?.id;
+
+      if (uid != null) {
+        final categorias = await CategoriasusuarioModel.getCategorias(uid);
+
+        setState(() {
+          categoriasGastoUsuario = categorias
+              .where((categoria) => categoria.tipoCategoria == 'Gasto')
+              .toList();
+          categoriasIngresoUsuario = categorias
+              .where((categoria) => categoria.tipoCategoria == 'Ingreso')
+              .toList();
+          isLoading = false;
+        });
+      } else {
+        throw Exception('El UID del usuario es nulo.');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar las categorías: $e')),
+      );
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -62,9 +86,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     }
   }
 
-  // Crea una instancia de AuthController
-  final AuthController authController = AuthController();
-
   @override
   void initState() {
     super.initState();
@@ -72,6 +93,8 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     selectedDate = transaccion.fechaTransaccion;
     _cantidadController.text = transaccion.montoTransaccion.toString();
     _descripcionController.text = transaccion.descripcion!;
+    _cargarCategoriasUsuario();
+    fetchCuentas();
   }
 
   @override
@@ -81,10 +104,85 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     super.dispose();
   }
 
+  Future<void> fetchCuentas() async {
+    final authService = Provider.of<AuthController>(context, listen: false);
+    final userId = authService.currentUser?.id;
+    final cuentasUsuario = await CuentaModel.getCuentas(userId!);
+    setState(() {
+      cuentas = cuentasUsuario;
+      if (cuentas.isNotEmpty) {
+        selectedCuentaId = cuentas[0].idCuenta;
+      }
+    });
+  }
+
+  // Función para convertir CategoriasusuarioModel a Categoria
+  Categoria _convertirCategoriaUsuarioACategoria(
+      CategoriasusuarioModel categoriaUsuario) {
+    return Categoria(
+      id: categoriaUsuario
+          .idCategoria, // Asume que id es un string y lo convierte a int
+      nombre: categoriaUsuario.nombreCategoria,
+      icono: _getIconByName(categoriaUsuario.iconoCategoria),
+      color: Color(int.parse(categoriaUsuario.colorCategoria)),
+    );
+  }
+
+  Future<void> _guardarTransaccion() async {
+    if (selectedCategory == null ||
+        _cantidadController.text.isEmpty ||
+        _descripcionController.text.isEmpty) {
+      // Mostrar un mensaje de error si falta algún campo
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, completa todos los campos.')),
+      );
+      return;
+    }
+
+    try {
+      final double cantidad = double.parse(_cantidadController.text);
+      final tipoTransaccion = isGastosSelected ? 'Gasto' : 'Ingreso';
+
+      // Insertar la transacción en la base de datos usando AuthController
+      await authController.insertarTransaccion(
+        _descripcionController.text,
+        selectedCategory!,
+        cantidad,
+        tipoTransaccion,
+        selectedDate,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Transacción guardada con éxito')),
+      );
+      context.go("/app_entry");
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al guardar la transacción: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final authController = Provider.of<AuthController>(context);
-    final categories = isGastosSelected ? gastos : ingresos;
+    // Convertir las categorías de usuario a objetos de tipo Categoria
+    List<Categoria> categoriasUsuarioConvertidas = isGastosSelected
+        ? categoriasGastoUsuario
+            .map((categoria) => _convertirCategoriaUsuarioACategoria(categoria))
+            .toList()
+        : categoriasIngresoUsuario
+            .map((categoria) => _convertirCategoriaUsuarioACategoria(categoria))
+            .toList();
+
+    // Obtener las categorías predeterminadas
+    List<Categoria> categoriasPredeterminadas =
+        isGastosSelected ? categoriasGasto : categoriasIngreso;
+
+    // Combinar ambas listas
+    final categories = [
+      ...categoriasUsuarioConvertidas,
+      ...categoriasPredeterminadas
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -94,7 +192,58 @@ class _TransaccionEditState extends State<TransaccionEdit> {
             context.go("/app_entry");
           },
         ),
-        title: const Text("Transacción"),
+        title: const Text("Editar Transacción"),
+        actions: [
+          //Notificación de transacción
+          IconButton(
+            icon: const Icon(Icons.notification_add,
+                color: Color.fromARGB(255, 63, 158, 81)),
+            onPressed: () async {
+              context.go('/configurarNotificaciones');
+            },
+          ),
+
+          //Eliminar transacción
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () async {
+              try {
+                if (transaccion.tipoTransaccion == 'Ingreso') {
+                  // Saldo de la cuenta seleccionada
+                  double saldo = (cuentas
+                          .firstWhere(
+                              (element) => element.idCuenta == selectedCuentaId)
+                          .saldo)
+                      .toDouble();
+                  //Actualizar saldo de la cuenta
+                  cuentaController.actualizarSaldo(
+                      saldo,
+                      transaccion.idCuenta.toString(),
+                      transaccion.montoTransaccion,
+                      false);
+                }
+
+                await ingresosController
+                    .deleteIngreso(transaccion.idTransaccion.toString());
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Transacción eliminada correctamente'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                context.go('/app_entry');
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Error al eliminar transacción'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF006064),
       body: Padding(
@@ -103,6 +252,68 @@ class _TransaccionEditState extends State<TransaccionEdit> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 7),
+
+              // Campo para ingresar la cantidad
+              TextField(
+                style: const TextStyle(color: Colors.white),
+                controller: _cantidadController,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
+                decoration: const InputDecoration(
+                  labelText: 'Cantidad',
+                  labelStyle: TextStyle(color: Colors.white),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.attach_money),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
+              // Selector de cuenta
+              DropdownButtonFormField(
+                value: selectedCuentaId,
+                style: const TextStyle(color: Color(0xFF00BFA5)),
+                dropdownColor: const Color(0xFF00BFA5),
+                items: cuentas
+                    .map((cuenta) => DropdownMenuItem(
+                          value: cuenta.idCuenta,
+                          child: Text(
+                            cuenta.nombreCuenta,
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                        ))
+                    .toList(),
+                onChanged: (int? newValue) {
+                  setState(() {
+                    selectedCuentaId = newValue;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Cuenta',
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.account_balance_wallet,
+                    color: Color(0xFF00BFA5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 15),
+
               // Selector de Gastos e Ingreso
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -111,7 +322,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = true;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
@@ -129,7 +340,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     onTap: () {
                       setState(() {
                         isGastosSelected = false;
-                        selectedCategory = null; // Reiniciar la selección
+                        selectedCategory = null;
                       });
                     },
                     child: Text(
@@ -149,24 +360,54 @@ class _TransaccionEditState extends State<TransaccionEdit> {
 
               // Categorías
               SizedBox(
-                height: 350, // Altura para hacer scroll a las categorias
+                height: 350,
                 child: GridView.builder(
                   scrollDirection: Axis.vertical,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Tres columnas
+                    crossAxisCount: 3,
                     crossAxisSpacing: 15,
                     mainAxisSpacing: 15,
-                    childAspectRatio: 1, // Ajustar la proporción del ítem
+                    childAspectRatio: 1,
                   ),
-                  itemCount: categories.length,
+                  itemCount: categories.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == categories.length) {
+                      return GestureDetector(
+                        onTap: () {
+                          context.go("/crearCategoria");
+                        },
+                        child: const Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.grey,
+                              child: Icon(
+                                Icons.add,
+                                color: Colors.black,
+                                size: 30,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Crear',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
                     final category = categories[index];
-                    final isSelected = category['nombre'] == selectedCategory;
+                    final isSelected = category.nombre == selectedCategory;
 
                     return GestureDetector(
                       onTap: () {
                         setState(() {
-                          selectedCategory = category['nombre'];
+                          selectedCategory = category.nombre;
                         });
                       },
                       child: Column(
@@ -175,17 +416,17 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                           CircleAvatar(
                             radius: 30,
                             backgroundColor: isSelected
-                                ? const Color(0xFF00BFA5)
-                                : Colors.grey[300],
+                                ? const Color.fromARGB(255, 0, 0, 0)
+                                : category.color,
                             child: Icon(
-                              category['icono'],
+                              category.icono,
                               color: isSelected ? Colors.white : Colors.black,
                               size: 30,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            category['nombre'],
+                            category.nombre,
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
@@ -197,7 +438,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Selector de fecha
               Row(
@@ -215,28 +456,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-
-              // Campo para ingresar la cantidad
-              TextField(
-                style: const TextStyle(color: Colors.white),
-                controller: _cantidadController,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter
-                      .digitsOnly, // Solo números permitidos
-                ],
-                decoration: const InputDecoration(
-                  labelText: 'Cantidad',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
               // Campo para la descripción
               TextField(
@@ -254,6 +474,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                 ),
               ),
               const SizedBox(height: 20),
+
               // Botón para guardar transacción
               Center(
                 child: ElevatedButton(
@@ -265,40 +486,45 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     ),
                   ),
                   onPressed: () async {
+                    // Cuenta seleccionada
+                    String idCuentaSelec = (cuentas
+                            .firstWhere((element) =>
+                                element.idCuenta == selectedCuentaId)
+                            .idCuenta)
+                        .toString();
+                    // Saldo de la cuenta seleccionada
+                    double saldo = (cuentas
+                            .firstWhere((element) =>
+                                element.idCuenta == selectedCuentaId)
+                            .saldo)
+                        .toDouble();
                     try {
-                      if (isGastosSelected) {
-                        await ingresosController.updateIngreso(
-                          transaccion.idTransaccion.toString(),
-                          _descripcionController.text,
+                      //Actualizar transacción
+                      await ingresosController.updateIngreso(
+                        idCuentaSelec,
+                        transaccion.idTransaccion.toString(),
+                        _descripcionController.text,
+                        double.parse(_cantidadController.text),
+                        isGastosSelected ? 'Gasto' : 'Ingreso',
+                        selectedDate,
+                        selectedCategory!,
+                      );
+
+                      //Actualizar saldo de la cuenta
+                      cuentaController.actualizarSaldo(
+                          saldo,
+                          idCuentaSelec,
                           double.parse(_cantidadController.text),
-                          'Gasto',
-                          selectedDate,
-                          selectedCategory!,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Transacción actualizada con éxito'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        context.go("/app_entry");
-                      } else {
-                        await ingresosController.updateIngreso(
-                          transaccion.idTransaccion.toString(),
-                          _descripcionController.text,
-                          double.parse(_cantidadController.text),
-                          'Ingreso',
-                          selectedDate,
-                          selectedCategory!,
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Transacción actualizada con éxito'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                        context.go("/app_entry");
-                      }
+                          isGastosSelected ? false : true);
+
+                      //Mostrar mensaje de transacción actualizada
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Transacción actualizada con éxito'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                      context.go("/app_entry");
                     } catch (e) {
                       print(e);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -308,27 +534,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         ),
                       );
                     }
-                    /* if (isGastosSelected) {
-                      print("Gastos seleccionado");
-                      await ingresosController.updateIngreso(
-                        transaccion.idTransaccion.toString(),
-                        _descripcionController.text,
-                        double.parse(_cantidadController.text),
-                        'Gasto',
-                        selectedDate,
-                        selectedCategory!,
-                      );
-                    } else {
-                      print("Ingreso seleccionado");
-                      await ingresosController.updateIngreso(
-                        transaccion.idTransaccion.toString(),
-                        _descripcionController.text,
-                        double.parse(_cantidadController.text),
-                        'Ingreso',
-                        selectedDate,
-                        selectedCategory!,
-                      );
-                    } */
                   },
                   child: const Icon(Icons.edit_document),
                 ),
@@ -338,5 +543,50 @@ class _TransaccionEditState extends State<TransaccionEdit> {
         ),
       ),
     );
+  }
+}
+
+IconData _getIconByName(String iconName) {
+  switch (iconName) {
+    // Iconos para categorías de gastos
+    case 'house':
+      return Icons.home;
+    case 'school':
+      return Icons.school;
+    case 'fastfood':
+      return Icons.fastfood;
+    case 'local_gas_station':
+      return Icons.local_gas_station;
+    case 'phone_android':
+      return Icons.phone_android;
+    case 'shopping_cart':
+      return Icons.shopping_cart;
+    case 'car_rental':
+      return Icons.car_rental;
+    case 'hotel':
+      return Icons.hotel;
+    case 'health_and_safety':
+      return Icons.health_and_safety;
+
+    // Iconos para categorías de ingresos
+    case 'attach_money':
+      return Icons.attach_money;
+    case 'trending_up':
+      return Icons.trending_up;
+    case 'monetization_on':
+      return Icons.monetization_on;
+    case 'account_balance_wallet':
+      return Icons.account_balance_wallet;
+    case 'business':
+      return Icons.business;
+    case 'card_giftcard':
+      return Icons.card_giftcard;
+    case 'store':
+      return Icons.store;
+    case 'pie_chart':
+      return Icons.pie_chart;
+    // Ícono por defecto si no coincide con ninguna categoría
+    default:
+      return Icons.help;
   }
 }

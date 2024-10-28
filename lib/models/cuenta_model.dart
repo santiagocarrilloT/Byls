@@ -6,6 +6,7 @@ class CuentaModel {
   final String nombreCuenta;
   final double saldo;
   final String? tipoMoneda;
+  final String? icono;
 
   CuentaModel({
     required this.idCuenta,
@@ -13,7 +14,20 @@ class CuentaModel {
     required this.nombreCuenta,
     required this.saldo,
     this.tipoMoneda,
+    this.icono,
   });
+  
+  // Método para obtener el saldo de una cuenta específica
+static Future<double> getSaldoCuenta(int idCuenta) async {
+  final response = await Supabase.instance.client
+      .from('cuentas')
+      .select('saldo')
+      .eq('idcuenta', idCuenta)
+      .single();  // Obtener solo un resultado
+
+  return (response['saldo'] as num).toDouble();
+}
+
 
   // Método para convertir un mapa en una instancia de CuentaModel
   factory CuentaModel.fromMap(Map<String, dynamic> map) {
@@ -23,6 +37,7 @@ class CuentaModel {
       nombreCuenta: map['nombre_cuenta'],
       saldo: map['saldo']?.toDouble() ?? 0.0,
       tipoMoneda: map['tipo_moneda'],
+      icono: map['iconoCuenta'],
     );
   }
 
@@ -34,6 +49,7 @@ class CuentaModel {
       'nombre_cuenta': nombreCuenta,
       'saldo': saldo,
       'tipo_moneda': tipoMoneda,
+      'iconoCuenta': icono,
     };
   }
 
@@ -45,11 +61,10 @@ class CuentaModel {
         .eq('uid', userId);
 
     final List<CuentaModel> cuentasUsuario = [];
-    if (cuentas != null) {
-      for (final item in cuentas) {
-        cuentasUsuario.add(CuentaModel.fromMap(item));
-      }
+    for (final item in cuentas) {
+      cuentasUsuario.add(CuentaModel.fromMap(item));
     }
     return cuentasUsuario;
   }
 }
+

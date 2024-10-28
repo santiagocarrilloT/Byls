@@ -1,5 +1,11 @@
+import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
+import 'package:byls_app/src/pages/crearCategoria.dart';
+import 'package:byls_app/src/pages/currencyConvert.dart';
 import 'package:byls_app/src/pages/home.dart';
+import 'package:byls_app/src/pages/accountsForm.dart';
+import 'package:byls_app/src/pages/notificationsTransactions.dart';
+import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
 import 'package:byls_app/src/pages/resetPassword.dart';
@@ -7,8 +13,8 @@ import 'package:byls_app/src/pages/transaccion.dart';
 import 'package:byls_app/src/pages/newPassword.dart';
 import 'package:byls_app/src/pages/app_entry.dart';
 import 'package:byls_app/src/pages/graphics.dart';
-import 'package:byls_app/src/pages/report.dart';
 import 'package:byls_app/src/pages/transaccion_edit.dart';
+import 'package:byls_app/src/pages/transfer_accounts.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -30,6 +36,13 @@ class CustomRoutes {
     routes: _routes, // Lista de rutas
     //errorBuilder: (context, state) => ErrorScreen(),
     initialLocation: '/signIn', // Ruta inicial
+    initialExtra: null, // Extra inicial
+  );
+  static final GoRouter routerInit = GoRouter(
+    routes: _routes, // Lista de rutas
+    //errorBuilder: (context, state) => ErrorScreen(),
+    initialLocation: '/app_entry', // Ruta inicial
+    initialExtra: null, // Extra inicial
   );
 
   static final List<GoRoute> _routes = [
@@ -41,12 +54,14 @@ class CustomRoutes {
       ),
     ),
     GoRoute(
-      path: '/app_entry',
-      pageBuilder: (context, state) => MaterialPage(
-        key: state.pageKey,
-        child: const NavigationClass(),
-      ),
-    ),
+        path: '/app_entry',
+        pageBuilder: (context, state) {
+          final int? seleccionarVentana = state.extra as int?;
+          return MaterialPage(
+            key: state.pageKey,
+            child: NavigationClass(seleccionarVentana: seleccionarVentana),
+          );
+        }),
     GoRoute(
       path: '/home',
       pageBuilder: (context, state) => MaterialPage(
@@ -58,14 +73,7 @@ class CustomRoutes {
       path: '/graficos',
       pageBuilder: (context, state) => MaterialPage(
         key: state.pageKey,
-        child: const Graphics_View(),
-      ),
-    ),
-    GoRoute(
-      path: '/informe',
-      pageBuilder: (context, state) => MaterialPage(
-        key: state.pageKey,
-        child: const Report_View(),
+        child: const GraphicsView(),
       ),
     ),
     GoRoute(
@@ -107,6 +115,61 @@ class CustomRoutes {
         return MaterialPage(
           key: state.pageKey,
           child: TransaccionEdit(transaccion: transaccion),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/NuevaCuenta',
+      pageBuilder: (context, state) {
+        final CuentaModel? cuenta = state.extra as CuentaModel?;
+        return MaterialPage(
+          key: state.pageKey,
+          child: NewAccountMoney(cuenta: cuenta),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/crearCategoria',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: CrearCategoriaScreen(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/settings',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const Opciones(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/cambiarDivisas',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const ConversorDivisas(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/transferenciaCuentas',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const TransferAccounts(),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/configurarNotificaciones',
+      pageBuilder: (context, state) {
+        return MaterialPage(
+          key: state.pageKey,
+          child: const NotificationsTransactions(),
         );
       },
     ),
