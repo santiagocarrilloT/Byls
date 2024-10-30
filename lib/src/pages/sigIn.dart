@@ -167,11 +167,11 @@ class _DatosState extends State<Datos> {
           // Mostrar mensaje de error aquí
           if (messageError != null) alertaPreventiva(messageError!),
           const SizedBox(
-            height: 8,
+            height: 5,
           ),
           const Remember(),
           const SizedBox(
-            height: 8,
+            height: 5,
           ),
           Botones(
             emailController: emailController,
@@ -261,8 +261,10 @@ class Botones extends StatelessWidget {
               }
             },
             style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all<Color>(const Color(0xFFFF8A65))),
+              backgroundColor: WidgetStateProperty.all<Color>(
+                const Color(0xFFFF8A65),
+              ),
+            ),
             child: const Text(
               'Iniciar Sesión',
               style: TextStyle(color: Colors.white),
@@ -270,8 +272,7 @@ class Botones extends StatelessWidget {
           ),
         ),
         const SizedBox(
-          height: 14,
-          width: double.infinity,
+          height: 5,
         ),
         TextButton(
           onPressed: () {

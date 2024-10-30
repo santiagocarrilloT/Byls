@@ -40,14 +40,14 @@ class _ProfileViewState extends State<ProfileView> {
       child: Column(
         children: [
           Container(
-            color: const Color.fromARGB(230, 91, 255, 173),
+            color: const Color(0xFF00BFA5),
             child: Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, top: 35),
+              padding: const EdgeInsets.only(left: 10, right: 20, top: 35),
               child: Row(
                 children: [
                   const Icon(Icons.person, size: 60, color: Color(0xFF000000)),
                   const SizedBox(
-                    width: 30,
+                    width: 10,
                   ),
                   Text(
                     usuarioDatos?.email ?? "",
@@ -79,7 +79,9 @@ class _ProfileViewState extends State<ProfileView> {
                       style: TextStyle(
                           color: Colors.white), // Cambiar color del texto
                     ),
-                    onTap: () {},
+                    onTap: () {
+                      context.go('/settings');
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.lock_reset, color: Colors.white),

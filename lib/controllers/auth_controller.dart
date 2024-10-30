@@ -78,7 +78,7 @@ class AuthController {
       double montoTransaccion,
       String tipoTransaccion,
       DateTime fechaTransaccion) async {
-    final response = await _client.from('transacciones').insert(
+    await _client.from('transacciones').insert(
       {
         'id_cuenta': '5',
         'descripcion': descripcion,
@@ -89,5 +89,15 @@ class AuthController {
         // 'id_cuenta': idCuenta, // Añádelo cuando tengas el id_cuenta
       },
     );
+  }
+
+  Future<bool> verifySesion() async {
+    //final session = _client.accessToken
+    final session = _client.auth.currentSession;
+    if (session == null) {
+      return false;
+    } else {
+      return true;
+    }
   }
 }

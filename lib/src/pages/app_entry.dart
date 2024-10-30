@@ -1,24 +1,33 @@
+import 'package:byls_app/src/pages/accountsUser.dart';
 import 'package:byls_app/src/pages/graphics.dart';
-import 'package:byls_app/src/pages/report.dart';
 import 'package:flutter/material.dart';
 import 'home.dart';
 import 'profile.dart';
 
 class NavigationClass extends StatefulWidget {
-  const NavigationClass({super.key});
+  final int? seleccionarVentana;
+  const NavigationClass({super.key, this.seleccionarVentana});
 
   @override
-  State<NavigationClass> createState() => _NavigationClassState();
+  State<NavigationClass> createState() =>
+      _NavigationClassState(seleccionarVentana: seleccionarVentana);
 }
 
 class _NavigationClassState extends State<NavigationClass> {
   int _selectedIndex = 0;
+  int? seleccionarVentana;
+  _NavigationClassState({this.seleccionarVentana}) {
+    if (seleccionarVentana != null) {
+      _selectedIndex = seleccionarVentana!;
+      seleccionarVentana = null;
+    }
+  }
   BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
 
   static final List<Widget> _pages = <Widget>[
     const Home(),
-    const Graphics_View(),
-    const Report_View(), // Pantalla de inicio
+    const GraphicsView(),
+    const AccountsUser(), // Pantalla de inicio
     const ProfileView(), // Pantalla de perfil
   ];
 
@@ -34,7 +43,11 @@ class _NavigationClassState extends State<NavigationClass> {
         type: _bottomNavType,
         onTap: (index) {
           setState(() {
-            _selectedIndex = index;
+            if (seleccionarVentana != null) {
+              _selectedIndex = seleccionarVentana!;
+            } else {
+              _selectedIndex = index;
+            }
           });
         },
         items: _navBarItems,
@@ -61,7 +74,7 @@ const _navBarItems = [
   BottomNavigationBarItem(
     icon: Icon(Icons.document_scanner_outlined),
     activeIcon: Icon(Icons.document_scanner_rounded),
-    label: 'Informe',
+    label: 'Cuentas',
   ),
   BottomNavigationBarItem(
     icon: Icon(Icons.person_outline_rounded),

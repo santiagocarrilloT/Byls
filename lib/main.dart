@@ -1,14 +1,28 @@
+import 'package:byls_app/services/notification_service.dart';
 import 'package:byls_app/services/supabase_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // ignore: depend_on_referenced_packages
 import 'src/App.dart';
 // ignore: depend_on_referenced_packages
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timezone/data/latest.dart' as tz;
+
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //await Uniservices.init();
 
+  //Configurar Zona Horaria de la aplicación (Para notificaciones locales)
+  tz.initializeTimeZones();
+
+  //Inicialización notificaciones locales (Android)
+  await NotificationService.inicializacion(flutterLocalNotificationsPlugin);
+
+  //Inicialización de Supabase
   await Supabase.initialize(
     url: 'https://vjfdvqliwmkhlkigitnt.supabase.co/',
     anonKey:
@@ -16,5 +30,6 @@ Future<void> main() async {
   );
   final supabaseService = SupabaseService();
 
+  // Inicialización de la aplicación
   runApp(MyApp(supabaseService: supabaseService));
 }

@@ -6,8 +6,6 @@ import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart'; // Para manejar fechas
-import 'transaccion.dart'; // Asegúrate de que esta ruta sea correcta
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -21,17 +19,18 @@ class _HomeState extends State<Home> {
   List<CuentaModel> cuentas = [];
   int? selectedCuentaId;
   double saldoCuenta = 0.0;
-  final List<bool> _selections = List.generate(5, (_) => false);
+  String tipoMoneda = 'USD';
+  final List<bool> _selections = List.generate(4, (_) => false);
+
   List<IncomeModel> futureIngresos = [];
-  String selectedType = 'Ingreso'; // Tipo de transacción seleccionada
-  DateTime? selectedDate; // Fecha seleccionada para filtrar
-  String selectedPeriod = 'Día'; // Periodo seleccionado
+  String selectedType =
+      'Ingreso'; // Variable para gestionar el tipo de transacción
 
   @override
   void initState() {
     super.initState();
     fetchCuentas();
-    fetchTransacciones();
+    //fetchTransacciones();
   }
 
   Future<void> fetchCuentas() async {
@@ -42,6 +41,8 @@ class _HomeState extends State<Home> {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
         selectedCuentaId = cuentas[0].idCuenta;
+        tipoMoneda = cuentas[0].tipoMoneda!;
+        cargarTransacciones();
         cargarSaldoCuenta(selectedCuentaId!);
       }
     });
@@ -53,6 +54,18 @@ class _HomeState extends State<Home> {
     setState(() {
       saldoCuenta = cuentaSeleccionada.saldo;
     });
+  }
+
+  Future<void> cargarTransacciones() async {
+    try {
+      List<IncomeModel> transaccionesFiltro =
+          await IncomeModel.getTransacciones(selectedCuentaId!);
+      setState(() {
+        futureIngresos = transaccionesFiltro;
+      });
+    } catch (e) {
+      print('Error fetching transacciones: $e');
+    }
   }
 
   void fetchTransacciones() async {
@@ -69,62 +82,81 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Filtrar transacciones según el tipo seleccionado y el periodo
+    // Filtrar transacciones según el tipo seleccionado
     List<IncomeModel> filteredTransacciones = futureIngresos
         .where((transaccion) => transaccion.tipoTransaccion == selectedType)
         .toList();
 
-    // Aplicar filtro por periodo
-    DateTime now = DateTime.now();
-    if (selectedPeriod == 'Día') {
-      filteredTransacciones = filteredTransacciones.where((transaccion) =>
-          transaccion.fechaTransaccion
-              .isAfter(DateTime(now.year, now.month, now.day))).toList();
-    } else if (selectedPeriod == 'Semana') {
-      filteredTransacciones = filteredTransacciones.where((transaccion) =>
-          transaccion.fechaTransaccion
-              .isAfter(now.subtract(const Duration(days: 7)))).toList();
-    } else if (selectedPeriod == 'Mes') {
-      filteredTransacciones = filteredTransacciones.where((transaccion) =>
-          transaccion.fechaTransaccion
-              .isAfter(DateTime(now.year, now.month - 1, now.day))).toList();
-    } else if (selectedPeriod == 'Año') {
-      filteredTransacciones = filteredTransacciones.where((transaccion) =>
-          transaccion.fechaTransaccion
-              .isAfter(DateTime(now.year - 1, now.month, now.day))).toList();
-    }
-
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(230, 91, 255, 173),
+        backgroundColor: const Color(0xFF00BFA5),
         title: Center(
-          child: DropdownButton<int>(
-            value: selectedCuentaId,
-            icon: const Icon(Icons.arrow_downward),
-            onChanged: (int? newValue) {
-              setState(() {
-                selectedCuentaId = newValue;
-                cargarSaldoCuenta(selectedCuentaId!);
-              });
-            },
-            items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
-              return DropdownMenuItem<int>(
-                value: cuenta.idCuenta,
-                child: Text(cuenta.nombreCuenta),
-              );
-            }).toList(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownButton(
+                value: selectedCuentaId,
+                icon:
+                    const Icon(Icons.arrow_downward, color: Color(0xFFFFFFFF)),
+                iconSize: 24,
+                elevation: 16,
+                style: const TextStyle(color: Color(0xFFFFFFFF)),
+                dropdownColor: const Color(0xFFFFFFFF),
+                underline: Container(
+                  height: 2,
+                  color: const Color(0xFFFFFFFF),
+                ),
+                onChanged: (int? newValue) {
+                  setState(
+                    () {
+                      selectedCuentaId = newValue;
+                      cargarSaldoCuenta(selectedCuentaId!);
+                      cargarTransacciones();
+                    },
+                  );
+                },
+                items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
+                  return DropdownMenuItem<int>(
+                    value: cuenta.idCuenta,
+                    child: Text(
+                      cuenta.nombreCuenta,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+
+              const SizedBox(width: 10),
+
+              // Botón para recargar saldo y transacciones
+              IconButton(
+                icon: const Icon(Icons.post_add, color: Color(0xFFFFFFFF)),
+                onPressed: () {
+                  context.go('/NuevaCuenta');
+                  /* cargarSaldoCuenta(selectedCuentaId!);
+                  cargarTransacciones(); */
+                },
+              ),
+            ],
           ),
         ),
       ),
       body: Stack(
         children: [
-          Container(color: const Color.fromARGB(230, 91, 255, 173)),
+          Container(color: const Color(0xFF00BFA5)),
           Positioned(
             top: 1,
             left: 0,
             right: 0,
             child: Center(
-              child: SaldoDisplay(saldoCuenta: saldoCuenta),
+              child: SaldoDisplay(
+                saldoCuenta: saldoCuenta,
+                divisa: tipoMoneda,
+              ),
             ),
           ),
           Positioned(
@@ -134,7 +166,7 @@ class _HomeState extends State<Home> {
             bottom: 0,
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFF006064),
+                color: Color(0xFF006064), //Color(0xFF00A5B5),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(50),
                   topRight: Radius.circular(50),
@@ -155,7 +187,9 @@ class _HomeState extends State<Home> {
                         child: Text(
                           'Gastos',
                           style: TextStyle(
-                            color: selectedType == 'Gasto' ? Colors.yellow : Colors.white,
+                            color: selectedType == 'Gasto'
+                                ? const Color(0xFFb4f4bc)
+                                : Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -164,13 +198,16 @@ class _HomeState extends State<Home> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            selectedType = 'Ingreso'; // Cambia el tipo a Ingreso
+                            selectedType =
+                                'Ingreso'; // Cambia el tipo a Ingreso
                           });
                         },
                         child: Text(
                           'Ingreso',
                           style: TextStyle(
-                            color: selectedType == 'Ingreso' ? Colors.yellow : Colors.white,
+                            color: selectedType == 'Ingreso'
+                                ? const Color(0xFFb4f4bc)
+                                : Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -182,7 +219,7 @@ class _HomeState extends State<Home> {
                   Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: const Color(0xFF00BFA5),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: const [
                         BoxShadow(
@@ -223,22 +260,12 @@ class _HomeState extends State<Home> {
                               padding: EdgeInsets.symmetric(horizontal: 12),
                               child: Text('Año'),
                             ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 12),
-                              child: Text('Periodo'),
-                            ),
                           ],
                           onPressed: (int index) {
                             setState(() {
                               for (int i = 0; i < _selections.length; i++) {
                                 _selections[i] = i == index;
                               }
-                              // Cambiar el periodo seleccionado
-                              if (index == 0) selectedPeriod = 'Día';
-                              if (index == 1) selectedPeriod = 'Semana';
-                              if (index == 2) selectedPeriod = 'Mes';
-                              if (index == 3) selectedPeriod = 'Año';
-                              if (index == 4) selectedPeriod = 'Periodo';
                             });
                           },
                         ),
@@ -254,35 +281,80 @@ class _HomeState extends State<Home> {
                           margin: const EdgeInsets.symmetric(
                               vertical: 5.0, horizontal: 10.0),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
+                            color: const Color(0xFFb4f4bc),
                             border: Border.all(color: const Color(0xFF00BFA5)),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           child: ListTile(
                             title: Text(
-                              filteredTransacciones[index].nombreTransaccion,
-                              style: const TextStyle(fontSize: 20),
+                              '${filteredTransacciones[index].nombreCategoria}',
+                              style: const TextStyle(color: Color(0xFF4E4E4E)),
                             ),
-                            subtitle: Text(
-                              DateFormat('dd/MM/yyyy')
-                                  .format(filteredTransacciones[index]
-                                      .fechaTransaccion),
-                              style: const TextStyle(fontSize: 15),
-                            ),
-                            trailing: Text(
-                              filteredTransacciones[index].tipoTransaccion ==
-                                      'Ingreso'
-                                  ? '+${filteredTransacciones[index].monto}'
-                                  : '-${filteredTransacciones[index].monto}',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: filteredTransacciones[index]
-                                            .tipoTransaccion ==
-                                        'Ingreso'
-                                    ? Colors.green
-                                    : Colors.red,
+                            leading: Hero(
+                              tag: index,
+                              child: const Padding(
+                                padding: EdgeInsets.all(4.0),
+                                child:
+                                    Icon(Icons.house, color: Color(0xFF4E4E4E)),
                               ),
                             ),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '\$ ${filteredTransacciones[index].montoTransaccion}',
+                                  style: const TextStyle(
+                                    color: Color(0xFF4E4E4E),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                /* IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () async {
+                                    try {
+                                      await ingresosController.deleteIngreso(
+                                          filteredTransacciones[index]
+                                              .idTransaccion
+                                              .toString());
+                                      setState(() {
+                                        filteredTransacciones.removeAt(index);
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Transacción eliminada correctamente'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                      context.go('/app_entry');
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Error al eliminar transacción'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                             */
+                              ],
+                            ),
+                            onTap: () {
+                              final transaccionProvider =
+                                  Provider.of<TransaccionProvider>(context,
+                                      listen: false);
+                              transaccionProvider.setCurrentTransaccion(
+                                  filteredTransacciones[index]);
+                              context.go('/transaccionEdit',
+                                  extra: filteredTransacciones[index]);
+                            },
                           ),
                         );
                       },
@@ -294,16 +366,19 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navegar a la pantalla de transacción
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Transaccion()),
-          );
-        },
-        child: const Icon(Icons.add),
-        backgroundColor: const Color(0xFF00BFA5),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              // Navegar a la pantalla de transacción
+              context.go('/transaccion');
+            },
+            child: const Icon(
+              Icons.add,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -311,39 +386,29 @@ class _HomeState extends State<Home> {
 
 class SaldoDisplay extends StatelessWidget {
   final double saldoCuenta;
+  final String? divisa;
 
-  const SaldoDisplay({Key? key, required this.saldoCuenta}) : super(key: key);
+  const SaldoDisplay(
+      {super.key, required this.saldoCuenta, required this.divisa});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Saldo disponible',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            '\$${saldoCuenta.toStringAsFixed(2)}',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-    );
+    return saldoCuenta >= 0
+        ? Text(
+            '\$ ${saldoCuenta.toStringAsFixed(2)} $divisa',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFb4f4bc),
+            ),
+          )
+        : Text(
+            '\$ ${saldoCuenta.toStringAsFixed(2)} $divisa',
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 224, 17, 17),
+            ),
+          );
   }
 }

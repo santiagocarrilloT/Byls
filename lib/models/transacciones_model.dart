@@ -1,6 +1,5 @@
 // ignore: depend_on_referenced_packages
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:byls_app/models/user_model.dart';
 
 class IncomeModel {
   final int idTransaccion;
@@ -51,17 +50,18 @@ class IncomeModel {
   bool get esIngreso => tipoTransaccion.toLowerCase() == 'ingreso';
 
   // Agregar getters para las propiedades que se están usando en home.dart
-  DateTime get fecha => fechaTransaccion; // Acceder a la fecha de la transacción
-  String get nombreTransaccion => descripcion ?? 'Transacción'; // Descripción como nombre
+  DateTime get fecha =>
+      fechaTransaccion; // Acceder a la fecha de la transacción
+  String get nombreTransaccion =>
+      descripcion ?? 'Transacción'; // Descripción como nombre
   String get tipo => tipoTransaccion; // Tipo de transacción
   double get monto => montoTransaccion; // Monto de la transacción
   double get cantidadTransaccion => montoTransaccion; // Agregar este getter
 
   // Método para traer todas las transacciones
   static Future<List<IncomeModel>> getTodasTransacciones() async {
-    final response = await Supabase.instance.client
-        .from('transacciones')
-        .select();
+    final response =
+        await Supabase.instance.client.from('transacciones').select();
 
     final List<dynamic> data = response;
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
@@ -78,8 +78,9 @@ class IncomeModel {
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
   }
 
-  // Método para traer transacciones filtradas por periodo
-  static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(String periodo) async {
+  // Nuevo: Método para traer transacciones filtradas por periodo
+  static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(
+      String periodo) async {
     DateTime now = DateTime.now();
     DateTime startDate;
 
