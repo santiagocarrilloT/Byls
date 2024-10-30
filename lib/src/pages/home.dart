@@ -6,6 +6,8 @@ import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart'; // Para manejar fechas
+import 'transaccion.dart'; // Asegúrate de que esta ruta sea correcta
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -20,9 +22,10 @@ class _HomeState extends State<Home> {
   int? selectedCuentaId;
   double saldoCuenta = 0.0;
   final List<bool> _selections = List.generate(5, (_) => false);
-
   List<IncomeModel> futureIngresos = [];
-  String selectedType = 'Ingreso'; // Variable para gestionar el tipo de transacción
+  String selectedType = 'Ingreso'; // Tipo de transacción seleccionada
+  DateTime? selectedDate; // Fecha seleccionada para filtrar
+  String selectedPeriod = 'Día'; // Periodo seleccionado
 
   @override
   void initState() {
@@ -66,10 +69,30 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Filtrar transacciones según el tipo seleccionado
+    // Filtrar transacciones según el tipo seleccionado y el periodo
     List<IncomeModel> filteredTransacciones = futureIngresos
         .where((transaccion) => transaccion.tipoTransaccion == selectedType)
         .toList();
+
+    // Aplicar filtro por periodo
+    DateTime now = DateTime.now();
+    if (selectedPeriod == 'Día') {
+      filteredTransacciones = filteredTransacciones.where((transaccion) =>
+          transaccion.fechaTransaccion
+              .isAfter(DateTime(now.year, now.month, now.day))).toList();
+    } else if (selectedPeriod == 'Semana') {
+      filteredTransacciones = filteredTransacciones.where((transaccion) =>
+          transaccion.fechaTransaccion
+              .isAfter(now.subtract(const Duration(days: 7)))).toList();
+    } else if (selectedPeriod == 'Mes') {
+      filteredTransacciones = filteredTransacciones.where((transaccion) =>
+          transaccion.fechaTransaccion
+              .isAfter(DateTime(now.year, now.month - 1, now.day))).toList();
+    } else if (selectedPeriod == 'Año') {
+      filteredTransacciones = filteredTransacciones.where((transaccion) =>
+          transaccion.fechaTransaccion
+              .isAfter(DateTime(now.year - 1, now.month, now.day))).toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -210,6 +233,12 @@ class _HomeState extends State<Home> {
                               for (int i = 0; i < _selections.length; i++) {
                                 _selections[i] = i == index;
                               }
+                              // Cambiar el periodo seleccionado
+                              if (index == 0) selectedPeriod = 'Día';
+                              if (index == 1) selectedPeriod = 'Semana';
+                              if (index == 2) selectedPeriod = 'Mes';
+                              if (index == 3) selectedPeriod = 'Año';
+                              if (index == 4) selectedPeriod = 'Periodo';
                             });
                           },
                         ),
@@ -231,72 +260,29 @@ class _HomeState extends State<Home> {
                           ),
                           child: ListTile(
                             title: Text(
-                              '${filteredTransacciones[index].nombreCategoria}',
-                              style: const TextStyle(color: Color(0xFF4E4E4E)),
+                              filteredTransacciones[index].nombreTransaccion,
+                              style: const TextStyle(fontSize: 20),
                             ),
-                            leading: Hero(
-                              tag: index,
-                              child: const Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child: Icon(Icons.house,
-                                    color: Color(0xFF4E4E4E)),
+                            subtitle: Text(
+                              DateFormat('dd/MM/yyyy')
+                                  .format(filteredTransacciones[index]
+                                      .fechaTransaccion),
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            trailing: Text(
+                              filteredTransacciones[index].tipoTransaccion ==
+                                      'Ingreso'
+                                  ? '+${filteredTransacciones[index].monto}'
+                                  : '-${filteredTransacciones[index].monto}',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: filteredTransacciones[index]
+                                            .tipoTransaccion ==
+                                        'Ingreso'
+                                    ? Colors.green
+                                    : Colors.red,
                               ),
                             ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '\$ ${filteredTransacciones[index].montoTransaccion}',
-                                  style: const TextStyle(
-                                    color: Color(0xFF4E4E4E),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
-                                  onPressed: () async {
-                                    try {
-                                      await ingresosController.deleteIngreso(
-                                          filteredTransacciones[index]
-                                              .idTransaccion
-                                              .toString());
-                                      setState(() {
-                                        filteredTransacciones.removeAt(index);
-                                      });
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Transacción eliminada correctamente'),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Error al eliminar transacción'),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ],
-                            ),
-                            onTap: () {
-                              final transaccionProvider =
-                                  Provider.of<TransaccionProvider>(context,
-                                      listen: false);
-                              transaccionProvider.setCurrentTransaccion(
-                                  filteredTransacciones[index]);
-                              context.go('/transaccionEdit',
-                                  extra: filteredTransacciones[index]);
-                            },
                           ),
                         );
                       },
@@ -308,17 +294,16 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              // Navegar a la pantalla de transacción
-              context.go('/transaccion');
-            },
-            child: const Icon(Icons.add),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navegar a la pantalla de transacción
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Transaccion()),
+          );
+        },
+        child: const Icon(Icons.add),
+        backgroundColor: const Color(0xFF00BFA5),
       ),
     );
   }
@@ -327,16 +312,37 @@ class _HomeState extends State<Home> {
 class SaldoDisplay extends StatelessWidget {
   final double saldoCuenta;
 
-  const SaldoDisplay({super.key, required this.saldoCuenta});
+  const SaldoDisplay({Key? key, required this.saldoCuenta}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      'Saldo: \$${saldoCuenta.toStringAsFixed(2)}',
-      style: const TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
+    return Container(
+      margin: const EdgeInsets.all(5),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'Saldo disponible',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '\$${saldoCuenta.toStringAsFixed(2)}',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }

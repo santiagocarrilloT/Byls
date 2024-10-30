@@ -8,7 +8,7 @@ class SaldoController extends ChangeNotifier {
 
   // Método para cargar el saldo del usuario
   Future<void> cargarSaldo(int idCuenta) async {
-    _saldo = await CuentaModel.getSaldo(idCuenta);
+    _saldo = await CuentaModel.getSaldoCuenta(idCuenta);
     notifyListeners();
   }
 }

@@ -55,6 +55,7 @@ class IncomeModel {
   String get nombreTransaccion => descripcion ?? 'Transacción'; // Descripción como nombre
   String get tipo => tipoTransaccion; // Tipo de transacción
   double get monto => montoTransaccion; // Monto de la transacción
+  double get cantidadTransaccion => montoTransaccion; // Agregar este getter
 
   // Método para traer todas las transacciones
   static Future<List<IncomeModel>> getTodasTransacciones() async {
@@ -77,7 +78,7 @@ class IncomeModel {
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
   }
 
-  // Nuevo: Método para traer transacciones filtradas por periodo
+  // Método para traer transacciones filtradas por periodo
   static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(String periodo) async {
     DateTime now = DateTime.now();
     DateTime startDate;
@@ -107,5 +108,16 @@ class IncomeModel {
 
     final List<dynamic> data = response;
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+  }
+
+  // Método para agregar una nueva transacción
+  static Future<void> agregarNuevaTransaccion(IncomeModel transaccion) async {
+    final response = await Supabase.instance.client
+        .from('transacciones')
+        .insert(transaccion.toMap());
+
+    if (response.error != null) {
+      throw Exception('Error al agregar transacción: ${response.error!.message}');
+    }
   }
 }
