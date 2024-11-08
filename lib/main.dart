@@ -2,12 +2,9 @@ import 'package:byls_app/services/notification_service.dart';
 import 'package:byls_app/services/supabase_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// ignore: depend_on_referenced_packages
 import 'src/App.dart';
-// ignore: depend_on_referenced_packages
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
-
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();

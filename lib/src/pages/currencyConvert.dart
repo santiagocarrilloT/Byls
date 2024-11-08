@@ -243,13 +243,6 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
               style: const TextStyle(color: Colors.white),
             ),
             onTap: () async {
-              /* await _convertCurrency(tipoCambio);
-
-              CambiosDivisaController conversorModel = CambiosDivisaController(
-                  cantidadConversion: _cantidadConversion!,
-                  tipoMoneda: tipoCambio);
-
-              conversorModel.convertirDivisas(); */
               showValidateOTP(context, nuevaDivisa);
             },
           ),
@@ -300,12 +293,12 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
       ),
       onPressed: () async {
         //Funciona correctamente el cambio de divisa
-        /* await _convertCurrency(nuevaDivisa);
+        await _convertCurrency(nuevaDivisa);
 
         CambiosDivisaController conversorModel = CambiosDivisaController(
             cantidadConversion: _cantidadConversion!, tipoMoneda: nuevaDivisa);
 
-        conversorModel.convertirDivisas(); */
+        conversorModel.convertirDivisas();
         //Redirigir a la página de ajustes
         GoRouter.of(context).go('/settings');
       },

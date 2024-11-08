@@ -44,8 +44,8 @@ dependencies:
   http: ^1.2.2
   table_calendar: ^3.0.5
   flutter_local_notifications: ^17.2.4
-  timezone: ^0.9.4
   fl_chart: ^0.69.0
+  timezone: ^0.9.4
   workmanager: ^0.5.2
 
 dev_dependencies:

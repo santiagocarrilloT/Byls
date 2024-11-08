@@ -28,6 +28,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
   IngresosController ingresosController = IngresosController();
   final IncomeModel transaccion;
   _TransaccionEditState({required this.transaccion});
+  List<IncomeModel> futureTransaccion = [];
 
   bool isGastosSelected = true;
   String? selectedCategory;
@@ -40,6 +41,20 @@ class _TransaccionEditState extends State<TransaccionEdit> {
   List<CategoriasusuarioModel> categoriasIngresoUsuario = [];
 
   bool isLoading = true;
+
+  // Cargar transacciones del usuario
+  Future<void> fetchTransacciones() async {
+    //final authService = Provider.of<AuthController>(context, listen: false);
+    //final userId = authService.currentUser?.id;
+
+    if (selectedCuentaId != null) {
+      await IncomeModel.getTransacciones(selectedCuentaId!).then((value) {
+        setState(() {
+          futureTransaccion = value;
+        });
+      });
+    }
+  }
 
   // Método para cargar las categorías del usuario
   Future<void> _cargarCategoriasUsuario() async {
@@ -86,6 +101,21 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     }
   }
 
+//Función para obtener el saldo total de las cuentas
+  double getSaldoTotal(double suma, int index) {
+    if (index == futureTransaccion.length) {
+      return suma;
+    } else {
+      if (futureTransaccion[index].tipoTransaccion == 'Ingreso') {
+        return getSaldoTotal(
+            suma + futureTransaccion[index].montoTransaccion, index + 1);
+      } else {
+        return getSaldoTotal(
+            suma - futureTransaccion[index].montoTransaccion, index + 1);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -94,6 +124,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     _cantidadController.text = transaccion.montoTransaccion.toString();
     _descripcionController.text = transaccion.descripcion!;
     _cargarCategoriasUsuario();
+    fetchTransacciones();
     fetchCuentas();
   }
 
@@ -492,12 +523,14 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                                 element.idCuenta == selectedCuentaId)
                             .idCuenta)
                         .toString();
+
                     // Saldo de la cuenta seleccionada
                     double saldo = (cuentas
                             .firstWhere((element) =>
                                 element.idCuenta == selectedCuentaId)
                             .saldo)
                         .toDouble();
+
                     try {
                       //Actualizar transacción
                       await ingresosController.updateIngreso(
@@ -511,11 +544,15 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                       );
 
                       //Actualizar saldo de la cuenta
-                      cuentaController.actualizarSaldo(
-                          saldo,
-                          idCuentaSelec,
-                          double.parse(_cantidadController.text),
-                          isGastosSelected ? false : true);
+                      if (transaccion.montoTransaccion !=
+                              double.parse(_cantidadController.text) ||
+                          transaccion.idCuenta != selectedCuentaId) {
+                        cuentaController.actualizarSaldo(
+                            saldo,
+                            idCuentaSelec,
+                            double.parse(_cantidadController.text),
+                            isGastosSelected ? false : true);
+                      }
 
                       //Mostrar mensaje de transacción actualizada
                       ScaffoldMessenger.of(context).showSnackBar(

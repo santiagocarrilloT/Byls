@@ -1,3 +1,4 @@
+import 'package:byls_app/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:byls_app/controllers/Transaccion_provider.dart';
@@ -15,6 +16,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  //Inicializar cambio en formato del saldo
+  FormatoUtils formatoUtils = FormatoUtils();
+
+  //Inicializar controlador de ingresos
   IngresosController ingresosController = IngresosController();
   List<CuentaModel> cuentas = [];
   int? selectedCuentaId;
@@ -129,13 +134,11 @@ class _HomeState extends State<Home> {
 
               const SizedBox(width: 10),
 
-              // Botón para recargar saldo y transacciones
+              // Botón para crear nueva cuenta
               IconButton(
                 icon: const Icon(Icons.post_add, color: Color(0xFF006064)),
                 onPressed: () {
                   context.go('/NuevaCuenta');
-                  /* cargarSaldoCuenta(selectedCuentaId!);
-                  cargarTransacciones(); */
                 },
               ),
             ],
@@ -153,6 +156,7 @@ class _HomeState extends State<Home> {
               child: SaldoDisplay(
                 saldoCuenta: saldoCuenta,
                 divisa: tipoMoneda,
+                formatoUtils: formatoUtils,
               ),
             ),
           ),
@@ -307,7 +311,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                               /* IconButton(
+                                /* IconButton(
                                   icon: const Icon(Icons.delete,
                                       color: Colors.red),
                                   onPressed: () async {
@@ -382,15 +386,19 @@ class _HomeState extends State<Home> {
 class SaldoDisplay extends StatelessWidget {
   final double saldoCuenta;
   final String? divisa;
+  final FormatoUtils formatoUtils;
 
   const SaldoDisplay(
-      {super.key, required this.saldoCuenta, required this.divisa});
+      {super.key,
+      required this.saldoCuenta,
+      required this.divisa,
+      required this.formatoUtils});
 
   @override
   Widget build(BuildContext context) {
     return saldoCuenta >= 0
         ? Text(
-            '\$ ${saldoCuenta.toStringAsFixed(2)} $divisa',
+            '\$ ${formatoUtils.formatNumber(saldoCuenta)} $divisa',
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -398,7 +406,7 @@ class SaldoDisplay extends StatelessWidget {
             ),
           )
         : Text(
-            '\$ ${saldoCuenta.toStringAsFixed(2)} $divisa',
+            '\$ -${formatoUtils.formatNumber(saldoCuenta * (-1))} $divisa',
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

@@ -58,4 +58,16 @@ class CuentaController {
       'saldo': saldo + (tipoTransaccion ? montoTransaccion : -montoTransaccion),
     }).eq('idcuenta', idCuenta);
   }
+
+  Future<void> actualizarSaldoEdit(
+    double saldo,
+    String idCuenta,
+    double montoTransaccion,
+    bool tipoTransaccion,
+  ) async {
+    //Si tipoTransaccion es true, es un ingreso (Suma), si es false, es un egreso (Resta)
+    await Supabase.instance.client.from('cuentas').update({
+      'saldo': saldo + (tipoTransaccion ? montoTransaccion : -montoTransaccion),
+    }).eq('idcuenta', idCuenta);
+  }
 }
