@@ -71,7 +71,7 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
     widthPantalla = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color(0xFF63F77D),
+          backgroundColor: const Color(0xFF00BFA5),
           title: const Text('Cambiar Divisas'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
@@ -81,7 +81,7 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
           ),
         ),
         body: Container(
-          color: const Color(0xFF124C2D),
+          color: const Color(0xFF006064),
           child: ListView(
             padding: const EdgeInsets.all(18),
             children: [

@@ -19,7 +19,7 @@ class _OpcionesState extends State<Opciones> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF63F77D),
+        backgroundColor: const Color(0xFF00BFA5),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -29,7 +29,7 @@ class _OpcionesState extends State<Opciones> {
         title: const Text('Ajustes'),
       ),
       body: Container(
-        color: const Color(0xFF124C2D),
+        color: const Color(0xFF006064),
         child: ListView(
           physics: const BouncingScrollPhysics(),
           children: [

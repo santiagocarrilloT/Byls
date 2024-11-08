@@ -94,7 +94,7 @@ class _HomeState extends State<Home> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(230, 91, 255, 173),
+        backgroundColor: const Color(0xFF00BFA5),
         title: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -102,14 +102,14 @@ class _HomeState extends State<Home> {
               DropdownButton(
                 value: selectedCuentaId,
                 icon:
-                    const Icon(Icons.arrow_downward, color: Color(0xFF006064)),
+                    const Icon(Icons.arrow_downward, color: Color(0xFFFFFFFF)),
                 iconSize: 24,
                 elevation: 16,
-                style: const TextStyle(color: Color(0xFF006064)),
-                dropdownColor: const Color(0xFF00BFA5),
+                style: const TextStyle(color: Color(0xFFFFFFFF)),
+                dropdownColor: const Color(0xFFFFFFFF),
                 underline: Container(
                   height: 2,
-                  color: const Color(0xFF006064),
+                  color: const Color(0xFFFFFFFF),
                 ),
                 onChanged: (int? newValue) {
                   setState(
@@ -125,7 +125,10 @@ class _HomeState extends State<Home> {
                     value: cuenta.idCuenta,
                     child: Text(
                       cuenta.nombreCuenta,
-                      style: const TextStyle(color: Colors.black),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                      ),
                     ),
                   );
                 }).toList(),
@@ -136,7 +139,7 @@ class _HomeState extends State<Home> {
 
               // Botón para crear nueva cuenta
               IconButton(
-                icon: const Icon(Icons.post_add, color: Color(0xFF006064)),
+                icon: const Icon(Icons.post_add, color: Color(0xFFFFFFFF)),
                 onPressed: () {
                   context.go('/NuevaCuenta');
                 },
@@ -147,7 +150,7 @@ class _HomeState extends State<Home> {
       ),
       body: Stack(
         children: [
-          Container(color: const Color.fromARGB(230, 91, 255, 173)),
+          Container(color: const Color(0xFF00BFA5)),
           Positioned(
             top: 1,
             left: 0,
@@ -167,7 +170,7 @@ class _HomeState extends State<Home> {
             bottom: 0,
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFF006064),
+                color: Color(0xFF006064), //Color(0xFF00A5B5),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(50),
                   topRight: Radius.circular(50),
@@ -189,7 +192,7 @@ class _HomeState extends State<Home> {
                           'Gastos',
                           style: TextStyle(
                             color: selectedType == 'Gasto'
-                                ? Colors.yellow
+                                ? const Color(0xFFb4f4bc)
                                 : Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -207,7 +210,7 @@ class _HomeState extends State<Home> {
                           'Ingreso',
                           style: TextStyle(
                             color: selectedType == 'Ingreso'
-                                ? Colors.yellow
+                                ? const Color(0xFFb4f4bc)
                                 : Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -220,7 +223,7 @@ class _HomeState extends State<Home> {
                   Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: const Color.fromARGB(230, 91, 255, 173),
+                      color: const Color(0xFF00BFA5),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: const [
                         BoxShadow(
@@ -282,7 +285,7 @@ class _HomeState extends State<Home> {
                           margin: const EdgeInsets.symmetric(
                               vertical: 5.0, horizontal: 10.0),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
+                            color: const Color(0xFFb4f4bc),
                             border: Border.all(color: const Color(0xFF00BFA5)),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
@@ -375,7 +378,9 @@ class _HomeState extends State<Home> {
               // Navegar a la pantalla de transacción
               context.go('/transaccion');
             },
-            child: const Icon(Icons.add),
+            child: const Icon(
+              Icons.add,
+            ),
           ),
         ],
       ),
@@ -402,7 +407,7 @@ class SaldoDisplay extends StatelessWidget {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF006064),
+              color: Color(0xFFb4f4bc),
             ),
           )
         : Text(
@@ -410,7 +415,7 @@ class SaldoDisplay extends StatelessWidget {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 100, 0, 0),
+              color: Color.fromARGB(255, 224, 17, 17),
             ),
           );
   }

@@ -40,7 +40,7 @@ class _ProfileViewState extends State<ProfileView> {
       child: Column(
         children: [
           Container(
-            color: const Color.fromARGB(230, 91, 255, 173),
+            color: const Color(0xFF00BFA5),
             child: Padding(
               padding: const EdgeInsets.only(left: 10, right: 20, top: 35),
               child: Row(

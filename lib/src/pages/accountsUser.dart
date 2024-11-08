@@ -52,7 +52,7 @@ class _AccountsUserState extends State<AccountsUser> {
       body: Stack(
         children: [
           Container(
-            color: const Color.fromARGB(230, 91, 255, 173),
+            color: const Color(0xFF00BFA5),
           ),
           Positioned(
             top: MediaQuery.of(context).size.height * 0.02,
@@ -160,7 +160,7 @@ class _AccountsUserState extends State<AccountsUser> {
                           margin: const EdgeInsets.symmetric(
                               vertical: 10.0, horizontal: 10.0),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
+                            color: const Color(0xFFb4f4bc),
                             border: Border.all(
                               color: const Color(0xFF00BFA5),
                             ),

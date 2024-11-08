@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
                   theme: ThemeData(
                     scaffoldBackgroundColor: const Color(0xFF006064),
                     colorScheme: ColorScheme.fromSeed(
-                      seedColor: const Color.fromARGB(255, 4, 117, 51),
+                      seedColor: const Color(0xFF047533),
                     ),
                   ),
                 );
@@ -61,7 +61,7 @@ class _MyAppState extends State<MyApp> {
                   theme: ThemeData(
                     scaffoldBackgroundColor: const Color(0xFF006064),
                     colorScheme: ColorScheme.fromSeed(
-                      seedColor: const Color.fromARGB(255, 4, 117, 51),
+                      seedColor: const Color(0xFF047533),
                     ),
                   ),
                 );
