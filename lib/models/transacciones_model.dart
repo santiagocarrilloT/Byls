@@ -79,34 +79,39 @@ class IncomeModel {
 
   // Nuevo: Método para traer transacciones filtradas por periodo
   static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(
-      String periodo) async {
-    DateTime now = DateTime.now();
-    DateTime startDate;
+    String periodo, int cuentaId,
+    {int? month, int? year}) async {
+  DateTime now = DateTime.now();
+  DateTime startDate;
+  DateTime endDate;
 
-    switch (periodo) {
-      case 'Día':
-        startDate = DateTime(now.year, now.month, now.day);
-        break;
-      case 'Semana':
-        startDate = now.subtract(Duration(days: now.weekday - 1));
-        break;
-      case 'Mes':
-        startDate = DateTime(now.year, now.month, 1);
-        break;
-      case 'Año':
-        startDate = DateTime(now.year, 1, 1);
-        break;
-      default:
-        throw ArgumentError('Periodo no válido');
-    }
-
-    final response = await Supabase.instance.client
-        .from('transacciones')
-        .select()
-        .gte('fecha_transaccion', startDate.toIso8601String())
-        .lte('fecha_transaccion', now.toIso8601String());
-
-    final List<dynamic> data = response;
-    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+  if (periodo == 'Mes' && month != null) {
+    startDate = DateTime(now.year, month, 1);
+    endDate = DateTime(now.year, month + 1, 1).subtract(const Duration(days: 1));
+  } else if (periodo == 'Año' && year != null) {
+    startDate = DateTime(year, 1, 1);
+    endDate = DateTime(year + 1, 1, 1).subtract(const Duration(days: 1));
+  } else if (periodo == 'Día') {
+    startDate = DateTime(now.year, now.month, now.day);
+    endDate = now;
+  } else if (periodo == 'Semana') {
+    startDate = now.subtract(Duration(days: now.weekday - 1));
+    endDate = startDate.add(const Duration(days: 6));
+  } else {
+    startDate = DateTime(1970); // Para "Todos"
+    endDate = now;
   }
+
+  final response = await Supabase.instance.client
+      .from('transacciones')
+      .select()
+      .eq('id_cuenta', cuentaId)
+      .gte('fecha_transaccion', startDate.toIso8601String())
+      .lte('fecha_transaccion', endDate.toIso8601String());
+
+  final List<dynamic> data = response;
+  return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+}
+
+
 }

@@ -20,7 +20,10 @@ class _HomeState extends State<Home> {
   int? selectedCuentaId;
   double saldoCuenta = 0.0;
   String tipoMoneda = 'USD';
-  final List<bool> _selections = List.generate(4, (_) => false);
+  final List<bool> _selections = List.generate(5, (_) => false);
+  String selectedPeriodo = 'Día';
+  int? selectedYear;
+  int? selectedMonth;
 
   List<IncomeModel> futureIngresos = [];
   String selectedType =
@@ -32,6 +35,65 @@ class _HomeState extends State<Home> {
     fetchCuentas();
     //fetchTransacciones();
   }
+
+  Future<int?> showMonthPicker(BuildContext context) async {
+  final List<String> monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  return await showDialog<int>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Seleccionar Mes'),
+        content: SizedBox(
+          height: 300,
+          child: ListView.builder(
+            itemCount: monthNames.length,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                title: Text(monthNames[index]),
+                onTap: () {
+                  Navigator.pop(context, index + 1); // Retorna el mes seleccionado (1-12)
+                },
+              );
+            },
+          ),
+        ),
+      );
+    },
+  );
+}
+
+
+Future<int?> showYearPicker(BuildContext context) async {
+  return await showDialog<int>(
+    context: context,
+    builder: (BuildContext context) {
+      int currentYear = DateTime.now().year;
+      return AlertDialog(
+        title: const Text('Seleccionar Año'),
+        content: SizedBox(
+          height: 200,
+          child: ListView.builder(
+            itemCount: 20, // Mostrar los últimos 20 años
+            itemBuilder: (BuildContext context, int index) {
+              int year = currentYear - index;
+              return ListTile(
+                title: Text('$year'),
+                onTap: () {
+                  Navigator.pop(context, year); // Retorna el año seleccionado
+                },
+              );
+            },
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
   Future<void> fetchCuentas() async {
     final authService = Provider.of<AuthController>(context, listen: false);
@@ -56,17 +118,28 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Future<void> cargarTransacciones() async {
-    try {
+  Future<void> cargarTransacciones({int? selectedMonth, int? selectedYear}) async {
+  try {
+    if (selectedCuentaId != null) {
       List<IncomeModel> transaccionesFiltro =
-          await IncomeModel.getTransacciones(selectedCuentaId!);
+          await IncomeModel.getTransaccionesFiltradasPorPeriodo(
+        selectedPeriodo,
+        selectedCuentaId!,
+        month: selectedMonth,
+        year: selectedYear,
+      );
       setState(() {
         futureIngresos = transaccionesFiltro;
       });
-    } catch (e) {
-      print('Error fetching transacciones: $e');
+    } else {
+      print('Error: Usuario no autenticado.');
     }
+  } catch (e) {
+    print('Error fetching transacciones: $e');
   }
+}
+
+
 
   void fetchTransacciones() async {
     try {
@@ -257,12 +330,43 @@ class _HomeState extends State<Home> {
                               padding: EdgeInsets.symmetric(horizontal: 12),
                               child: Text('Año'),
                             ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text('Todos'),
+                            ), 
                           ],
-                          onPressed: (int index) {
-                            setState(() {
+                          onPressed: (int index)  {
+                            setState(() async {
                               for (int i = 0; i < _selections.length; i++) {
                                 _selections[i] = i == index;
                               }
+                              switch (index) {
+                                case 0:
+                                  selectedPeriodo = 'Día';
+                                  break;
+                                case 1:
+                                  selectedPeriodo = 'Semana';
+                                  break;
+                                case 2:
+                                  final int? selectedMonth = await showMonthPicker(context);
+                                  if (selectedMonth != null) {
+                                    selectedPeriodo = 'Mes';
+                                    cargarTransacciones(selectedMonth: selectedMonth);
+                                  }
+                                  return;
+                                case 3:
+                                  final int? selectedYear = await
+                                    showYearPicker(context);
+                                  if (selectedYear != null) {
+                                    selectedPeriodo = 'Año';
+                                    cargarTransacciones(selectedYear: selectedYear);
+                                  }
+                                  return;
+                                case 4:
+                                  selectedPeriodo = 'Todos';
+                                  break;
+                              }
+                              cargarTransacciones();
                             });
                           },
                         ),
@@ -307,7 +411,7 @@ class _HomeState extends State<Home> {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                               /* IconButton(
+                              /* IconButton(
                                   icon: const Icon(Icons.delete,
                                       color: Colors.red),
                                   onPressed: () async {
