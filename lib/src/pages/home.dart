@@ -1,3 +1,6 @@
+import 'package:byls_app/models/categorias_usuario.dart';
+import 'package:byls_app/src/pages/graphics.dart';
+import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:byls_app/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +22,9 @@ class _HomeState extends State<Home> {
   //Inicializar cambio en formato del saldo
   FormatoUtils formatoUtils = FormatoUtils();
 
+  //Map para las categorías de usuario
+  Map<String, String> categoriasUsuarios = {};
+
   //Inicializar controlador de ingresos
   IngresosController ingresosController = IngresosController();
   List<CuentaModel> cuentas = [];
@@ -35,6 +41,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     fetchCuentas();
+    fecthNombre();
     //fetchTransacciones();
   }
 
@@ -85,6 +92,45 @@ class _HomeState extends State<Home> {
     }
   }
 
+  Future<void> fecthNombre() async {
+    final authService = Provider.of<AuthController>(context, listen: false);
+    final userId = authService.currentUser?.id;
+    final categoriasUsuario =
+        await CategoriasusuarioModel.getCategoriasIcono(userId!);
+    setState(() {
+      categoriasUsuarios = categoriasUsuario;
+    });
+  }
+
+  // Función para conocer los colores de las categorías
+  Categoria getIcon(String nombreCategoria) {
+    // Obtener el nombre del icono original de la categoría
+    var iconoOriginal = categoriasUsuarios[nombreCategoria];
+
+    // Si la categoría del usuario contiene el icono original, entonces se devuelve la categoría con el icono original
+    if (categoriasUsuarios.containsKey(iconoOriginal)) {
+      return Categoria(
+        nombre: nombreCategoria,
+        icono: categoriasIngreso
+            .firstWhere(
+              (element) => element.nombre == iconoOriginal,
+            )
+            .icono,
+        color: Colors.black,
+      );
+    } else {
+      switch (selectedType == 'Ingreso') {
+        case true:
+          return categoriasIngreso.firstWhere(
+            (element) => element.nombre == iconoOriginal,
+          );
+        case false:
+          return categoriasGasto
+              .firstWhere((element) => element.nombre == iconoOriginal);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Filtrar transacciones según el tipo seleccionado
@@ -99,18 +145,26 @@ class _HomeState extends State<Home> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              //Texto Seleccionar Cuenta
+              const Text(
+                'Cuenta: ',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(width: 10),
+
+              // Dropdown para seleccionar cuenta
               DropdownButton(
                 value: selectedCuentaId,
-                icon:
-                    const Icon(Icons.arrow_downward, color: Color(0xFFFFFFFF)),
+                icon: const Icon(Icons.arrow_downward,
+                    color: Color.fromARGB(255, 0, 0, 0)),
                 iconSize: 24,
                 elevation: 16,
                 style: const TextStyle(color: Color(0xFFFFFFFF)),
                 dropdownColor: const Color(0xFFFFFFFF),
-                underline: Container(
-                  height: 2,
-                  color: const Color(0xFFFFFFFF),
-                ),
                 onChanged: (int? newValue) {
                   setState(
                     () {
@@ -127,7 +181,7 @@ class _HomeState extends State<Home> {
                       cuenta.nombreCuenta,
                       style: const TextStyle(
                         color: Colors.black,
-                        fontSize: 18,
+                        fontSize: 15,
                       ),
                     ),
                   );
@@ -139,7 +193,8 @@ class _HomeState extends State<Home> {
 
               // Botón para crear nueva cuenta
               IconButton(
-                icon: const Icon(Icons.post_add, color: Color(0xFFFFFFFF)),
+                icon: const Icon(Icons.add_card,
+                    color: Color.fromARGB(255, 0, 0, 0)),
                 onPressed: () {
                   context.go('/NuevaCuenta');
                 },
@@ -277,93 +332,105 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filteredTransacciones.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
+                  filteredTransacciones.isEmpty
+                      ? Container(
+                          alignment: Alignment.center,
                           margin: const EdgeInsets.symmetric(
-                              vertical: 5.0, horizontal: 10.0),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFb4f4bc),
-                            border: Border.all(color: const Color(0xFF00BFA5)),
-                            borderRadius: BorderRadius.circular(10.0),
+                              vertical: 50.0, horizontal: 10.0),
+                          child: const Text(
+                            'No hay transacciones',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
                           ),
-                          child: ListTile(
-                            title: Text(
-                              '${filteredTransacciones[index].nombreCategoria}',
-                              style: const TextStyle(color: Color(0xFF4E4E4E)),
-                            ),
-                            leading: Hero(
-                              tag: index,
-                              child: const Padding(
-                                padding: EdgeInsets.all(4.0),
-                                child:
-                                    Icon(Icons.house, color: Color(0xFF4E4E4E)),
-                              ),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '\$ ${filteredTransacciones[index].montoTransaccion}',
-                                  style: const TextStyle(
-                                    color: Color(0xFF4E4E4E),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16.0,
-                                  ),
+                        )
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: filteredTransacciones.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              var icono;
+                              selectedType == 'Gasto'
+                                  ? icono = categoriasGasto
+                                      .firstWhere(
+                                        (element) =>
+                                            element.nombre ==
+                                            filteredTransacciones[index]
+                                                .nombreCategoria,
+                                        orElse: () => getIcon(
+                                            filteredTransacciones[index]
+                                                    .nombreCategoria ??
+                                                ''),
+                                      )
+                                      .icono
+                                  : icono = categoriasIngreso
+                                      .firstWhere(
+                                        (element) =>
+                                            element.nombre ==
+                                            filteredTransacciones[index]
+                                                .nombreCategoria,
+                                        orElse: () => getIcon(
+                                            filteredTransacciones[index]
+                                                    .nombreCategoria ??
+                                                ''),
+                                      )
+                                      .icono;
+                              icono ??= Icons.abc;
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 5.0, horizontal: 10.0),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(155, 255, 255, 255),
+                                  border: Border.all(
+                                      color: const Color(0xFF006064)),
+                                  borderRadius: BorderRadius.circular(10.0),
                                 ),
-                                const SizedBox(width: 10),
-                                /* IconButton(
-                                  icon: const Icon(Icons.delete,
-                                      color: Colors.red),
-                                  onPressed: () async {
-                                    try {
-                                      await ingresosController.deleteIngreso(
-                                          filteredTransacciones[index]
-                                              .idTransaccion
-                                              .toString());
-                                      setState(() {
-                                        filteredTransacciones.removeAt(index);
-                                      });
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Transacción eliminada correctamente'),
-                                          backgroundColor: Colors.green,
+                                child: ListTile(
+                                  title: Text(
+                                    '${filteredTransacciones[index].nombreCategoria}',
+                                    style: const TextStyle(
+                                        color: Color(0xFF4E4E4E)),
+                                  ),
+                                  leading: Hero(
+                                    tag: index,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Icon(icono),
+                                    ),
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        Opciones.habilitarPuntuacion
+                                            ? formatoUtils.formatNumber(
+                                                filteredTransacciones[index]
+                                                    .montoTransaccion)
+                                            : '\$ ${filteredTransacciones[index].montoTransaccion}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF4E4E4E),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
                                         ),
-                                      );
-                                      context.go('/app_entry');
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                              'Error al eliminar transacción'),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    final transaccionProvider =
+                                        Provider.of<TransaccionProvider>(
+                                            context,
+                                            listen: false);
+                                    transaccionProvider.setCurrentTransaccion(
+                                        filteredTransacciones[index]);
+                                    context.go('/transaccionEdit',
+                                        extra: filteredTransacciones[index]);
                                   },
                                 ),
-                             */
-                              ],
-                            ),
-                            onTap: () {
-                              final transaccionProvider =
-                                  Provider.of<TransaccionProvider>(context,
-                                      listen: false);
-                              transaccionProvider.setCurrentTransaccion(
-                                  filteredTransacciones[index]);
-                              context.go('/transaccionEdit',
-                                  extra: filteredTransacciones[index]);
+                              );
                             },
                           ),
-                        );
-                      },
-                    ),
-                  ),
+                        ),
                 ],
               ),
             ),
@@ -375,8 +442,39 @@ class _HomeState extends State<Home> {
         children: [
           FloatingActionButton(
             onPressed: () {
+              showMenu(
+                context: context,
+                position: const RelativeRect.fromLTRB(100, 600, 100, 100),
+                items: [
+                  PopupMenuItem(
+                    child: ListTile(
+                      title: const Text('Transacción'),
+                      leading: const Icon(Icons.add),
+                      onTap: () {
+                        context.go('/transaccion');
+                      },
+                    ),
+                  ),
+                  PopupMenuItem(
+                    child: ListTile(
+                      title: const Text('Cuentas'),
+                      leading: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.account_balance),
+                          SizedBox(width: 2),
+                          Icon(Icons.add),
+                        ],
+                      ),
+                      onTap: () {
+                        context.go('/NuevaCuenta');
+                      },
+                    ),
+                  ),
+                ],
+              );
               // Navegar a la pantalla de transacción
-              context.go('/transaccion');
+              //context.go('/transaccion');
             },
             child: const Icon(
               Icons.add,
@@ -403,7 +501,9 @@ class SaldoDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return saldoCuenta >= 0
         ? Text(
-            '\$ ${formatoUtils.formatNumber(saldoCuenta)} $divisa',
+            Opciones.habilitarPuntuacion
+                ? '\$ ${formatoUtils.formatNumber(saldoCuenta)} $divisa'
+                : saldoCuenta.toStringAsFixed(2),
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -411,7 +511,9 @@ class SaldoDisplay extends StatelessWidget {
             ),
           )
         : Text(
-            '\$ -${formatoUtils.formatNumber(saldoCuenta * (-1))} $divisa',
+            Opciones.habilitarPuntuacion
+                ? '\$ -${formatoUtils.formatNumber(saldoCuenta * (-1))} $divisa'
+                : saldoCuenta.toStringAsFixed(2),
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,

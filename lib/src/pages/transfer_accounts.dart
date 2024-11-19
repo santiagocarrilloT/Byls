@@ -98,7 +98,9 @@ class _TransferAccountsState extends State<TransferAccounts> {
 
             // Saldo de la cuenta de Origen
             Text(
-              'Max. Cantidad: \$ ${saldoCuenta ?? 0} $selectedTipoDivisa',
+              saldoCuenta! <= 0
+                  ? 'Saldo Insuficiente'
+                  : 'Saldo Máximo: \$ ${saldoCuenta ?? 0} $selectedTipoDivisa',
               style: const TextStyle(
                 color: Color(0xFF63F77D),
                 fontSize: 18,
@@ -128,7 +130,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                 });
               },
               decoration: InputDecoration(
-                labelText: 'Cuenta Origen',
+                labelText: 'Desde:',
                 labelStyle: const TextStyle(
                   color: Colors.white,
                 ),
@@ -190,7 +192,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                 });
               },
               decoration: InputDecoration(
-                labelText: 'Cuenta Destino',
+                labelText: 'Para: ',
                 labelStyle: const TextStyle(
                   color: Colors.white,
                 ),

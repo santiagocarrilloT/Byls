@@ -1,5 +1,6 @@
 import 'package:byls_app/src/pages/accountsUser.dart';
 import 'package:byls_app/src/pages/graphics.dart';
+import 'package:byls_app/src/pages/reportsUser.dart';
 import 'package:flutter/material.dart';
 import 'home.dart';
 import 'profile.dart';
@@ -22,11 +23,11 @@ class _NavigationClassState extends State<NavigationClass> {
       seleccionarVentana = null;
     }
   }
-  BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
+  final BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
 
   static final List<Widget> _pages = <Widget>[
+    const ReportsUser(),
     const Home(),
-    const GraphicsView(),
     const AccountsUser(), // Pantalla de inicio
     const ProfileView(), // Pantalla de perfil
   ];
@@ -65,7 +66,7 @@ const _navBarItems = [
   BottomNavigationBarItem(
     icon: Icon(Icons.analytics_outlined),
     activeIcon: Icon(Icons.analytics),
-    label: 'Gráficos',
+    label: 'Movimiento',
   ),
   /* BottomNavigationBarItem(
     icon: SizedBox.shrink(), // Espacio vacío para el botón central

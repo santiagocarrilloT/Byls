@@ -18,52 +18,6 @@ class Categoria {
   Categoria({required this.nombre, required this.icono, required this.color});
 }
 
-final List<Categoria> categoriasGasto = [
-  Categoria(
-      nombre: 'Casa',
-      icono: Icons.home,
-      color: const Color.fromARGB(255, 127, 54, 244)),
-  Categoria(nombre: 'Educación', icono: Icons.school, color: Colors.green),
-  Categoria(
-      nombre: 'Gasolina', icono: Icons.local_gas_station, color: Colors.red),
-  Categoria(nombre: 'Moto', icono: Icons.motorcycle, color: Colors.purple),
-  Categoria(
-      nombre: 'Teléfono', icono: Icons.phone_android, color: Colors.orange),
-  Categoria(nombre: 'Alimentación', icono: Icons.fastfood, color: Colors.brown),
-  Categoria(nombre: 'TV', icono: Icons.movie, color: Colors.pink),
-  Categoria(
-      nombre: 'Salud', icono: Icons.local_hospital, color: Colors.blueAccent),
-  Categoria(nombre: 'Ropa', icono: Icons.checkroom, color: Colors.amber),
-  Categoria(
-      nombre: 'Viajes',
-      icono: Icons.airplanemode_active,
-      color: Colors.lightBlue),
-  Categoria(
-      nombre: 'Suscripciones',
-      icono: Icons.subscriptions,
-      color: Colors.deepPurple),
-];
-
-final List<Categoria> categoriasIngreso = [
-  Categoria(nombre: 'Salario', icono: Icons.attach_money, color: Colors.teal),
-  Categoria(nombre: 'Moto', icono: Icons.motorcycle, color: Colors.purple),
-  Categoria(
-      nombre: 'Gasolina', icono: Icons.local_gas_station, color: Colors.red),
-  Categoria(
-      nombre: 'Inversiones', icono: Icons.trending_up, color: Colors.orange),
-  Categoria(nombre: 'Venta', icono: Icons.store, color: Colors.green),
-  Categoria(nombre: 'Freelance', icono: Icons.work, color: Colors.indigo),
-  Categoria(
-      nombre: 'Regalos', icono: Icons.card_giftcard, color: Colors.redAccent),
-  Categoria(nombre: 'Alquiler', icono: Icons.apartment, color: Colors.brown),
-  Categoria(nombre: 'Bonificaciones', icono: Icons.star, color: Colors.yellow),
-  Categoria(
-      nombre: 'Intereses',
-      icono: Icons.account_balance,
-      color: Colors.tealAccent),
-  Categoria(nombre: 'Dividendos', icono: Icons.paid, color: Colors.greenAccent),
-];
-
 class GraphicsView extends StatefulWidget {
   const GraphicsView({super.key});
 
@@ -80,7 +34,7 @@ class _GraphicsViewState extends State<GraphicsView> {
   Map<String, String> categoriasUsuarios = {};
   FormatoUtils formatoUtils = FormatoUtils();
 
-  //Mostrar transacción (Ingresos)
+  //Lista de Transacciones
   List<IncomeModel> futureIngresos = [];
 
   @override
@@ -101,7 +55,6 @@ class _GraphicsViewState extends State<GraphicsView> {
         fetchTransacciones(
             selectedCuentaId!); // Llama traer los ingresos de esa cuenta
       }
-      print(formatoUtils.formatNumber(cuentas[1].saldo));
     });
   }
 
@@ -153,6 +106,12 @@ class _GraphicsViewState extends State<GraphicsView> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            GoRouter.of(context).go('/app_entry');
+          },
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -227,14 +186,27 @@ class _GraphicsViewState extends State<GraphicsView> {
               ),
             ],
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: transaccionElegida
-                  ? _buildPieChart(filteredTransacciones)
-                  : _buildPieChart(filteredTransacciones),
-            ),
-          ),
+          filteredTransacciones.isEmpty
+              ? Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 50.0, horizontal: 10.0),
+                  child: const Text(
+                    'No hay transacciones',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                )
+              : Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: transaccionElegida
+                        ? _buildPieChart(filteredTransacciones)
+                        : _buildPieChart(filteredTransacciones),
+                  ),
+                ),
         ],
       ),
     );
@@ -274,3 +246,88 @@ class _GraphicsViewState extends State<GraphicsView> {
     }
   }
 }
+
+final List<Categoria> categoriasGasto = [
+  Categoria(
+      nombre: 'Casa',
+      icono: Icons.home,
+      color: const Color.fromARGB(255, 127, 54, 244)),
+  Categoria(nombre: 'Educación', icono: Icons.school, color: Colors.green),
+  Categoria(
+      nombre: 'Gasolina', icono: Icons.local_gas_station, color: Colors.red),
+  Categoria(nombre: 'Moto', icono: Icons.motorcycle, color: Colors.purple),
+  Categoria(
+      nombre: 'Teléfono', icono: Icons.phone_android, color: Colors.orange),
+  Categoria(nombre: 'Alimentación', icono: Icons.fastfood, color: Colors.brown),
+  Categoria(nombre: 'TV', icono: Icons.movie, color: Colors.pink),
+  Categoria(
+      nombre: 'Salud', icono: Icons.local_hospital, color: Colors.blueAccent),
+  Categoria(nombre: 'Ropa', icono: Icons.checkroom, color: Colors.amber),
+  Categoria(
+      nombre: 'Viajes',
+      icono: Icons.airplanemode_active,
+      color: Colors.lightBlue),
+  Categoria(
+      nombre: 'Suscripciones',
+      icono: Icons.subscriptions,
+      color: Colors.deepPurple),
+  Categoria(nombre: 'house', icono: Icons.home, color: Colors.grey),
+  Categoria(nombre: 'school', icono: Icons.school, color: Colors.grey),
+  Categoria(nombre: 'fastfood', icono: Icons.fastfood, color: Colors.grey),
+  Categoria(
+      nombre: 'local_gas_station',
+      icono: Icons.local_gas_station,
+      color: Colors.grey),
+  Categoria(
+      nombre: 'phone_android', icono: Icons.phone_android, color: Colors.grey),
+  Categoria(
+      nombre: 'health_and_safety',
+      icono: Icons.health_and_safety,
+      color: Colors.grey),
+  Categoria(
+      nombre: 'shopping_cart', icono: Icons.shopping_cart, color: Colors.grey),
+  Categoria(nombre: 'car_rental', icono: Icons.car_rental, color: Colors.grey),
+  Categoria(nombre: 'hotel', icono: Icons.hotel, color: Colors.grey),
+];
+
+final List<Categoria> categoriasIngreso = [
+  Categoria(nombre: 'Salario', icono: Icons.attach_money, color: Colors.teal),
+  Categoria(nombre: 'Moto', icono: Icons.motorcycle, color: Colors.purple),
+  Categoria(
+      nombre: 'Gasolina', icono: Icons.local_gas_station, color: Colors.red),
+  Categoria(
+      nombre: 'Inversiones', icono: Icons.trending_up, color: Colors.orange),
+  Categoria(nombre: 'Venta', icono: Icons.store, color: Colors.green),
+  Categoria(nombre: 'Freelance', icono: Icons.work, color: Colors.indigo),
+  Categoria(
+      nombre: 'Regalos', icono: Icons.card_giftcard, color: Colors.redAccent),
+  Categoria(nombre: 'Alquiler', icono: Icons.apartment, color: Colors.brown),
+  Categoria(nombre: 'Bonificaciones', icono: Icons.star, color: Colors.yellow),
+  Categoria(
+      nombre: 'Intereses',
+      icono: Icons.account_balance,
+      color: Colors.tealAccent),
+  Categoria(nombre: 'Dividendos', icono: Icons.paid, color: Colors.greenAccent),
+  Categoria(
+      nombre: 'attach_money', icono: Icons.attach_money, color: Colors.grey),
+  Categoria(
+      nombre: 'trending_up', icono: Icons.trending_up, color: Colors.grey),
+  Categoria(
+      nombre: 'monetization_on',
+      icono: Icons.monetization_on,
+      color: Colors.grey),
+  Categoria(
+      nombre: 'account_balance_wallet',
+      icono: Icons.account_balance_wallet,
+      color: Colors.grey),
+  Categoria(nombre: 'phone_android', icono: Icons.business, color: Colors.grey),
+  Categoria(
+      nombre: 'health_and_safety',
+      icono: Icons.health_and_safety,
+      color: Colors.grey),
+  Categoria(
+      nombre: 'card_giftcard', icono: Icons.card_giftcard, color: Colors.grey),
+  Categoria(nombre: 'store', icono: Icons.store, color: Colors.grey),
+  Categoria(nombre: 'pie_chart', icono: Icons.pie_chart, color: Colors.grey),
+  // Default
+];

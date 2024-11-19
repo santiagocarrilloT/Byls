@@ -69,4 +69,25 @@ class CategoriasusuarioModel {
     } */
     return categoriasMap();
   }
+
+  // Método para obtener SOLO el icono de las categorías de un usuario por su ID
+  static Future<Map<String, String>> getCategoriasIcono(String userId) async {
+    final categorias = await getCategorias(userId);
+
+    Map<String, String> categoriasMap() {
+      return {
+        for (var cat in categorias) cat.nombreCategoria: cat.iconoCategoria
+      };
+    }
+
+    // Convertimos los datos a una lista de CategoriasusuarioModel
+    /* final List<CategoriasusuarioModel> categoriasUsuario = [];
+    if (categorias != null) {
+      for (final item in categorias) {
+        // Crea la instancia usando el fromMap
+        categoriasUsuario.add(CategoriasusuarioModel.fromMap(item));
+      }
+    } */
+    return categoriasMap();
+  }
 }

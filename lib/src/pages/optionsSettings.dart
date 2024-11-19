@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-const tareaProgramada = 'PrimerTarea';
-sentDate() {
-  print('Hola mundo, tarea programada ejecutada');
-}
-
 class Opciones extends StatefulWidget {
+  static bool habilitarPuntuacion = false;
   const Opciones({super.key});
 
   @override
@@ -56,23 +52,38 @@ class _OpcionesState extends State<Opciones> {
                 color: Colors.white,
               ),
               onTap: () => {},
-              /* trailing: Switch(
-          value: false,
-          onChanged: (value) {},
-        ), */
             ),
             ListTile(
               title: const Text(
-                'Visualización Saldos',
+                'Habilitar Puntuación a Saldos',
                 style: TextStyle(color: Colors.white),
               ),
               leading: const Icon(
                 Icons.remove_red_eye,
                 color: Colors.white,
               ),
-              onTap: () => {
-                //context.go('/visualizacionSaldos'),
-              },
+              trailing: Switch(
+                activeColor: const Color(0xFFFF8A65),
+                value: Opciones.habilitarPuntuacion,
+                onChanged: (value) {
+                  setState(() {
+                    Opciones.habilitarPuntuacion = value;
+                  });
+                  if (value) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Puntuación a saldos habilitada'),
+                      backgroundColor: Colors.green,
+                      duration: Duration(seconds: 1),
+                    ));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Puntuación a saldos deshabilitada'),
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 1),
+                    ));
+                  }
+                },
+              ),
             ),
           ],
         ),

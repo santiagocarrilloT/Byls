@@ -154,14 +154,6 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                                 size: 30,
                               ),
                             ),
-                            /* const SizedBox(height: 8),
-                            Text(
-                              category['nombre'],
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ), */
                           ],
                         ),
                       );
