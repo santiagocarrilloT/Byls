@@ -1,5 +1,6 @@
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/models/cuenta_model.dart';
+import 'package:byls_app/models/totalCuentas_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
 import 'package:byls_app/src/pages/componentsReport.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -19,6 +20,9 @@ class _ReportsUserState extends State<ReportsUser> {
   Componentsreport componentsreports = Componentsreport();
   double widthPantalla = 0.0;
   double heightPantalla = 0.0;
+
+  List<SaldoFecha> saldosPositivos = [];
+  List<SaldoFecha> saldosNegativos = [];
 
   List<IncomeModel> dataTransacciones = [];
   List<double> transaccionesSuma = [0, 0];
@@ -63,13 +67,24 @@ class _ReportsUserState extends State<ReportsUser> {
     setState(() {
       for (var cuenta in cuentasUsuario) {
         if (cuenta['total'] as double >= 0) {
-          saldoCuentasPositivo.add(cuenta['total'] as double);
-          fechasPositivo.add(cuenta['fecha'] as DateTime);
+          saldosPositivos.add(SaldoFecha(
+              cuenta['total'] as double, cuenta['fecha'] as DateTime));
         } else {
-          saldoCuentasNegativo.add(cuenta['total'] as double);
-          fechasNegativo.add(cuenta['fecha'] as DateTime);
+          saldosNegativos.add(SaldoFecha(
+              cuenta['total'] as double, cuenta['fecha'] as DateTime));
         }
       }
+      // Ordenar las listas por fecha
+      saldosPositivos.sort((a, b) => a.fecha.compareTo(b.fecha));
+      saldosNegativos.sort((a, b) => a.fecha.compareTo(b.fecha));
+
+      // Extraer las listas de saldos y fechas ordenadas
+      setState(() {
+        saldoCuentasPositivo = saldosPositivos.map((sf) => sf.saldo).toList();
+        fechasPositivo = saldosPositivos.map((sf) => sf.fecha).toList();
+        saldoCuentasNegativo = saldosNegativos.map((sf) => sf.saldo).toList();
+        fechasNegativo = saldosNegativos.map((sf) => sf.fecha).toList();
+      });
     });
   }
 
@@ -354,14 +369,14 @@ class _ReportsUserState extends State<ReportsUser> {
                                           const EdgeInsets.only(left: 10.0),
                                       child: habilitarSaldoPos
                                           ? const Text(
-                                              'Balance Positivo',
+                                              'Balance Cuentas Positivo',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.white,
                                               ),
                                             )
                                           : const Text(
-                                              'Balance Negativo',
+                                              'Balance Cuentas Negativo',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.white,
@@ -584,7 +599,7 @@ class _ReportsUserState extends State<ReportsUser> {
           ),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
-              interval: 100000,
+              interval: 1000000,
               showTitles: true,
               reservedSize: 70,
               getTitlesWidget: (value, meta) {
@@ -615,7 +630,7 @@ class _ReportsUserState extends State<ReportsUser> {
 
         minY: habilitarSaldoPos
             ? 0
-            : saldoCuentas.reduce((a, b) => a < b ? a : b) - 100,
+            : saldoCuentas.reduce((a, b) => a < b ? a : b) - 500,
 
         maxY: habilitarSaldoPos
             ? saldoCuentas.reduce((a, b) => a > b ? a : b) + 500

@@ -289,7 +289,7 @@ class Botones extends StatelessWidget {
                 backgroundColor:
                     WidgetStateProperty.all<Color>(const Color(0xFFFF8A65))),
             child: const Text(
-              'Iniciar Sesión',
+              'Crear Cuenta',
               style: TextStyle(color: Colors.white),
             ),
           ),

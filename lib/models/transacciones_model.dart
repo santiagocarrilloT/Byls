@@ -78,7 +78,6 @@ class IncomeModel {
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
   }
 
-  // Nuevo: Método para traer transacciones filtradas por periodo
   static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(
       String periodo) async {
     DateTime now = DateTime.now();
@@ -111,14 +110,40 @@ class IncomeModel {
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
   }
 
-  // Método para agregar una nueva transacción
-  static Future<void> agregarNuevaTransaccion(IncomeModel transaccion) async {
+  // Nuevo: Método para traer transacciones filtradas por periodo
+  static Future<List<IncomeModel>> transaccionesFiltradasPeriodoPersonalizado(
+      String periodo, int cuentaId,
+      {int? month, int? year}) async {
+    DateTime now = DateTime.now();
+    DateTime startDate;
+    DateTime endDate;
+
+    if (periodo == 'Mes' && month != null) {
+      startDate = DateTime(now.year, month, 1);
+      endDate =
+          DateTime(now.year, month + 1, 1).subtract(const Duration(days: 1));
+    } else if (periodo == 'Año' && year != null) {
+      startDate = DateTime(year, 1, 1);
+      endDate = DateTime(year + 1, 1, 1).subtract(const Duration(days: 1));
+    } else if (periodo == 'Día') {
+      startDate = DateTime(now.year, now.month, now.day);
+      endDate = now;
+    } else if (periodo == 'Semana') {
+      startDate = now.subtract(Duration(days: now.weekday - 1));
+      endDate = startDate.add(const Duration(days: 6));
+    } else {
+      startDate = DateTime(1970); // Para "Todos"
+      endDate = now;
+    }
+
     final response = await Supabase.instance.client
         .from('transacciones')
-        .insert(transaccion.toMap());
+        .select()
+        .eq('id_cuenta', cuentaId)
+        .gte('fecha_transaccion', startDate.toIso8601String())
+        .lte('fecha_transaccion', endDate.toIso8601String());
 
-    if (response.error != null) {
-      throw Exception('Error al agregar transacción: ${response.error!.message}');
-    }
+    final List<dynamic> data = response;
+    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
   }
 }

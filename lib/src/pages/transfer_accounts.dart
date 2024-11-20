@@ -79,6 +79,13 @@ class _TransferAccountsState extends State<TransferAccounts> {
 
   @override
   Widget build(BuildContext context) {
+    if (cuentas.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         //backgroundColor: const Color(0xFF63F77D),

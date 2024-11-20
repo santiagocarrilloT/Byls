@@ -22,6 +22,10 @@ class _HomeState extends State<Home> {
   //Inicializar cambio en formato del saldo
   FormatoUtils formatoUtils = FormatoUtils();
 
+  String selectedPeriodo = 'Día';
+  int? selectedYear;
+  int? selectedMonth;
+
   //Map para las categorías de usuario
   Map<String, String> categoriasUsuarios = {};
 
@@ -31,7 +35,13 @@ class _HomeState extends State<Home> {
   int? selectedCuentaId;
   double saldoCuenta = 0.0;
   String tipoMoneda = 'USD';
-  final List<bool> _selections = List.generate(4, (_) => false);
+  List<bool> _selections = [
+    false,
+    false,
+    false,
+    false,
+    true
+  ]; //List.generate(5, (_) => false);
 
   List<IncomeModel> futureIngresos = [];
   String selectedType =
@@ -64,6 +74,7 @@ class _HomeState extends State<Home> {
         cuentas.firstWhere((cuenta) => cuenta.idCuenta == cuentaId);
     setState(() {
       saldoCuenta = cuentaSeleccionada.saldo;
+      _selections = [false, false, false, false, true];
     });
   }
 
@@ -128,6 +139,101 @@ class _HomeState extends State<Home> {
               .firstWhere((element) => element.nombre == iconoOriginal);
       }
     }
+  }
+
+//Vista para elegir fecha en mes
+  Future<int?> showMonthPicker(BuildContext context) async {
+    final List<String> monthNames = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre'
+    ];
+
+    return await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Seleccionar Mes'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                monthNames.length,
+                (index) => ListTile(
+                  title: Text(monthNames[index]),
+                  onTap: () {
+                    Navigator.pop(context,
+                        index + 1); // Retorna el mes seleccionado (1-12)
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> cargarTransaccionesFecha(
+      {int? selectedMonth, int? selectedYear}) async {
+    try {
+      if (selectedCuentaId != null) {
+        List<IncomeModel> transaccionesFiltro =
+            await IncomeModel.transaccionesFiltradasPeriodoPersonalizado(
+          selectedPeriodo,
+          selectedCuentaId!,
+          month: selectedMonth,
+          year: selectedYear,
+        );
+        setState(() {
+          futureIngresos = transaccionesFiltro;
+        });
+      } else {
+        print('Error: Usuario no autenticado.');
+      }
+    } catch (e) {
+      print('Error fetching transacciones: $e');
+    }
+  }
+
+//Vista para elegir fecha en año
+  Future<int?> showYearPicker(BuildContext context) async {
+    return await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        int currentYear = DateTime.now().year;
+        return AlertDialog(
+          title: const Text('Seleccionar Año'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: List.generate(
+                20, // Mostrar los últimos 20 años
+                (index) {
+                  int year = currentYear - index;
+                  return ListTile(
+                    title: Text('$year'),
+                    onTap: () {
+                      Navigator.pop(
+                          context, year); // Retorna el año seleccionado
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -256,8 +362,7 @@ class _HomeState extends State<Home> {
                       GestureDetector(
                         onTap: () {
                           setState(() {
-                            selectedType =
-                                'Ingreso'; // Cambia el tipo a Ingreso
+                            selectedType = 'Ingreso';
                           });
                         },
                         child: Text(
@@ -299,6 +404,11 @@ class _HomeState extends State<Home> {
                         ),
                         const SizedBox(height: 10),
                         ToggleButtons(
+                          selectedColor:
+                              Colors.white, // Color del texto seleccionado
+                          fillColor: const Color(
+                              0xFF006064), // Fondo del botón seleccionado
+                          color: Colors.black,
                           borderRadius: BorderRadius.circular(10),
                           isSelected: _selections,
                           children: const [
@@ -318,13 +428,84 @@ class _HomeState extends State<Home> {
                               padding: EdgeInsets.symmetric(horizontal: 12),
                               child: Text('Año'),
                             ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text('Todos'),
+                            ),
                           ],
-                          onPressed: (int index) {
-                            setState(() {
-                              for (int i = 0; i < _selections.length; i++) {
-                                _selections[i] = i == index;
+                          onPressed: (int index) async {
+                            if (index == 2) {
+                              final int? selectedMonth =
+                                  await showMonthPicker(context);
+                              if (selectedMonth != null) {
+                                // Actualiza el estado de manera sincrónica
+                                setState(() {
+                                  _selections = [
+                                    false,
+                                    false,
+                                    true,
+                                    false,
+                                    false
+                                  ];
+                                  selectedPeriodo = 'Mes';
+                                  this.selectedMonth = selectedMonth;
+                                });
+                                cargarTransaccionesFecha(
+                                    selectedMonth: selectedMonth);
                               }
-                            });
+                            } else if (index == 3) {
+                              final int? selectedYear =
+                                  await showYearPicker(context);
+                              if (selectedYear != null) {
+                                setState(() {
+                                  _selections = [
+                                    false,
+                                    false,
+                                    false,
+                                    true,
+                                    false
+                                  ];
+                                  selectedPeriodo = 'Año';
+                                  this.selectedYear = selectedYear;
+                                });
+                                cargarTransaccionesFecha(
+                                    selectedYear: selectedYear);
+                              }
+                            } else {
+                              switch (index) {
+                                case 0:
+                                  selectedPeriodo = 'Día';
+                                  _selections = [
+                                    true,
+                                    false,
+                                    false,
+                                    false,
+                                    false
+                                  ];
+                                  break;
+                                case 1:
+                                  selectedPeriodo = 'Semana';
+                                  _selections = [
+                                    false,
+                                    true,
+                                    false,
+                                    false,
+                                    false
+                                  ];
+                                  break;
+                                case 4:
+                                  selectedPeriodo = 'Todos';
+                                  _selections = [
+                                    false,
+                                    false,
+                                    false,
+                                    false,
+                                    true
+                                  ];
+                                  break;
+                              }
+                              cargarTransaccionesFecha();
+                            }
                           },
                         ),
                       ],
