@@ -4,7 +4,8 @@ import 'package:byls_app/src/pages/crearCategoria.dart';
 import 'package:byls_app/src/pages/currencyConvert.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/accountsForm.dart';
-import 'package:byls_app/src/pages/notificationsTransactions.dart';
+import 'package:byls_app/src/pages/reportsUser.dart';
+import 'package:byls_app/src/pages/transactionsAutomatics.dart';
 import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
 import 'package:byls_app/src/pages/signUp.dart';
@@ -167,11 +168,25 @@ class CustomRoutes {
     GoRoute(
       path: '/configurarNotificaciones',
       pageBuilder: (context, state) {
+        final Map<String, dynamic> parametrosTransaccion =
+            state.extra as Map<String, dynamic>;
         return MaterialPage(
           key: state.pageKey,
-          child: const NotificationsTransactions(),
+          child: NotificationsTransactions(
+            idCuenta: parametrosTransaccion['idCuenta'],
+            descripcionTransaccion: parametrosTransaccion['descripcion'],
+            categoriaSeleccionada: parametrosTransaccion['categoria'],
+            montoTransaccion: parametrosTransaccion['cantidad'],
+            tipoTransaccion: parametrosTransaccion['tipoTransaccion'],
+            fechaTransaccion: parametrosTransaccion['fecha'],
+          ),
         );
       },
     ),
+    GoRoute(
+        path: '/reporte',
+        pageBuilder: (context, state) {
+          return MaterialPage(key: state.pageKey, child: const ReportsUser());
+        }),
   ];
 }

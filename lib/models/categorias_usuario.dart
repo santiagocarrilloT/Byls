@@ -21,7 +21,7 @@ class CategoriasusuarioModel {
   // Método para convertir un mapa en una instancia de CategoriasusuarioModel
   factory CategoriasusuarioModel.fromMap(Map<String, dynamic> map) {
     return CategoriasusuarioModel._(
-      idCategoria: map['id_categoria'],  
+      idCategoria: map['id_categoria'],
       uid: map['uid'],
       nombreCategoria: map['nombre_categoria'],
       colorCategoria: map['color_categoria'],
@@ -31,7 +31,8 @@ class CategoriasusuarioModel {
   }
 
   // Método para obtener las categorías de un usuario por su UID
-  static Future<List<CategoriasusuarioModel>> getCategorias(String userId) async {
+  static Future<List<CategoriasusuarioModel>> getCategorias(
+      String userId) async {
     final categorias = await Supabase.instance.client
         .from('categoriasusuario')
         .select()
@@ -46,5 +47,47 @@ class CategoriasusuarioModel {
       }
     }
     return categoriasUsuario;
+  }
+
+  // Método para obtener SOLO el nombre de las categorías de un usuario por su ID
+  static Future<Map<String, String>> getCategoriasNombre(String userId) async {
+    final categorias = await getCategorias(userId);
+
+    Map<String, String> categoriasMap() {
+      return {
+        for (var cat in categorias) cat.nombreCategoria: cat.colorCategoria
+      };
+    }
+
+    // Convertimos los datos a una lista de CategoriasusuarioModel
+    /* final List<CategoriasusuarioModel> categoriasUsuario = [];
+    if (categorias != null) {
+      for (final item in categorias) {
+        // Crea la instancia usando el fromMap
+        categoriasUsuario.add(CategoriasusuarioModel.fromMap(item));
+      }
+    } */
+    return categoriasMap();
+  }
+
+  // Método para obtener SOLO el icono de las categorías de un usuario por su ID
+  static Future<Map<String, String>> getCategoriasIcono(String userId) async {
+    final categorias = await getCategorias(userId);
+
+    Map<String, String> categoriasMap() {
+      return {
+        for (var cat in categorias) cat.nombreCategoria: cat.iconoCategoria
+      };
+    }
+
+    // Convertimos los datos a una lista de CategoriasusuarioModel
+    /* final List<CategoriasusuarioModel> categoriasUsuario = [];
+    if (categorias != null) {
+      for (final item in categorias) {
+        // Crea la instancia usando el fromMap
+        categoriasUsuario.add(CategoriasusuarioModel.fromMap(item));
+      }
+    } */
+    return categoriasMap();
   }
 }

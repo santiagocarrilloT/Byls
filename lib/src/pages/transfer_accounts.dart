@@ -79,6 +79,13 @@ class _TransferAccountsState extends State<TransferAccounts> {
 
   @override
   Widget build(BuildContext context) {
+    if (cuentas.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         //backgroundColor: const Color(0xFF63F77D),
@@ -98,7 +105,9 @@ class _TransferAccountsState extends State<TransferAccounts> {
 
             // Saldo de la cuenta de Origen
             Text(
-              'Max. Cantidad: \$ ${saldoCuenta ?? 0} $selectedTipoDivisa',
+              saldoCuenta! <= 0
+                  ? 'Saldo Insuficiente'
+                  : 'Saldo Máximo: \$ ${saldoCuenta ?? 0} $selectedTipoDivisa',
               style: const TextStyle(
                 color: Color(0xFF63F77D),
                 fontSize: 18,
@@ -128,7 +137,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                 });
               },
               decoration: InputDecoration(
-                labelText: 'Cuenta Origen',
+                labelText: 'Desde:',
                 labelStyle: const TextStyle(
                   color: Colors.white,
                 ),
@@ -190,7 +199,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                 });
               },
               decoration: InputDecoration(
-                labelText: 'Cuenta Destino',
+                labelText: 'Para: ',
                 labelStyle: const TextStyle(
                   color: Colors.white,
                 ),

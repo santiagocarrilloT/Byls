@@ -2,6 +2,8 @@ import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/controllers/cuenta_controller.dart';
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/icon_model.dart';
+import 'package:byls_app/src/pages/optionsSettings.dart';
+import 'package:byls_app/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +18,7 @@ class AccountsUser extends StatefulWidget {
 class _AccountsUserState extends State<AccountsUser> {
   CuentaController cuentaController = CuentaController();
   List<CuentaModel> futureCuenta = [];
+  FormatoUtils formatoUtils = FormatoUtils();
 
   @override
   void initState() {
@@ -52,7 +55,7 @@ class _AccountsUserState extends State<AccountsUser> {
       body: Stack(
         children: [
           Container(
-            color: const Color.fromARGB(230, 91, 255, 173),
+            color: const Color(0xFF00BFA5),
           ),
           Positioned(
             top: MediaQuery.of(context).size.height * 0.02,
@@ -63,7 +66,9 @@ class _AccountsUserState extends State<AccountsUser> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: Text(
-                    'Saldo total\n\$ $saldo',
+                    Opciones.habilitarPuntuacion
+                        ? 'Saldo total\n\$ ${formatoUtils.formatNumber(saldo)}'
+                        : 'Saldo total\n\$ $saldo',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.black,
@@ -160,10 +165,8 @@ class _AccountsUserState extends State<AccountsUser> {
                           margin: const EdgeInsets.symmetric(
                               vertical: 10.0, horizontal: 10.0),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF5F5F5),
-                            border: Border.all(
-                              color: const Color(0xFF00BFA5),
-                            ),
+                            color: const Color.fromARGB(155, 255, 255, 255),
+                            border: Border.all(color: const Color(0xFF006064)),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           child: ListTile(
@@ -178,17 +181,15 @@ class _AccountsUserState extends State<AccountsUser> {
                               child: Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Icon(icono),
-                                /* Icon(
-                                    Icons.account_balance_wallet,
-                                    color: Color(0xFF4E4E4E),
-                                  ),*/
                               ),
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '\$ ${futureCuenta[index].saldo}',
+                                  Opciones.habilitarPuntuacion
+                                      ? '\$ ${formatoUtils.formatNumber(futureCuenta[index].saldo)}'
+                                      : '\$ ${futureCuenta[index].saldo}',
                                   style: const TextStyle(
                                       color: Color(0xFF4E4E4E),
                                       fontWeight: FontWeight.bold,
@@ -213,6 +214,14 @@ class _AccountsUserState extends State<AccountsUser> {
           ),
         ],
       ),
+      /* floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.go('/reporte');
+        },
+        child: const Icon(
+          Icons.add_a_photo,
+        ),
+      ), */
     );
   }
 }

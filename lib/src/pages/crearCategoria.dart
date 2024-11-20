@@ -55,11 +55,14 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
 
     try {
       // Convertir el color a formato 0xFF (valor hexadecimal estilo Dart)
-      String colorHex = '0x${selectedColor.value.toRadixString(16).toUpperCase()}';
+      String colorHex =
+          '0x${selectedColor.value.toRadixString(16).toUpperCase()}';
 
       // Obtener el nombre del ícono seleccionado
-      final Map<IconData, String> iconosDisponibles = tipoSeleccionado == 'Gasto' ? iconosGastos : iconosIngresos;
-      String nombreIcono = iconosDisponibles[iconoSeleccionado] ?? 'icono_desconocido';
+      final Map<IconData, String> iconosDisponibles =
+          tipoSeleccionado == 'Gasto' ? iconosGastos : iconosIngresos;
+      String nombreIcono =
+          iconosDisponibles[iconoSeleccionado] ?? 'icono_desconocido';
 
       // Llamamos a la función en AuthController para guardar la categoría
       await authController.insertarCategoria(
@@ -84,7 +87,8 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
   @override
   Widget build(BuildContext context) {
     // Iconos disponibles según el tipo seleccionado (Gasto o Ingreso)
-    final Map<IconData, String> iconosDisponibles = tipoSeleccionado == 'Gasto' ? iconosGastos : iconosIngresos;
+    final Map<IconData, String> iconosDisponibles =
+        tipoSeleccionado == 'Gasto' ? iconosGastos : iconosIngresos;
 
     return Scaffold(
       appBar: AppBar(
@@ -104,7 +108,8 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
             // Campo de texto para el nombre de la categoría
             TextField(
               controller: _nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre de la Categoría'),
+              decoration:
+                  const InputDecoration(labelText: 'Nombre de la Categoría'),
             ),
             const SizedBox(height: 20),
 
@@ -159,7 +164,8 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
               onChanged: (value) {
                 setState(() {
                   tipoSeleccionado = value!;
-                  iconoSeleccionado = null; // Reiniciar el ícono seleccionado al cambiar el tipo
+                  iconoSeleccionado =
+                      null; // Reiniciar el ícono seleccionado al cambiar el tipo
                 });
               },
             ),
@@ -180,8 +186,13 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
                   },
                   child: CircleAvatar(
                     radius: 25,
-                    backgroundColor: iconoSeleccionado == icon ? selectedColor : Colors.grey[300],
-                    child: Icon(icon, color: iconoSeleccionado == icon ? Colors.white : Colors.black),
+                    backgroundColor: iconoSeleccionado == icon
+                        ? selectedColor
+                        : Colors.grey[300],
+                    child: Icon(icon,
+                        color: iconoSeleccionado == icon
+                            ? Colors.white
+                            : Colors.black),
                   ),
                 );
               }).toList(),

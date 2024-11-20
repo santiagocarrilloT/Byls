@@ -16,18 +16,17 @@ class CuentaModel {
     this.tipoMoneda,
     this.icono,
   });
-  
+
   // Método para obtener el saldo de una cuenta específica
-static Future<double> getSaldoCuenta(int idCuenta) async {
-  final response = await Supabase.instance.client
-      .from('cuentas')
-      .select('saldo')
-      .eq('idcuenta', idCuenta)
-      .single();  // Obtener solo un resultado
+  static Future<double> getSaldoCuenta(int idCuenta) async {
+    final response = await Supabase.instance.client
+        .from('cuentas')
+        .select('saldo')
+        .eq('idcuenta', idCuenta)
+        .single(); // Obtener solo un resultado
 
-  return (response['saldo'] as num).toDouble();
-}
-
+    return (response['saldo'] as num).toDouble();
+  }
 
   // Método para convertir un mapa en una instancia de CuentaModel
   factory CuentaModel.fromMap(Map<String, dynamic> map) {
@@ -66,5 +65,20 @@ static Future<double> getSaldoCuenta(int idCuenta) async {
     }
     return cuentasUsuario;
   }
-}
 
+  static Future<List<Map<String, dynamic>>> saldoTotalUsuario(
+      String idUsuario) async {
+    final totalCuentas = await Supabase.instance.client
+        .from('totalcuentasdiario')
+        .select()
+        .eq('uid', idUsuario);
+    final List<Map<String, dynamic>> saldoTotal = [];
+    for (final item in totalCuentas) {
+      saldoTotal.add({
+        'fecha': DateTime.parse(item['fecha']),
+        'total': item['total'],
+      });
+    }
+    return saldoTotal;
+  }
+}

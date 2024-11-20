@@ -150,7 +150,27 @@ class _TransaccionState extends State<Transaccion> {
             icon: const Icon(Icons.notification_add,
                 color: Color.fromARGB(255, 63, 158, 81)),
             onPressed: () async {
-              context.go('/configurarNotificaciones');
+              if (selectedCategory != null &&
+                  _descripcionController.text.isNotEmpty &&
+                  _cantidadController.text.isNotEmpty) {
+                final Map<String, dynamic> extra = {
+                  'idCuenta': selectedCuentaId.toString(),
+                  'descripcion': _descripcionController.text,
+                  'categoria': selectedCategory,
+                  'cantidad': double.parse(_cantidadController.text),
+                  'tipoTransaccion': isGastosSelected ? 'Gasto' : 'Ingreso',
+                  'fecha': selectedDate,
+                };
+
+                context.go('/configurarNotificaciones', extra: extra);
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Por favor, complete todos los campos'),
+                    backgroundColor: Colors.yellow,
+                  ),
+                );
+              }
             },
           ),
         ],
