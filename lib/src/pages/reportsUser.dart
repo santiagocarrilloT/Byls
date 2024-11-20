@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
@@ -27,18 +25,18 @@ class _ReportsUserState extends State<ReportsUser> {
 
   bool habilitarSaldoPos = false;
   List<double> saldoCuentasPositivo = [
-    0.0 /*, 0.0 , 12000, 23000, 0.0, 314000 */
+    /* 0.0 , 0.0 , 12000, 23000, 0.0, 314000 */
   ];
-  List<double> saldoCuentasNegativo = [-20000];
+  List<double> saldoCuentasNegativo = [];
   List<DateTime> fechasPositivo = [
     /* DateTime.now().subtract(const Duration(days: 5)),
     DateTime.now().subtract(const Duration(days: 4)),
     DateTime.now().subtract(const Duration(days: 3)),
-    DateTime.now().subtract(const Duration(days: 2)),*/
-    DateTime.now().subtract(const Duration(days: 1)),
+    DateTime.now().subtract(const Duration(days: 2)),
+    DateTime.now().subtract(const Duration(days: 1)),*/
   ];
   List<DateTime> fechasNegativo = [
-    DateTime.now().subtract(const Duration(days: 1)),
+    /* DateTime.now().subtract(const Duration(days: 1)), */
   ];
   String? fechaResumen = 'Mes';
   DateTime now = DateTime.now();
@@ -72,12 +70,6 @@ class _ReportsUserState extends State<ReportsUser> {
           fechasNegativo.add(cuenta['fecha'] as DateTime);
         }
       }
-
-      /* saldoCuentas =
-          cuentasUsuario.map((cuenta) => cuenta['total'] as double).toList(); */
-
-      /* fechas =
-          cuentasUsuario.map((cuenta) => cuenta['fecha'] as DateTime).toList(); */
     });
   }
 
@@ -400,7 +392,9 @@ class _ReportsUserState extends State<ReportsUser> {
                                                         fontSize: 20),
                                                   ),
                                                 )
-                                              : _buildLineChart(fechasPositivo,
+                                              : _buildLineChart(
+                                                  fechasPositivo.reversed
+                                                      .toList(),
                                                   saldoCuentasPositivo),
                                         ),
                                       )
@@ -466,7 +460,7 @@ class _ReportsUserState extends State<ReportsUser> {
                       height: 20,
                     ),
 
-                    //Transacciones (Gráfica de Pastel)
+                    //Transacciones por cuenta (Gráfica de Pastel)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: Container(

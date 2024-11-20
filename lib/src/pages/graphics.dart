@@ -1,8 +1,10 @@
+import 'package:byls_app/controllers/Transaccion_provider.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/controllers/ingresos_controller.dart';
 import 'package:byls_app/models/categorias_usuario.dart';
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
+import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:byls_app/utils/format_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -28,10 +30,12 @@ class GraphicsView extends StatefulWidget {
 class _GraphicsViewState extends State<GraphicsView> {
   // Controla si mostramos ingresos (True) o egresos (False)
   bool transaccionElegida = true;
+  String selectedType = 'Ingreso';
   IngresosController ingresosController = IngresosController();
   List<CuentaModel> cuentas = [];
   int? selectedCuentaId;
-  Map<String, String> categoriasUsuarios = {};
+  Map<String, String> categoriasUsuariosColor = {};
+  Map<String, String> categoriasUsuariosIcono = {};
   FormatoUtils formatoUtils = FormatoUtils();
 
   //Lista de Transacciones
@@ -42,6 +46,7 @@ class _GraphicsViewState extends State<GraphicsView> {
     super.initState();
     fetchCuentas();
     fetchColor();
+    fetchNombre();
   }
 
   Future<void> fetchCuentas() async {
@@ -89,19 +94,43 @@ class _GraphicsViewState extends State<GraphicsView> {
     final categoriasUsuario =
         await CategoriasusuarioModel.getCategoriasNombre(userId!);
     setState(() {
-      categoriasUsuarios = categoriasUsuario;
+      categoriasUsuariosColor = categoriasUsuario;
     });
+  }
+
+  Future<void> fetchNombre() async {
+    final authService = Provider.of<AuthController>(context, listen: false);
+    final userId = authService.currentUser?.id;
+    final categoriasUsuario =
+        await CategoriasusuarioModel.getCategoriasIcono(userId!);
+    setState(() {
+      categoriasUsuariosIcono = categoriasUsuario;
+    });
+  }
+
+  // Función para conocer los colores de las categorías
+  Categoria getIcon(String nombreCategoria) {
+    // Obtener el nombre del icono original de la categoría
+    var iconoOriginal = categoriasUsuariosIcono[nombreCategoria];
+
+    // Si la categoría del usuario contiene el icono original, entonces se devuelve la categoría con el icono original
+
+    switch (selectedType == 'Ingreso') {
+      case true:
+        return categoriasIngreso.firstWhere(
+          (element) => element.nombre == iconoOriginal,
+        );
+      case false:
+        return categoriasGasto
+            .firstWhere((element) => element.nombre == iconoOriginal);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     // Filtrar transacciones según el tipo seleccionado
     List<IncomeModel> filteredTransacciones = futureIngresos
-        .where(
-          (transaccion) =>
-              transaccion.tipoTransaccion ==
-              (transaccionElegida ? 'Ingreso' : 'Gasto'),
-        )
+        .where((transaccion) => transaccion.tipoTransaccion == selectedType)
         .toList();
 
     return Scaffold(
@@ -112,7 +141,11 @@ class _GraphicsViewState extends State<GraphicsView> {
             GoRouter.of(context).go('/app_entry');
           },
         ),
-        title: Row(
+        title: const Text(
+          'Transacciones por Cuenta',
+          style: TextStyle(fontSize: 18),
+        ),
+        /*title:  Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             DropdownButton(
@@ -146,46 +179,122 @@ class _GraphicsViewState extends State<GraphicsView> {
               borderRadius: BorderRadius.circular(10.0),
             ),
           ],
-        ),
+        ), */
       ),
       body: Column(
         children: [
-          const SizedBox(height: 20),
+          const SizedBox(
+            height: 10,
+          ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      transaccionElegida ? Colors.blue : Colors.white,
+              DropdownButton(
+                value: selectedCuentaId,
+                icon: const Icon(Icons.arrow_downward,
+                    color: Color.fromARGB(255, 253, 253, 253)),
+                iconSize: 24,
+                elevation: 16,
+                style:
+                    const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                dropdownColor: const Color(0xFF00BFA5),
+                underline: Container(
+                  height: 2,
+                  color: const Color.fromARGB(255, 255, 255, 255),
                 ),
-                onPressed: () {
-                  setState(() {
-                    transaccionElegida = true;
-                  });
+                onChanged: (int? newValue) {
+                  setState(
+                    () {
+                      selectedCuentaId = newValue;
+                      fetchTransacciones(selectedCuentaId!);
+                    },
+                  );
                 },
-                child: Text('Ingresos',
-                    style: TextStyle(
-                      color: transaccionElegida ? Colors.white : Colors.black,
-                    )),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      transaccionElegida ? Colors.white : Colors.blue,
-                ),
-                onPressed: () {
-                  setState(() {
-                    transaccionElegida = false;
-                  });
-                },
-                child: Text('Egresos',
-                    style: TextStyle(
-                      color: transaccionElegida ? Colors.black : Colors.white,
-                    )),
+                items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
+                  return DropdownMenuItem<int>(
+                    value: cuenta.idCuenta,
+                    child: Text(
+                      cuenta.nombreCuenta,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  );
+                }).toList(),
+                borderRadius: BorderRadius.circular(10.0),
               ),
             ],
           ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Expanded(
+                child: TextButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: transaccionElegida
+                        ? const Color(0xFF00BFA5)
+                        : Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, // Sin bordes redondeados
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      transaccionElegida = true;
+                      selectedType = 'Ingreso';
+                    });
+                  },
+                  child: Text('Ingresos',
+                      style: TextStyle(
+                        color: transaccionElegida ? Colors.white : Colors.black,
+                      )),
+                ),
+              ),
+              Expanded(
+                child: TextButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: transaccionElegida
+                        ? Colors.white
+                        : const Color(0xFF00BFA5),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero, // Sin bordes redondeados
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      transaccionElegida = false;
+                      selectedType = 'Gasto';
+                    });
+                  },
+                  child: Text('Egresos',
+                      style: TextStyle(
+                        color: transaccionElegida ? Colors.black : Colors.white,
+                      )),
+                ),
+              ),
+            ],
+          ),
+          filteredTransacciones.isEmpty
+              ? Container(
+                  alignment: Alignment.center,
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 50.0, horizontal: 10.0),
+                  child: const Text(
+                    '',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                )
+              : Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: transaccionElegida
+                        ? _buildPieChart(filteredTransacciones)
+                        : _buildPieChart(filteredTransacciones),
+                  ),
+                ),
           filteredTransacciones.isEmpty
               ? Container(
                   alignment: Alignment.center,
@@ -200,11 +309,92 @@ class _GraphicsViewState extends State<GraphicsView> {
                   ),
                 )
               : Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: transaccionElegida
-                        ? _buildPieChart(filteredTransacciones)
-                        : _buildPieChart(filteredTransacciones),
+                  child: ListView.builder(
+                    itemCount: filteredTransacciones.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var color = getColor(filteredTransacciones[index]
+                          .nombreCategoria
+                          .toString());
+                      var icono;
+                      selectedType == 'Gasto'
+                          ? icono = categoriasGasto
+                              .firstWhere(
+                                (element) =>
+                                    element.nombre ==
+                                    filteredTransacciones[index]
+                                        .nombreCategoria,
+                                orElse: () => getIcon(
+                                    filteredTransacciones[index]
+                                            .nombreCategoria ??
+                                        ''),
+                              )
+                              .icono
+                          : icono = categoriasIngreso
+                              .firstWhere(
+                                (element) =>
+                                    element.nombre ==
+                                    filteredTransacciones[index]
+                                        .nombreCategoria,
+                                orElse: () => getIcon(
+                                    filteredTransacciones[index]
+                                            .nombreCategoria ??
+                                        ''),
+                              )
+                              .icono;
+                      icono ??= Icons.abc;
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 5.0, horizontal: 10.0),
+                        decoration: BoxDecoration(
+                          color: color,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 198, 201, 201)),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: ListTile(
+                          title: Text(
+                            '${filteredTransacciones[index].nombreCategoria}',
+                            style: const TextStyle(color: Color(0xFFFFFFFF)),
+                          ),
+                          leading: Hero(
+                            tag: index,
+                            child: Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Icon(
+                                icono,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                Opciones.habilitarPuntuacion
+                                    ? formatoUtils.formatNumber(
+                                        filteredTransacciones[index]
+                                            .montoTransaccion)
+                                    : '\$ ${filteredTransacciones[index].montoTransaccion}',
+                                style: const TextStyle(
+                                  color: Color(0xFFFFFFFF),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            final transaccionProvider =
+                                Provider.of<TransaccionProvider>(context,
+                                    listen: false);
+                            transaccionProvider.setCurrentTransaccion(
+                                filteredTransacciones[index]);
+                            context.go('/transaccionEdit',
+                                extra: filteredTransacciones[index]);
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ),
         ],
@@ -228,8 +418,8 @@ class _GraphicsViewState extends State<GraphicsView> {
 
   // Función para conocer los colores de las categorías
   Color getColor(String nombreCategoria) {
-    if (categoriasUsuarios.containsKey(nombreCategoria)) {
-      return Color(int.parse(categoriasUsuarios[nombreCategoria]!));
+    if (categoriasUsuariosColor.containsKey(nombreCategoria)) {
+      return Color(int.parse(categoriasUsuariosColor[nombreCategoria]!));
     } else {
       switch (transaccionElegida) {
         case true:

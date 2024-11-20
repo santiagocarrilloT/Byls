@@ -214,14 +214,14 @@ class _AccountsUserState extends State<AccountsUser> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      /* floatingActionButton: FloatingActionButton(
         onPressed: () {
           context.go('/reporte');
         },
         child: const Icon(
           Icons.add_a_photo,
         ),
-      ),
+      ), */
     );
   }
 }

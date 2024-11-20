@@ -42,7 +42,6 @@ class _HomeState extends State<Home> {
     super.initState();
     fetchCuentas();
     fecthNombre();
-    //fetchTransacciones();
   }
 
   Future<void> fetchCuentas() async {
@@ -442,9 +441,17 @@ class _HomeState extends State<Home> {
         children: [
           FloatingActionButton(
             onPressed: () {
+              final RenderBox overlay =
+                  Overlay.of(context).context.findRenderObject() as RenderBox;
               showMenu(
+                color: const Color(0xFF00BFA5),
                 context: context,
-                position: const RelativeRect.fromLTRB(100, 600, 100, 100),
+                position: RelativeRect.fromLTRB(
+                  overlay.size.width - 10, // Distancia del lado derecho
+                  overlay.size.height - 50, // Distancia del borde inferior
+                  10, // Distancia del lado izquierdo
+                  0, // Distancia del borde superior
+                ),
                 items: [
                   PopupMenuItem(
                     child: ListTile(
