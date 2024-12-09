@@ -1,4 +1,5 @@
 import 'package:byls_app/models/user_model.dart';
+import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -111,18 +112,18 @@ class _ProfileViewState extends State<ProfileView> {
                         "Cerrar Sesión",
                         style: TextStyle(color: Colors.white),
                       ),
-                      onTap: () {
-                        authController.signOutCt();
-                        context.go('/signIn');
-                      },
-                    ),
-                  ],
-                ),
+                      onTap: () async {
+                      await Opciones.removeValue();
+                      authController.signOutCt();
+                      context.go('/signIn');
+                    },
+                  ),
+                ],
               ),
-            )
+            ),
+          )
         ],
-        )
-      ),
-    );
-  }
+      ),
+    );
+  }
 }

@@ -35,13 +35,7 @@ class _HomeState extends State<Home> {
   int? selectedCuentaId;
   double saldoCuenta = 0.0;
   String tipoMoneda = 'USD';
-  List<bool> _selections = [
-    false,
-    false,
-    false,
-    false,
-    true
-  ]; //List.generate(5, (_) => false);
+  List<bool> _selections = [false, false, false, false, true];
 
   List<IncomeModel> futureIngresos = [];
   String selectedType =
@@ -58,10 +52,18 @@ class _HomeState extends State<Home> {
     final authService = Provider.of<AuthController>(context, listen: false);
     final userId = authService.currentUser?.id;
     final cuentasUsuario = await CuentaModel.getCuentas(userId!);
-    setState(() {
+    setState(() async {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
-        selectedCuentaId = cuentas[0].idCuenta;
+        //Opciones para seleccionar la cuenta por defecto
+        if (Opciones.selectedCuentaId == 0 ||
+            Opciones.selectedCuentaId == null) {
+          selectedCuentaId = cuentas[0].idCuenta;
+        } else {
+          selectedCuentaId = Opciones.selectedCuentaId;
+        }
+
+        //selectedCuentaId = cuentas[0].idCuenta;
         tipoMoneda = cuentas[0].tipoMoneda!;
         cargarTransacciones();
         cargarSaldoCuenta(selectedCuentaId!);
@@ -296,13 +298,13 @@ class _HomeState extends State<Home> {
               const SizedBox(width: 10),
 
               // Botón para crear nueva cuenta
-              IconButton(
+              /*IconButton(
                 icon: const Icon(Icons.add_card,
                     color: Color.fromARGB(255, 255, 255, 255)),
                 onPressed: () {
                   context.go('/NuevaCuenta');
                 },
-              ),
+              ),*/
             ],
           ),
         ),
@@ -341,6 +343,7 @@ class _HomeState extends State<Home> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
+                      // Seleccionar tipo de transacción
                       GestureDetector(
                         onTap: () {
                           setState(() {
@@ -358,6 +361,7 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                       ),
+
                       GestureDetector(
                         onTap: () {
                           setState(() {
@@ -378,6 +382,7 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                   const SizedBox(height: 20),
+                  // Selección de periodo
                   Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
@@ -510,7 +515,10 @@ class _HomeState extends State<Home> {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 10),
+
+                  // Transacciones
                   filteredTransacciones.isEmpty
                       ? Container(
                           alignment: Alignment.center,
@@ -616,6 +624,7 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
+      // Botón flotante para agregar una transacción o cuenta
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

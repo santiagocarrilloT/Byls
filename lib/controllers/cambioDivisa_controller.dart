@@ -38,7 +38,7 @@ class CambiosDivisaController {
 
   //Conversión de las cuentas
   Future<void> conversionCuentas(CuentaModel cuentaUsuario) async {
-    print(tipoMoneda);
+    print('Saldo: ${cuentaUsuario.saldo * cantidadConversion}');
     await Supabase.instance.client.from('cuentas').update({
       'tipo_moneda': tipoMoneda,
       'saldo': cuentaUsuario.saldo * cantidadConversion,
@@ -49,7 +49,7 @@ class CambiosDivisaController {
   Future<void> conversionTransacciones(
       List<IncomeModel> transaccionesList, idCuenta) async {
     transaccionesList.forEach((transaccionesUser) async {
-      if (transaccionesUser.idTransaccion == 51 && idCuenta == 5) {
+      /* if (transaccionesUser.idTransaccion == 51 && idCuenta == 5) {
         print(
             'M: ${transaccionesUser.montoTransaccion}, T: ${transaccionesUser.idTransaccion}, C: ${idCuenta}, Conv: $cantidadConversion');
         await Supabase.instance.client
@@ -61,15 +61,12 @@ class CambiosDivisaController {
             .eq('id_cuenta', idCuenta)
             .eq('id_transaccion', 51);
         print('Transacción actualizada');
-      }
-      /* await Supabase.instance.client
-          .from('transacciones')
-          .update({
-            'monto_transaccion':
-                transaccionesUser.montoTransaccion * cantidadConversion,
-          })
-          .eq('id_cuenta', 5)
-          .eq('id_transaccion', 51); */
+      } */
+      print('${transaccionesUser.montoTransaccion * cantidadConversion}');
+      await Supabase.instance.client.from('transacciones').update({
+        'monto_transaccion':
+            transaccionesUser.montoTransaccion * cantidadConversion,
+      }).eq('id_transaccion', transaccionesUser.idTransaccion.toString());
     });
   }
 }

@@ -304,6 +304,12 @@ class Botones extends StatelessWidget {
                 await authController.signUpCt(
                     emailController.text, passwordController.text);
                 context.go('/app_entry');
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Cuenta creada con éxito'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
               } catch (error) {
                 final String capturaError = error.toString();
 
@@ -313,6 +319,13 @@ class Botones extends StatelessWidget {
                 if (capturaError.contains('Invalid login credentials')) {
                   return onError('Verifica tu correo o contraseña');
                 }
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Error al crear la cuenta'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
               }
             },
             style: ButtonStyle(

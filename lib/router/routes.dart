@@ -5,6 +5,7 @@ import 'package:byls_app/src/pages/currencyConvert.dart';
 import 'package:byls_app/src/pages/home.dart';
 import 'package:byls_app/src/pages/accountsForm.dart';
 import 'package:byls_app/src/pages/reportsUser.dart';
+import 'package:byls_app/src/pages/tranfersHistory.dart';
 import 'package:byls_app/src/pages/transactionsAutomatics.dart';
 import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:byls_app/src/pages/sigIn.dart';
@@ -187,6 +188,12 @@ class CustomRoutes {
         path: '/reporte',
         pageBuilder: (context, state) {
           return MaterialPage(key: state.pageKey, child: const ReportsUser());
+        }),
+    GoRoute(
+        path: '/historialTransferencias',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+              key: state.pageKey, child: const TranfersHistory());
         }),
   ];
 }

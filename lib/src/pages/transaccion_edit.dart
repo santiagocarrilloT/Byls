@@ -34,6 +34,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
   String? selectedCategory;
   DateTime selectedDate = DateTime.now();
   int? selectedCuentaId;
+
   final TextEditingController _cantidadController = TextEditingController();
   final TextEditingController _descripcionController = TextEditingController();
 
@@ -119,13 +120,17 @@ class _TransaccionEditState extends State<TransaccionEdit> {
   @override
   void initState() {
     super.initState();
+
     selectedCategory = transaccion.tipoTransaccion;
     selectedDate = transaccion.fechaTransaccion;
     _cantidadController.text = transaccion.montoTransaccion.toString();
     _descripcionController.text = transaccion.descripcion!;
+    isGastosSelected = transaccion.tipoTransaccion == 'Gasto' ? true : false;
     _cargarCategoriasUsuario();
     fetchTransacciones();
     fetchCuentas();
+
+    selectedCategory = transaccion.nombreCategoria;
   }
 
   @override
@@ -142,7 +147,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
     setState(() {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
-        selectedCuentaId = cuentas[0].idCuenta;
+        selectedCuentaId = transaccion.idCuenta;
       }
     });
   }
@@ -157,41 +162,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
       icono: _getIconByName(categoriaUsuario.iconoCategoria),
       color: Color(int.parse(categoriaUsuario.colorCategoria)),
     );
-  }
-
-  Future<void> _guardarTransaccion() async {
-    if (selectedCategory == null ||
-        _cantidadController.text.isEmpty ||
-        _descripcionController.text.isEmpty) {
-      // Mostrar un mensaje de error si falta algún campo
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Por favor, completa todos los campos.')),
-      );
-      return;
-    }
-
-    try {
-      final double cantidad = double.parse(_cantidadController.text);
-      final tipoTransaccion = isGastosSelected ? 'Gasto' : 'Ingreso';
-
-      // Insertar la transacción en la base de datos usando AuthController
-      await authController.insertarTransaccion(
-        _descripcionController.text,
-        selectedCategory!,
-        cantidad,
-        tipoTransaccion,
-        selectedDate,
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Transacción guardada con éxito')),
-      );
-      context.go("/app_entry");
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar la transacción: $e')),
-      );
-    }
   }
 
   @override
@@ -214,13 +184,12 @@ class _TransaccionEditState extends State<TransaccionEdit> {
       ...categoriasUsuarioConvertidas,
       ...categoriasPredeterminadas
     ];
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.go("/app_entry");
+            context.go("/app_entry", extra: 1);
           },
         color: Colors.white,
         ),
@@ -318,6 +287,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         fillColor: const Color(0xFF044454), // Color del fondo
                       ),
               ),
+
               const SizedBox(height: 15),
 
               // Selector de cuenta
@@ -362,6 +332,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         fillColor: const Color(0xFF044454), // Fondo del campo
                       ),
               ),
+
               const SizedBox(height: 15),
 
               // Selector de Gastos e Ingreso
@@ -406,6 +377,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 20),
 
               // Categorías
@@ -453,9 +425,11 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                     }
 
                     final category = categories[index];
-                    final isSelected = category.nombre == selectedCategory;
+                    final isSelected = selectedCategory == category.nombre;
 
                     return GestureDetector(
+                      //Seleccionar una categoría predeterminada
+
                       onTap: () {
                         setState(() {
                           selectedCategory = category.nombre;
@@ -490,6 +464,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   },
                 ),
               ),
+
               const SizedBox(height: 10),
 
               // Selector de fecha
@@ -511,6 +486,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 10),
 
               // Campo para la descripción
@@ -541,6 +517,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         ),
                       ),
               ),
+
               const SizedBox(height: 20),
 
               // Botón para guardar transacción
@@ -564,6 +541,12 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                             .saldo)
                         .toDouble();
 
+                    double saldoCuentaAnterior = (cuentas
+                            .firstWhere((element) =>
+                                element.idCuenta == transaccion.idCuenta)
+                            .saldo)
+                        .toDouble();
+
                     try {
                       //Actualizar transacción
                       await ingresosController.updateIngreso(
@@ -576,15 +559,88 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                         selectedCategory!,
                       );
 
-                      //Actualizar saldo de la cuenta
-                      if (transaccion.montoTransaccion !=
-                              double.parse(_cantidadController.text) ||
-                          transaccion.idCuenta != selectedCuentaId) {
+                      //Actualizar saldo de las cuenta
+                      if (transaccion.idCuenta != selectedCuentaId) {
                         cuentaController.actualizarSaldo(
                             saldo,
                             idCuentaSelec,
                             double.parse(_cantidadController.text),
                             isGastosSelected ? false : true);
+
+                        if (transaccion.tipoTransaccion == 'Ingreso') {
+                          //Disminuir saldo de la cuenta anterior
+                          cuentaController.actualizarSaldo(
+                              saldoCuentaAnterior,
+                              transaccion.idCuenta.toString(),
+                              transaccion.montoTransaccion,
+                              false);
+                        } else {
+                          //Aumentar saldo de la cuenta anterior
+                          cuentaController.actualizarSaldo(
+                              saldoCuentaAnterior,
+                              transaccion.idCuenta.toString(),
+                              transaccion.montoTransaccion,
+                              true);
+                        }
+                      } else {
+                        if (transaccion.montoTransaccion !=
+                            double.parse(_cantidadController.text)) {
+                          //Actualizar saldo de la cuenta en caso de que tengo el mismo tipo de transacción
+                          if (transaccion.tipoTransaccion == 'Ingreso' &&
+                              !isGastosSelected) {
+                            cuentaController.actualizarSaldoMonto(
+                                saldoCuentaAnterior,
+                                transaccion.idCuenta.toString(),
+                                transaccion.montoTransaccion,
+                                double.parse(_cantidadController.text),
+                                false);
+                          } else if (transaccion.tipoTransaccion == 'Gasto' &&
+                              isGastosSelected) {
+                            cuentaController.actualizarSaldoMonto(
+                                saldoCuentaAnterior,
+                                transaccion.idCuenta.toString(),
+                                transaccion.montoTransaccion,
+                                double.parse(_cantidadController.text),
+                                true);
+                          }
+                          //Actualizar saldo de la cuenta en caso de que tenga diferente tipo de transacción
+                          else if (transaccion.tipoTransaccion == 'Ingreso' &&
+                              isGastosSelected) {
+                            cuentaController.actualizarSaldoTipoTransaccion(
+                                saldoCuentaAnterior,
+                                transaccion.idCuenta.toString(),
+                                transaccion.montoTransaccion,
+                                double.parse(_cantidadController.text),
+                                false);
+                          } else if (transaccion.tipoTransaccion == 'Gasto' &&
+                              !isGastosSelected) {
+                            cuentaController.actualizarSaldoTipoTransaccion(
+                                saldoCuentaAnterior,
+                                transaccion.idCuenta.toString(),
+                                transaccion.montoTransaccion,
+                                double.parse(_cantidadController.text),
+                                true);
+                          }
+                        } else {
+                          //Actualizar saldo de la cuenta en caso de que tenga diferente tipo de transacción
+                          if (transaccion.tipoTransaccion == 'Ingreso' &&
+                              isGastosSelected) {
+                            cuentaController.actualizarSaldoTipoTransaccion(
+                                saldoCuentaAnterior,
+                                transaccion.idCuenta.toString(),
+                                transaccion.montoTransaccion,
+                                double.parse(_cantidadController.text),
+                                false);
+                          } else if (transaccion.tipoTransaccion == 'Gasto' &&
+                              !isGastosSelected) {
+                            cuentaController.actualizarSaldoTipoTransaccion(
+                                saldoCuentaAnterior,
+                                transaccion.idCuenta.toString(),
+                                transaccion.montoTransaccion,
+                                double.parse(_cantidadController.text),
+                                true);
+                          }
+                        }
                       }
 
                       //Mostrar mensaje de transacción actualizada
@@ -596,7 +652,6 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                       );
                       context.go("/app_entry");
                     } catch (e) {
-                      print(e);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Transacción no actualizada'),

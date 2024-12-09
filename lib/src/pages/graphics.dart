@@ -56,7 +56,14 @@ class _GraphicsViewState extends State<GraphicsView> {
     setState(() {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
-        selectedCuentaId = cuentas[0].idCuenta;
+        //Opciones para seleccionar la cuenta por defecto
+        if (Opciones.selectedCuentaId == 0 ||
+            Opciones.selectedCuentaId == null) {
+          selectedCuentaId = cuentas[0].idCuenta;
+        } else {
+          selectedCuentaId = Opciones.selectedCuentaId;
+        }
+        //selectedCuentaId = cuentas[0].idCuenta;
         fetchTransacciones(
             selectedCuentaId!); // Llama traer los ingresos de esa cuenta
       }
@@ -469,6 +476,8 @@ final List<Categoria> categoriasGasto = [
       nombre: 'Suscripciones',
       icono: Icons.subscriptions,
       color: Colors.deepPurple),
+  Categoria(
+      nombre: 'Transporte', icono: Icons.directions_bus, color: Colors.grey),
   Categoria(nombre: 'house', icono: Icons.home, color: Colors.grey),
   Categoria(nombre: 'school', icono: Icons.school, color: Colors.grey),
   Categoria(nombre: 'fastfood', icono: Icons.fastfood, color: Colors.grey),

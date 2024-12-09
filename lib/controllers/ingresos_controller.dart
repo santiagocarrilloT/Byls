@@ -47,4 +47,11 @@ class IngresosController {
         .delete()
         .eq('id_transaccion', idIngreso);
   }
+
+  Future<void> deleteIngresoPorCuenta(String idCuenta) async {
+    await Supabase.instance.client
+        .from('transacciones')
+        .delete()
+        .eq('id_cuenta', idCuenta);
+  }
 }

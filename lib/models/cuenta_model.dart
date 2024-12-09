@@ -66,6 +66,19 @@ class CuentaModel {
     return cuentasUsuario;
   }
 
+  static Future<Map<int, String>> cuentasPorNombre() async {
+    final userId = Supabase.instance.client.auth.currentUser;
+    final cuentasNombre = await Supabase.instance.client
+        .from('cuentas')
+        .select()
+        .eq('uid', userId!.id);
+    final Map<int, String> cuentas = {};
+    for (final item in cuentasNombre) {
+      cuentas[item['idcuenta']] = item['nombre_cuenta'];
+    }
+    return cuentas;
+  }
+
   static Future<List<Map<String, dynamic>>> saldoTotalUsuario(
       String idUsuario) async {
     final totalCuentas = await Supabase.instance.client

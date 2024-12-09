@@ -48,6 +48,7 @@ dependencies:
   fl_chart: ^0.69.0
   timezone: ^0.9.4
   workmanager: ^0.5.2
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:

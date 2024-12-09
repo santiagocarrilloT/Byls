@@ -68,7 +68,7 @@ class _AccountsUserState extends State<AccountsUser> {
                   child: Text(
                     Opciones.habilitarPuntuacion
                         ? 'Saldo total\n\$ ${formatoUtils.formatNumber(saldo)}'
-                        : 'Saldo total\n\$ $saldo',
+                        : 'Saldo total\n\$ ${saldo.toStringAsFixed(3)}',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,
@@ -77,67 +77,63 @@ class _AccountsUserState extends State<AccountsUser> {
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 17.5),
-
-                //Botones de transferir y historial
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            context.go('/transferenciaCuentas');
-                          },       
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF04242C),
+                //Botones de transferir e historial
+                /* Container(
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              context.go('/transferenciaCuentas');
+                            },
+                            child: const Icon(
+                              Icons.swap_horiz,
+                              color: Color(0xFF006064),
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.swap_horiz,
-                            color: Color(0xFF00BFA5),
+                          const Text(
+                            'Transferir',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                            ),
                           ),
-                        ),
-                        const Text(
-                          'Transferir',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
+                        ],
+                      ),
+                      const SizedBox(width: 80.0),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {},
+                            child: const Icon(
+                              Icons.history,
+                              color: Color(0xFF006064),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 80.0),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF04242C),
+                          const Text(
+                            'Historial',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.0,
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.history,
-                            color: Color(0xFF00BFA5),
-                          ),
-                        ),
-                        const Text(
-                          'Historial',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
+              */
               ],
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.26,
+            top: MediaQuery.of(context).size.height * 0.25,
             left: 0,
             right: 0,
             bottom: 0,
@@ -151,7 +147,115 @@ class _AccountsUserState extends State<AccountsUser> {
               ),
               child: Column(
                 children: [
-                  const SizedBox(height: 40.0),
+                  const SizedBox(height: 0.0),
+                  Container(
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(155, 255, 255, 255),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(50),
+                                ),
+                              ),
+                            ),
+                            onPressed: () {
+                              context.go('/transferenciaCuentas');
+                            },
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Icons.swap_horiz,
+                                  color: Color(0xFF006064),
+                                ),
+                                Text('Transferir',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: TextButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(155, 255, 255, 255),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(50),
+                                ),
+                              ),
+                            ),
+                            onPressed: () {
+                              context.go('/historialTransferencias');
+                            },
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Icons.history,
+                                  color: Color(0xFF006064),
+                                ),
+                                Text('Historial',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        /* Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                context.go('/transferenciaCuentas');
+                              },
+                              child: const Icon(
+                                Icons.swap_horiz,
+                                color: Color(0xFF006064),
+                              ),
+                            ),
+                            const Text(
+                              'Transferir',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 80.0),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {},
+                              child: const Icon(
+                                Icons.history,
+                                color: Color(0xFF006064),
+                              ),
+                            ),
+                            const Text(
+                              'Historial',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                              ),
+                            ),
+                          ],
+                        ), */
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20.0),
                   Expanded(
                     child: ListView.builder(
                       itemCount: futureCuenta.length,
@@ -220,14 +324,6 @@ class _AccountsUserState extends State<AccountsUser> {
           ),
         ],
       ),
-      /* floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.go('/reporte');
-        },
-        child: const Icon(
-          Icons.add_a_photo,
-        ),
-      ), */
     );
   }
 }
