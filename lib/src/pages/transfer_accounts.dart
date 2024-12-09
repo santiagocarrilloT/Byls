@@ -88,15 +88,16 @@ class _TransferAccountsState extends State<TransferAccounts> {
     }
     return Scaffold(
       appBar: AppBar(
-        //backgroundColor: const Color(0xFF63F77D),
+        backgroundColor: const Color(0xFF044454),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             GoRouter.of(context).pushReplacement('/app_entry', extra: 2);
           },
         ),
-        title: const Text('Transferir'),
+        title: const Text('Transferir', style: TextStyle(color: Colors.white)),
       ),
+      backgroundColor: const Color(0xFF04242C),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -109,7 +110,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                   ? 'Saldo Insuficiente'
                   : 'Saldo Máximo: \$ ${saldoCuenta ?? 0} $selectedTipoDivisa',
               style: const TextStyle(
-                color: Color(0xFF63F77D),
+                color: Colors.white,
                 fontSize: 18,
               ),
             ),
@@ -120,13 +121,13 @@ class _TransferAccountsState extends State<TransferAccounts> {
             DropdownButtonFormField(
               value: selectedCuentaIdOrigen,
               style: const TextStyle(color: Color(0xFF00BFA5)),
-              dropdownColor: const Color(0xFF00BFA5),
+              dropdownColor: const Color(0xFF044454),
               items: cuentas
                   .map((cuenta) => DropdownMenuItem(
                         value: cuenta.idCuenta,
                         child: Text(
                           cuenta.nombreCuenta,
-                          style: const TextStyle(color: Colors.black),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ))
                   .toList(),
@@ -153,6 +154,8 @@ class _TransferAccountsState extends State<TransferAccounts> {
                   borderRadius: BorderRadius.circular(18),
                   borderSide: const BorderSide(color: Color(0xFF00BFA5)),
                 ),
+                filled: true,
+                fillColor: const Color(0xFF044454),
               ),
             ),
 
@@ -169,11 +172,24 @@ class _TransferAccountsState extends State<TransferAccounts> {
               decoration: InputDecoration(
                 labelText: 'Cantidad $selectedTipoDivisa',
                 labelStyle: const TextStyle(color: Colors.white),
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.date_range),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF00BFA5)),
+                prefixIcon: const Icon(Icons.attach_money, color: Color(0xFF00BFA5)),
+                // Borde cuando el campo está enfocado
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
                 ),
+                // Borde cuando el campo está habilitado pero no enfocado
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                ),
+                // Sin borde adicional para el estado normal
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                ),
+                filled: true, // Fondo para el campo
+                fillColor: const Color(0xFF044454),
               ),
             ),
 
@@ -183,13 +199,13 @@ class _TransferAccountsState extends State<TransferAccounts> {
             DropdownButtonFormField(
               value: selectedCuentaIdDestino,
               style: const TextStyle(color: Color(0xFF00BFA5)),
-              dropdownColor: const Color(0xFF00BFA5),
+              dropdownColor: const Color(0xFF044454),
               items: cuentas
                   .map((cuenta) => DropdownMenuItem(
                         value: cuenta.idCuenta,
                         child: Text(
                           cuenta.nombreCuenta,
-                          style: const TextStyle(color: Colors.black),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ))
                   .toList(),
@@ -215,6 +231,8 @@ class _TransferAccountsState extends State<TransferAccounts> {
                   borderRadius: BorderRadius.circular(18),
                   borderSide: const BorderSide(color: Color(0xFF00BFA5)),
                 ),
+                filled: true,
+                fillColor: const Color(0xFF044454),
               ),
             ),
 
@@ -223,19 +241,23 @@ class _TransferAccountsState extends State<TransferAccounts> {
             // Selector de fecha
             Row(
               children: [
-                const Icon(Icons.calendar_today, color: Colors.grey),
+                const Icon(Icons.calendar_today, color: Color(0xFF00BFA5)),
                 const SizedBox(width: 10),
                 Text(
                   DateFormat('dd/MM/yyyy').format(selectedDate),
                   style: const TextStyle(
                     fontSize: 16,
-                    color: Color(0xFF63F77D),
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF044454),
+                  ),
                   onPressed: () => _selectDate(context),
-                  child: const Text('Seleccionar fecha'),
+                  child: const Text('Seleccionar fecha',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -247,14 +269,27 @@ class _TransferAccountsState extends State<TransferAccounts> {
               style: const TextStyle(color: Colors.white),
               controller: _descripcionController,
               maxLines: 2,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Descripción',
-                labelStyle: TextStyle(color: Colors.white),
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.edit),
+                labelStyle: const TextStyle(color: Colors.white),
+                prefixIcon: const Icon(Icons.edit, color: Color(0xFF00BFA5)),
+                // Borde al enfocar
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFF00BFA5)),
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
                 ),
+                // Borde cuando no está enfocado
+                enabledBorder:  OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                ),
+                // Borde por defecto
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                ),
+                filled: true, // Activar fondo personalizado
+                fillColor: const Color(0xFF044454),
               ),
             ),
 
@@ -262,6 +297,9 @@ class _TransferAccountsState extends State<TransferAccounts> {
 
             // Botón para realizar la transferencia
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF044454),
+              ),
               onPressed: () async {
                 if (_cantidadController.text.isEmpty ||
                     _descripcionController.text.isEmpty) {
@@ -362,7 +400,8 @@ class _TransferAccountsState extends State<TransferAccounts> {
                   }
                 }
               },
-              child: const Text('Transferir'),
+              child: const Text('Transferir',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ],
         ),

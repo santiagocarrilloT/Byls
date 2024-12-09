@@ -71,17 +71,17 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
     widthPantalla = MediaQuery.of(context).size.width;
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color(0xFF00BFA5),
-          title: const Text('Cambiar Divisas'),
+          backgroundColor: const Color(0xFF044454),
+          title: const Text('Cambiar Divisas', style: TextStyle(color: Colors.white)),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               GoRouter.of(context).pushReplacement('/settings');
             },
           ),
         ),
         body: Container(
-          color: const Color(0xFF006064),
+          color: const Color(0xFF04242C),
           child: ListView(
             padding: const EdgeInsets.all(18),
             children: [
@@ -90,7 +90,7 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
                 child: Container(
                   width: widthPantalla * 0.1,
                   height: 80,
-                  color: const Color.fromARGB(129, 50, 173, 240),
+                  color: const Color(0xFF044454),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -236,7 +236,7 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
       return ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          color: const Color.fromARGB(75, 50, 173, 240),
+          color: const Color(0xFF044454),
           child: ListTile(
             title: Text(
               nuevaDivisa,
@@ -269,7 +269,7 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
   showValidateOTP(BuildContext context, String nuevaDivisa) {
     Widget cancelButton = ElevatedButton(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(Colors.grey),
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -279,7 +279,7 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
       onPressed: () async {
         Navigator.of(context).pop();
       },
-      child: const Text("No"),
+      child: const Text("No", style: TextStyle(color: Colors.white)),
     );
 
     Widget continueButton = ElevatedButton(
@@ -302,17 +302,18 @@ class _ConversorDivisasState extends State<ConversorDivisas> {
         //Redirigir a la página de ajustes
         GoRouter.of(context).go('/settings');
       },
-      child: const Text("Si"),
+      child: const Text("Si", style: TextStyle(color: Colors.white)),
     );
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("¿Deseas cambiar la divisa?"),
+          backgroundColor: const Color(0xFF044454),
+          title: const Text("¿Deseas cambiar la divisa?", style: TextStyle(color: Colors.white)),
           content: Text('Divisa Elegida: $nuevaDivisa',
               style: const TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0), fontSize: 16)),
+                  color: Colors.white, fontSize: 16)),
           actions: [
             cancelButton,
             continueButton,

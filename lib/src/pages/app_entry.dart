@@ -27,40 +27,47 @@ class _NavigationClassState extends State<NavigationClass> {
   final BottomNavigationBarType _bottomNavType = BottomNavigationBarType.fixed;
 
   static final List<Widget> _pages = <Widget>[
-    const ReportsUser(),
     const Home(),
+    const ReportsUser(),    
     const AccountsUser(), // Pantalla de inicio
     const ProfileView(), // Pantalla de perfil
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+      return Scaffold(
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(230, 255, 255, 255),
-        currentIndex: _selectedIndex,
-        selectedItemColor: const Color(0xFF00BFA5),
-        unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
-        type: _bottomNavType,
-        onTap: (index) async {
-          //Cargar datos guardados con shared preferences
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF04242C),
+          border: Border(
+            top: BorderSide(color: Colors.grey, width: 1.0), // Línea divisoria
+          ),
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent, // Hacer transparente para que se vea el color del contenedor
+          currentIndex: _selectedIndex,
+          selectedItemColor: const Color(0xFF00BFA5),
+          unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
+          type: _bottomNavType,
+          onTap: (index) {
+           //Cargar datos guardados con shared preferences
           bool? habilitarPuntuacion = await Opciones.loadPuntuacion();
           int? selectedCuentaId = await Opciones.loadCuenta();
 
           // Manejar valores nulos proporcionando valores predeterminados
           Opciones.habilitarPuntuacion = habilitarPuntuacion ?? false;
           Opciones.selectedCuentaId = selectedCuentaId ?? 0;
-
-          setState(() {
-            if (seleccionarVentana != null) {
-              _selectedIndex = seleccionarVentana!;
-            } else {
-              _selectedIndex = index;
-            }
-          });
-        },
-        items: _navBarItems,
+            setState(() {
+              if (seleccionarVentana != null) {
+                _selectedIndex = seleccionarVentana!;
+              } else {
+                _selectedIndex = index;
+              }
+            });
+          },
+          items: _navBarItems,
+        ),
       ),
     );
   }
@@ -70,12 +77,12 @@ const _navBarItems = [
   BottomNavigationBarItem(
     icon: Icon(Icons.account_balance_wallet_outlined),
     activeIcon: Icon(Icons.account_balance_wallet),
-    label: 'Inicio',
+    label: 'Movimientos',
   ),
   BottomNavigationBarItem(
     icon: Icon(Icons.analytics_outlined),
     activeIcon: Icon(Icons.analytics),
-    label: 'Movimiento',
+    label: 'Reportes',
   ),
   /* BottomNavigationBarItem(
     icon: SizedBox.shrink(), // Espacio vacío para el botón central
@@ -89,6 +96,6 @@ const _navBarItems = [
   BottomNavigationBarItem(
     icon: Icon(Icons.person_outline_rounded),
     activeIcon: Icon(Icons.person_rounded),
-    label: 'Perfil',
+    label: 'Mi perfil',
   ),
 ];

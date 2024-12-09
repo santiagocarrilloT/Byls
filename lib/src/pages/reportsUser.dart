@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class ReportsUser extends StatefulWidget {
   const ReportsUser({super.key});
@@ -143,12 +144,7 @@ class _ReportsUserState extends State<ReportsUser> {
   Widget build(BuildContext context) {
     widthPantalla = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(''),
-        backgroundColor: const Color(0xFF006064),
-        //Modificar tamaño de la barra de navegación
-        toolbarHeight: 0.0,
-      ),
+      backgroundColor: const Color(0xFF04242C),
       body: SingleChildScrollView(
         child: Builder(builder: (context) {
           return Stack(
@@ -168,7 +164,7 @@ class _ReportsUserState extends State<ReportsUser> {
                           Container(
                             width: widthPantalla * 0.9,
                             height: 190,
-                            color: const Color.fromARGB(183, 0, 0, 0),
+                            color: const Color(0xFF044454),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -350,7 +346,7 @@ class _ReportsUserState extends State<ReportsUser> {
                           Container(
                             width: widthPantalla * 0.9,
                             height: 230,
-                            color: const Color.fromARGB(183, 0, 0, 0),
+                            color: const Color(0xFF044454),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -479,7 +475,7 @@ class _ReportsUserState extends State<ReportsUser> {
                       child: Container(
                         width: widthPantalla * 0.9,
                         height: 190,
-                        color: const Color.fromARGB(183, 0, 0, 0),
+                        color: const Color(0xFF044454),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment
                               .start, // Alineación vertical general
@@ -671,7 +667,7 @@ class _ReportsUserState extends State<ReportsUser> {
     Widget cancelButton = ElevatedButton(
       style: ButtonStyle(
         backgroundColor:
-            WidgetStateProperty.all<Color>(const Color(0xFF838282)),
+            WidgetStateProperty.all<Color>(Colors.red),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -713,48 +709,54 @@ class _ReportsUserState extends State<ReportsUser> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Tipo de Balance:"),
+          title: const Text("Tipo de Balance:", style: TextStyle(color: Colors.white)),
+          backgroundColor: const Color(0xFF04242C),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-              return DropdownButtonFormField<String>(
-                value: tipoBalance,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    tipoBalance = newValue!;
-                    tipoBalance == 'Pos'
-                        ? habilitarSaldoPos = true
-                        : habilitarSaldoPos = false;
-                  });
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Pos',
-                    child: Text('Balance Positivo'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Neg',
-                    child: Text('Balance Negativo'),
-                  ),
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Signo Balance:',
-                  labelStyle: const TextStyle(
-                    color: Color(0xFF00BFA5),
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.watch_later,
-                    color: Color(0xFF00BFA5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  canvasColor: const Color(0xFF04242C),
+                ),
+                child: DropdownButtonFormField<String>(
+                  value: tipoBalance,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      tipoBalance = newValue!;
+                      tipoBalance == 'Pos'
+                          ? habilitarSaldoPos = true
+                          : habilitarSaldoPos = false;
+                    });
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Pos',
+                      child: Text('Balance Positivo', style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Neg',
+                      child: Text('Balance Negativo', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: 'Signo Balance:',
+                    labelStyle: const TextStyle(
+                      color: Color(0xFF00BFA5),
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.watch_later,
+                      color: Color(0xFF00BFA5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                    ),
                   ),
                 ),
-              );
+              );  
             },
           ),
           actions: [
@@ -801,7 +803,7 @@ class _ReportsUserState extends State<ReportsUser> {
     Widget cancelButton = ElevatedButton(
       style: ButtonStyle(
         backgroundColor:
-            WidgetStateProperty.all<Color>(const Color(0xFF838282)),
+            WidgetStateProperty.all<Color>(Colors.red), 
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -840,50 +842,61 @@ class _ReportsUserState extends State<ReportsUser> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Modificar Fecha Resumen:"),
+          title: const Text(
+            "Modificar Fecha Resumen:",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFF04242C), // Cambia el color de fondo aquí
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-              return DropdownButtonFormField<String>(
-                value: fechaResumen,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    fechaResumen = newValue!;
-                  });
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Día',
-                    child: Text('Día Actual'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Semana',
-                    child: Text('Semana Actual'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Mes',
-                    child: Text('Mes Actual'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Año',
-                    child: Text('Año Actual'),
-                  ),
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Fecha:',
-                  labelStyle: const TextStyle(
-                    color: Color(0xFF00BFA5),
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.watch_later,
-                    color: Color(0xFF00BFA5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  canvasColor: const Color(0xFF04242C), // Cambia el color de fondo del menú desplegable aquí
+                ),
+                child: DropdownButtonFormField<String>(
+                  value: fechaResumen,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      fechaResumen = newValue!;
+                    });
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Día',
+                      child: Text('Día Actual', style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Semana',
+                      child: Text('Semana Actual', style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Mes',
+                      child: Text('Mes Actual', style: TextStyle(color: Colors.white)),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Año',
+                      child: Text('Año Actual', style: TextStyle(color: Colors.white)),
+                    ),
+                  ],
+                  decoration: InputDecoration(
+                    labelText: 'Fecha:',
+                    labelStyle: const TextStyle(
+                      color: Colors.white,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.watch_later,
+                      color: Color(0xFF00BFA5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                    ),
+                    filled: true,
+                    fillColor: const Color(0xFF044454),
                   ),
                 ),
               );

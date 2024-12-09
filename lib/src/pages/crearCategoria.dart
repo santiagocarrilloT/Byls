@@ -17,30 +17,76 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
   // Crea una instancia de AuthController
   final AuthController authController = AuthController();
 
-  // Iconos para categorías de gastos y sus nombres
+  
+  // Iconos para categorías de gastos
   final Map<IconData, String> iconosGastos = {
+    // Hogar y Vida Diaria
     Icons.home: 'house',
-    Icons.school: 'school',
-    Icons.fastfood: 'fastfood',
-    Icons.local_gas_station: 'local_gas_station',
-    Icons.phone_android: 'phone_android',
-    Icons.shopping_cart: 'shopping_cart',
-    Icons.car_rental: 'car_rental',
-    Icons.hotel: 'hotel',
+    Icons.kitchen: 'kitchen',
+    Icons.bed: 'bed',
+    Icons.weekend: 'living_room',
+    Icons.bathtub: 'bathroom',
+    Icons.lightbulb: 'electricity',
+    
+    // Transporte
+    Icons.directions_car: 'car',
+    Icons.motorcycle: 'motorcycle',
+    Icons.directions_bus: 'bus',
+    Icons.directions_bike: 'bike',
+    Icons.local_shipping: 'shipping',
+    Icons.airplanemode_active: 'airplane',
+    Icons.train: 'train',
+    Icons.subway: 'subway',
+    
+    // Alimentos y Bebidas
+    Icons.local_pizza: 'pizza',
+    Icons.local_cafe: 'cafe',
+    Icons.local_dining: 'restaurant',
+
+    // Entretenimiento
+    Icons.movie: 'movie',
+    Icons.music_note: 'music',
+    Icons.tv: 'tv',
+    Icons.book: 'book',
+    
+    // Salud y Bienestar
+    Icons.fitness_center: 'gym',
+    Icons.medical_services: 'medical_services',
     Icons.health_and_safety: 'health_and_safety',
+    Icons.spa: 'spa',
+    Icons.self_improvement: 'meditation',
+    
+    // Otros
+    Icons.shopping_cart: 'shopping_cart',
+    Icons.shopping_bag: 'shopping_bag',
+    Icons.pets: 'pets',
   };
 
-  // Iconos para categorías de ingresos y sus nombres
+  // Iconos para categorías de ingresos
   final Map<IconData, String> iconosIngresos = {
-    Icons.attach_money: 'attach_money',
-    Icons.trending_up: 'trending_up',
-    Icons.monetization_on: 'monetization_on',
-    Icons.account_balance_wallet: 'account_balance_wallet',
+    // Finanzas y Negocios
+    Icons.attach_money: 'money',
+    Icons.trending_up: 'investment',
+    Icons.monetization_on: 'savings',
+    Icons.account_balance_wallet: 'wallet',
     Icons.business: 'business',
-    Icons.card_giftcard: 'card_giftcard',
-    Icons.store: 'store',
-    Icons.pie_chart: 'pie_chart',
+    
+    // Trabajo y Educación
+    Icons.school: 'school',
+    Icons.science: 'science',
+    Icons.work: 'work',
+    Icons.engineering: 'engineering',
+
+    // Viajes y Ocio
+    Icons.explore: 'explore',
+    Icons.beach_access: 'beach',
+    
+    // Tecnología
+    Icons.phone_android: 'smartphone',
+    Icons.computer: 'computer',
+    Icons.devices: 'devices',
   };
+
 
   // Guardar categoría en la base de datos usando AuthController
   Future<void> _guardarCategoria() async {
@@ -92,119 +138,161 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF044454),
+        title: const Text("Crear Categoría", style: TextStyle(color: Colors.white)),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             context.go("/transaccion");
           },
         ),
-        title: const Text("Crear Categoría"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Campo de texto para el nombre de la categoría
-            TextField(
-              controller: _nombreController,
-              decoration:
-                  const InputDecoration(labelText: 'Nombre de la Categoría'),
-            ),
-            const SizedBox(height: 20),
-
-            // Selector de color
-            Row(
-              children: [
-                const Text('Selecciona un color: '),
-                const SizedBox(width: 10),
-                GestureDetector(
-                  onTap: () async {
-                    final Color? pickedColor = await showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text('Selecciona un color'),
-                          content: SingleChildScrollView(
-                            child: BlockPicker(
-                              pickerColor: selectedColor,
-                              onColorChanged: (color) {
-                                setState(() {
-                                  selectedColor = color;
-                                });
-                                Navigator.of(context).pop(color);
-                              },
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                    if (pickedColor != null) {
-                      setState(() {
-                        selectedColor = pickedColor;
-                      });
-                    }
-                  },
-                  child: CircleAvatar(
-                    backgroundColor: selectedColor,
-                    radius: 20,
+      body: Container(
+        color: const Color(0xFF04242C),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Campo de texto para el nombre de la categoría
+              TextField(
+                controller: _nombreController,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  labelText: 'Nombre de la Categoría',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  filled: true,
+                  fillColor: const Color(0xFF044454),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
+              ),
+              const SizedBox(height: 20),
 
-            // Selector de tipo (Gasto o Ingreso)
-            DropdownButton<String>(
-              value: tipoSeleccionado,
-              items: const [
-                DropdownMenuItem(value: 'Gasto', child: Text('Gasto')),
-                DropdownMenuItem(value: 'Ingreso', child: Text('Ingreso')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  tipoSeleccionado = value!;
-                  iconoSeleccionado =
-                      null; // Reiniciar el ícono seleccionado al cambiar el tipo
-                });
-              },
-            ),
-            const SizedBox(height: 20),
-
-            // Selección de íconos
-            const Text('Selecciona un ícono:'),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 10.0,
-              runSpacing: 10.0,
-              children: iconosDisponibles.keys.map((icon) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      iconoSeleccionado = icon;
-                    });
-                  },
-                  child: CircleAvatar(
-                    radius: 25,
-                    backgroundColor: iconoSeleccionado == icon
-                        ? selectedColor
-                        : Colors.grey[300],
-                    child: Icon(icon,
-                        color: iconoSeleccionado == icon
-                            ? Colors.white
-                            : Colors.black),
+              // Selector de color
+              Row(
+                children: [
+                  const Text('Selecciona un color: ',
+                      style: TextStyle(color: Colors.white)),
+                  const SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () async {
+                      final Color? pickedColor = await showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: const Color(0xFF044454),
+                            title: const Text('Selecciona un color',
+                                style: TextStyle(color: Colors.white)),
+                            content: SingleChildScrollView(
+                              child: BlockPicker(
+                                pickerColor: selectedColor,
+                                onColorChanged: (color) {
+                                  setState(() {
+                                    selectedColor = color;
+                                  });
+                                  Navigator.of(context).pop(color);
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                      if (pickedColor != null) {
+                        setState(() {
+                          selectedColor = pickedColor;
+                        });
+                      }
+                    },
+                    child: CircleAvatar(
+                      backgroundColor: selectedColor,
+                      radius: 20,
+                    ),
                   ),
-                );
-              }).toList(),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Selector de tipo (Gasto o Ingreso)
+              DropdownButton<String>(
+                value: tipoSeleccionado,
+                dropdownColor: const Color(0xFF044454),
+                style: const TextStyle(color: Colors.white),
+                items: const [
+                  DropdownMenuItem(value: 'Gasto', child: Text('Gasto')),
+                  DropdownMenuItem(value: 'Ingreso', child: Text('Ingreso')),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    tipoSeleccionado = value!;
+                    iconoSeleccionado =
+                        null; // Reiniciar el ícono seleccionado al cambiar el tipo
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+
+              // Selección de íconos
+              const Text('Selecciona un ícono:',
+                  style: TextStyle(color: Colors.white)),
+              const SizedBox(height: 10),
+              Expanded(
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Wrap(
+                    spacing: 10.0,
+                    runSpacing: 10.0,
+                    children: iconosDisponibles.keys.map((icon) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            iconoSeleccionado = icon;
+                          });
+                        },
+                        child: CircleAvatar(
+                          radius: 30,
+                          backgroundColor: iconoSeleccionado == icon
+                              ? selectedColor
+                              : Colors.grey[700],
+                          child: Icon(
+                            icon,
+                            color: iconoSeleccionado == icon
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 20),
 
-            // Botón para guardar la categoría
-            ElevatedButton(
-              onPressed: _guardarCategoria,
-              child: const Text('Guardar Categoría'),
-            ),
-          ],
+              // Botón para guardar la categoría
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF044454),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 15.0, horizontal: 30.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  ),
+                  onPressed: _guardarCategoria,
+                  child: const Text('Guardar Categoría',
+                      style: TextStyle(color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

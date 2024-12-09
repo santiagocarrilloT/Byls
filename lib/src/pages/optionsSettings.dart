@@ -61,17 +61,17 @@ class _OpcionesState extends State<Opciones> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF00BFA5),
+        backgroundColor: const Color(0xFF044454),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             GoRouter.of(context).pushReplacement('/app_entry', extra: 3);
           },
         ),
-        title: const Text('Ajustes'),
+        title: const Text('Ajustes', style: TextStyle(color: Colors.white)),
       ),
       body: Container(
-        color: const Color(0xFF006064),
+        color: const Color(0xFF04242C),
         child: ListView(
           physics: const BouncingScrollPhysics(),
           children: [
@@ -120,7 +120,7 @@ class _OpcionesState extends State<Opciones> {
                 color: Colors.white,
               ),
               trailing: Switch(
-                activeColor: const Color(0xFFFF8A65),
+                activeColor:  Colors.green,
                 value: Opciones.habilitarPuntuacion,
                 onChanged: (value) {
                   setState(() {

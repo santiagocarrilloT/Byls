@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -38,79 +39,80 @@ class _ProfileViewState extends State<ProfileView> {
   Widget build(BuildContext context) {
     final authController = Provider.of<AuthController>(context);
     return SafeArea(
-      child: Column(
-        children: [
-          Container(
-            color: const Color(0xFF00BFA5),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 20, top: 35),
-              child: Row(
-                children: [
-                  const Icon(Icons.person, size: 60, color: Color(0xFF000000)),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    usuarioDatos?.email ?? "",
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
+      child: Scaffold(
+        backgroundColor: const Color(0xFF044454), // Cambia el color de fondo aquí
+        body: Column(
+          children: [
+            Container(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10, right: 20, top: 35),
+                child: Row(
+                  children: [
+                    const Icon(Icons.person, size: 60, color: Colors.white),
+                    const SizedBox(
+                      width: 10,
                     ),
-                  )
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF006064),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
+                    Text(
+                      usuarioDatos?.email ?? "",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                    )
+                  ],
                 ),
               ),
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.settings, color: Colors.white),
-                    title: const Text(
-                      "Ajustes",
-                      style: TextStyle(
-                          color: Colors.white), // Cambiar color del texto
-                    ),
-                    onTap: () {
-                      context.go('/settings');
-                    },
+            ),
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFF04242C),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
                   ),
-                  ListTile(
-                    leading: const Icon(Icons.lock_reset, color: Colors.white),
-                    title: const Text(
-                      "Cambiar contraseña",
-                      style: TextStyle(color: Colors.white),
+                ),
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.settings, color: Colors.white),
+                      title: const Text(
+                        "Ajustes",
+                        style: TextStyle(
+                            color: Colors.white), // Cambiar color del texto
+                      ),
+                      onTap: () {
+                        context.go('/settings');
+                      },
                     ),
-                    onTap: () {
-                      context.go('/newPass');
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(FontAwesomeIcons.receipt,
-                        color: Colors.white),
-                    title: const Text(
-                      "Privacidad",
-                      style: TextStyle(color: Colors.white),
+                    ListTile(
+                      leading: const Icon(Icons.lock_reset, color: Colors.white),
+                      title: const Text(
+                        "Cambiar contraseña",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {
+                        context.go('/newPass');
+                      },
                     ),
-                    onTap: () {},
-                  ),
-                  ListTile(
-                    leading:
-                        const Icon(Icons.logout_outlined, color: Colors.white),
-                    title: const Text(
-                      "Cerrar Sesión",
-                      style: TextStyle(color: Colors.white),
+                    ListTile(
+                      leading: const Icon(FontAwesomeIcons.receipt,
+                          color: Colors.white),
+                      title: const Text(
+                        "Privacidad",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () {},
                     ),
-                    onTap: () async {
+                    ListTile(
+                      leading:
+                          const Icon(Icons.logout_outlined, color: Colors.white),
+                      title: const Text(
+                        "Cerrar Sesión",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onTap: () async {
                       await Opciones.removeValue();
                       authController.signOutCt();
                       context.go('/signIn');
@@ -121,7 +123,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
           )
         ],
-      ),
-    );
-  }
+      ),
+    );
+  }
 }

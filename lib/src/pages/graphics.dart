@@ -142,15 +142,16 @@ class _GraphicsViewState extends State<GraphicsView> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF044454),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            GoRouter.of(context).go('/app_entry');
+            context.go('/app_entry', extra: 1);
           },
         ),
         title: const Text(
           'Transacciones por Cuenta',
-          style: TextStyle(fontSize: 18),
+          style: TextStyle(color: Colors.white ,fontSize: 18),
         ),
         /*title:  Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -188,6 +189,7 @@ class _GraphicsViewState extends State<GraphicsView> {
           ],
         ), */
       ),
+      backgroundColor: const Color(0xFF04242C),
       body: Column(
         children: [
           const SizedBox(
@@ -205,7 +207,7 @@ class _GraphicsViewState extends State<GraphicsView> {
                 elevation: 16,
                 style:
                     const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
-                dropdownColor: const Color(0xFF00BFA5),
+                dropdownColor: const Color(0xFF044454),
                 underline: Container(
                   height: 2,
                   color: const Color.fromARGB(255, 255, 255, 255),
@@ -239,10 +241,13 @@ class _GraphicsViewState extends State<GraphicsView> {
                 child: TextButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: transaccionElegida
-                        ? const Color(0xFF00BFA5)
+                        ? const Color(0xFF044454)
                         : Colors.white,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero, // Sin bordes redondeados
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20.0), // Redondea la esquina superior derecha
+                        bottomLeft: Radius.circular(20.0),
+                      ), // Sin bordes redondeados
                     ),
                   ),
                   onPressed: () {
@@ -262,9 +267,12 @@ class _GraphicsViewState extends State<GraphicsView> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: transaccionElegida
                         ? Colors.white
-                        : const Color(0xFF00BFA5),
+                        : const Color(0xFF044454),
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero, // Sin bordes redondeados
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(20.0), // Redondea la esquina superior derecha
+                        bottomRight: Radius.circular(20.0),
+                      ), // Sin bordes redondeados
                     ),
                   ),
                   onPressed: () {

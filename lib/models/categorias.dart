@@ -92,6 +92,7 @@ final List<Categoria> categoriasIngreso = [
       color: Colors.greenAccent),
 ];
 
+// categorías de gastos y sus nombres, 
 final Map<IconData, String> iconosGastos = {
   Icons.home: 'house',
   Icons.school: 'school',

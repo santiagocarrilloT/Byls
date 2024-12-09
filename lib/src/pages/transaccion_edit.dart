@@ -191,13 +191,15 @@ class _TransaccionEditState extends State<TransaccionEdit> {
           onPressed: () {
             context.go("/app_entry", extra: 1);
           },
+        color: Colors.white,
         ),
-        title: const Text("Editar Transacción"),
+        title: const Text("Editar Transacción", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF044454),
         actions: [
           //Notificación de transacción
           IconButton(
             icon: const Icon(Icons.notification_add,
-                color: Color.fromARGB(255, 63, 158, 81)),
+                color: Color(0xFF00BFA5)),
             onPressed: () async {
               context.go('/configurarNotificaciones');
             },
@@ -245,7 +247,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF006064),
+      backgroundColor: const Color(0xFF04242C),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -262,15 +264,28 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.digitsOnly,
                 ],
-                decoration: const InputDecoration(
-                  labelText: 'Cantidad',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
+                decoration: InputDecoration(
+                        labelText: 'Valor',
+                        labelStyle: const TextStyle(color: Colors.white),
+                        prefixIcon: const Icon(Icons.attach_money, color: Color(0xFF00BFA5)),
+                        // Borde cuando el campo está enfocado
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
+                        ),
+                        // Borde cuando el campo está habilitado pero no enfocado
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                        ),
+                        // Sin borde adicional para el estado normal
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                        ),
+                        filled: true, // Fondo para el campo
+                        fillColor: const Color(0xFF044454), // Color del fondo
+                      ),
               ),
 
               const SizedBox(height: 15),
@@ -279,13 +294,13 @@ class _TransaccionEditState extends State<TransaccionEdit> {
               DropdownButtonFormField(
                 value: selectedCuentaId,
                 style: const TextStyle(color: Color(0xFF00BFA5)),
-                dropdownColor: const Color(0xFF00BFA5),
+                dropdownColor: const Color(0xFF044454),
                 items: cuentas
                     .map((cuenta) => DropdownMenuItem(
                           value: cuenta.idCuenta,
                           child: Text(
                             cuenta.nombreCuenta,
-                            style: const TextStyle(color: Colors.black),
+                            style: const TextStyle(color: Colors.white),
                           ),
                         ))
                     .toList(),
@@ -295,23 +310,27 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   });
                 },
                 decoration: InputDecoration(
-                  labelText: 'Cuenta',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.account_balance_wallet,
-                    color: Color(0xFF00BFA5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
+                        labelText: 'Cuenta',
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.account_balance_wallet,
+                          color: Color(0xFF00BFA5), 
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide:
+                              const BorderSide(color: Color(0xFF00BFA5)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide:
+                              const BorderSide(color: Color(0xFF044454)),
+                        ),
+                        filled: true, // Habilita el fondo del campo
+                        fillColor: const Color(0xFF044454), // Fondo del campo
+                      ),
               ),
 
               const SizedBox(height: 15),
@@ -332,7 +351,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                       style: TextStyle(
                         color: isGastosSelected
                             ? const Color(0xFF00BFA5)
-                            : Colors.black,
+                            : Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -350,7 +369,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                       style: TextStyle(
                         color: !isGastosSelected
                             ? const Color(0xFF00BFA5)
-                            : Colors.black,
+                            : Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -397,6 +416,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
+                                color: Colors.white,
                               ),
                             ),
                           ],
@@ -435,6 +455,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
+                              color: Colors.white
                             ),
                           ),
                         ],
@@ -449,15 +470,18 @@ class _TransaccionEditState extends State<TransaccionEdit> {
               // Selector de fecha
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.grey),
+                  const Icon(Icons.calendar_today, color: Color(0xFF00BFA5)),
                   const SizedBox(width: 10),
                   Text(
                     DateFormat('dd/MM/yyyy').format(selectedDate),
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () => _selectDate(context),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white, backgroundColor: const Color(0xFF044454),
+                    ),
                     child: const Text('Seleccionar fecha'),
                   ),
                 ],
@@ -469,16 +493,29 @@ class _TransaccionEditState extends State<TransaccionEdit> {
               TextField(
                 style: const TextStyle(color: Colors.white),
                 controller: _descripcionController,
-                maxLines: 3,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  labelStyle: TextStyle(color: Colors.white),
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.edit),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
+                maxLines: 2,
+                decoration: InputDecoration(
+                        labelText: 'Descripción',
+                        labelStyle: const TextStyle(color: Colors.white), // Estilo de la etiqueta
+                        prefixIcon: const Icon(Icons.edit, color: Color(0xFF00BFA5)), // Ícono al inicio
+                        filled: true, // Activar fondo personalizado
+                        fillColor: const Color(0xFF044454), // Color de fondo del campo
+                        // Borde al enfocar
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
+                        ),
+                        // Borde cuando no está enfocado
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                        ),
+                        // Borde por defecto
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                        ),
+                      ),
               ),
 
               const SizedBox(height: 20),
@@ -487,11 +524,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 191, 188, 0),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 20,
-                    ),
+                    foregroundColor: Colors.white, backgroundColor: const Color(0xFF044454),
                   ),
                   onPressed: () async {
                     // Cuenta seleccionada
@@ -627,7 +660,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                       );
                     }
                   },
-                  child: const Icon(Icons.edit_document),
+                  child: const Text('Editar Transacción'),
                 ),
               ),
             ],
@@ -643,40 +676,80 @@ IconData _getIconByName(String iconName) {
     // Iconos para categorías de gastos
     case 'house':
       return Icons.home;
-    case 'school':
-      return Icons.school;
-    case 'fastfood':
-      return Icons.fastfood;
-    case 'local_gas_station':
-      return Icons.local_gas_station;
-    case 'phone_android':
-      return Icons.phone_android;
+    case 'kitchen':
+      return Icons.kitchen;
+    case 'bed':
+      return Icons.bed;
+    case 'living_room':
+      return Icons.weekend;
+    case 'bathroom':
+      return Icons.bathtub;
+    case 'electricity':
+      return Icons.lightbulb;
+    case 'car':
+      return Icons.directions_car;
+    case 'motorcycle':
+      return Icons.motorcycle;
+    case 'bus':
+      return Icons.directions_bus;
+    case 'bike':
+      return Icons.directions_bike;
+    case 'shipping':
+      return Icons.local_shipping;
+    case 'airplane':
+      return Icons.airplanemode_active;
+    case 'train':
+      return Icons.train;
+    case 'subway':
+      return Icons.directions_subway;
+    case 'pizza':
+      return Icons.local_pizza;
+    case 'cafe':
+      return Icons.local_cafe;
+    case 'restaurant':
+      return Icons.local_dining;
+    case 'movie':
+      return Icons.movie;
+    case 'music':
+      return Icons.music_note;
+    case 'tv':
+      return Icons.tv;
+    case 'book':
+      return Icons.book;
+    case 'gym':
+      return Icons.fitness_center;
     case 'shopping_cart':
       return Icons.shopping_cart;
-    case 'car_rental':
-      return Icons.car_rental;
-    case 'hotel':
-      return Icons.hotel;
-    case 'health_and_safety':
-      return Icons.health_and_safety;
+    case 'pets':
+      return Icons.pets;
 
     // Iconos para categorías de ingresos
-    case 'attach_money':
+    case 'money':
       return Icons.attach_money;
-    case 'trending_up':
+    case 'investment':
       return Icons.trending_up;
-    case 'monetization_on':
-      return Icons.monetization_on;
-    case 'account_balance_wallet':
+    case 'wallet':
       return Icons.account_balance_wallet;
     case 'business':
       return Icons.business;
-    case 'card_giftcard':
-      return Icons.card_giftcard;
-    case 'store':
-      return Icons.store;
-    case 'pie_chart':
-      return Icons.pie_chart;
+    case 'school':
+      return Icons.school;
+    case 'science':
+      return Icons.science;
+    case 'work':
+      return Icons.work;
+    case 'engineering':
+      return Icons.engineering;
+    case 'explore':
+      return Icons.explore;
+    case 'beach':
+      return Icons.beach_access;
+    case 'smartphone':
+      return Icons.phone_android;
+    case 'computer':
+      return Icons.computer;
+    case 'devices':
+      return Icons.devices;
     // Ícono por defecto si no coincide con ninguna categoría
     default:
       return Icons.help;

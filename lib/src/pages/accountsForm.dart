@@ -55,8 +55,11 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
           onPressed: () {
             GoRouter.of(context).go('/app_entry');
           },
+          color: Colors.white,
         ),
-        title: Text(cuenta == null ? 'Crear cuenta' : 'Editar cuenta'),
+        title: Text(cuenta == null ? 'Crear cuenta' : 'Editar cuenta',
+            style: const TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF044454),
         actions: [
           //Boton para eliminar cuenta si esta en modo edición
           if (cuenta != null)
@@ -70,33 +73,13 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
             ),
         ],
       ),
-      backgroundColor: const Color(0xFF006064),
+      backgroundColor: const Color(0xFF04242C),
       body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  style: const TextStyle(color: Colors.white),
-                  controller: _cantidadController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  decoration: const InputDecoration(
-                    labelText: 'Cantidad',
-                    labelStyle: TextStyle(color: Colors.white),
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.attach_money),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Color(0xFF00BFA5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
+              children: [                
                 TextField(
                   style: const TextStyle(color: Colors.white),
                   controller: _nombreController,
@@ -108,7 +91,31 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                     labelText: 'Nombre de la cuenta',
                     labelStyle: TextStyle(color: Colors.white),
                     border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.edit),
+                    prefixIcon: Icon(Icons.edit, color: Color(0xFF00BFA5)),
+                    filled: true,
+                    fillColor: const Color(0xFF044454),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Color(0xFF00BFA5),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  style: const TextStyle(color: Colors.white),
+                  controller: _cantidadController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                  decoration: const InputDecoration(
+                    labelText: 'Cantidad',
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.attach_money, color: Color(0xFF00BFA5)),
+                    filled: true,
+                    fillColor: const Color(0xFF044454),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
                         color: Color(0xFF00BFA5),
@@ -118,7 +125,7 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
-                  height: 350,
+                  height: 400,
                   child: GridView.builder(
                     scrollDirection: Axis.vertical,
                     gridDelegate:
@@ -160,6 +167,7 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                     },
                   ),
                 ),
+                const SizedBox(height: 30),
                 TextButton(
                   onPressed: () {
                     context.go('/app_entry', extra: 2);
@@ -212,7 +220,7 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                       },
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all<Color>(
-                          const Color(0xFF00BFA5),
+                          const Color(0xFF044454),
                         ),
                       ),
                       child: //Icon(icono),
@@ -223,6 +231,7 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
               ],
             ),
           )),
