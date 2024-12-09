@@ -55,7 +55,7 @@ class _AccountsUserState extends State<AccountsUser> {
       body: Stack(
         children: [
           Container(
-            color: const Color(0xFF00BFA5),
+            color: const Color(0xFF044454),
           ),
           Positioned(
             top: MediaQuery.of(context).size.height * 0.02,
@@ -71,7 +71,7 @@ class _AccountsUserState extends State<AccountsUser> {
                         : 'Saldo total\n\$ $saldo',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold,
                     ),
@@ -90,16 +90,19 @@ class _AccountsUserState extends State<AccountsUser> {
                         ElevatedButton(
                           onPressed: () {
                             context.go('/transferenciaCuentas');
-                          },
+                          },       
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF04242C),
+                          ),
                           child: const Icon(
                             Icons.swap_horiz,
-                            color: Color(0xFF006064),
+                            color: Color(0xFF00BFA5),
                           ),
                         ),
                         const Text(
                           'Transferir',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontSize: 16.0,
                           ),
                         ),
@@ -111,15 +114,18 @@ class _AccountsUserState extends State<AccountsUser> {
                       children: [
                         ElevatedButton(
                           onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF04242C),
+                          ),
                           child: const Icon(
                             Icons.history,
-                            color: Color(0xFF006064),
+                            color: Color(0xFF00BFA5),
                           ),
                         ),
                         const Text(
                           'Historial',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontSize: 16.0,
                           ),
                         ),
@@ -137,7 +143,7 @@ class _AccountsUserState extends State<AccountsUser> {
             bottom: 0,
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFF006064),
+                color: Color(0xFF04242C),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(50),
                   topRight: Radius.circular(50),
@@ -173,14 +179,14 @@ class _AccountsUserState extends State<AccountsUser> {
                             title: Text(
                               futureCuenta[index].nombreCuenta,
                               style: const TextStyle(
-                                color: Color(0xFF4E4E4E),
+                                color: Colors.black,
                               ),
                             ),
                             leading: Hero(
                               tag: index,
                               child: Padding(
                                 padding: const EdgeInsets.all(4.0),
-                                child: Icon(icono),
+                                child: Icon(icono, color: Colors.black),
                               ),
                             ),
                             trailing: Row(
@@ -191,7 +197,7 @@ class _AccountsUserState extends State<AccountsUser> {
                                       ? '\$ ${formatoUtils.formatNumber(futureCuenta[index].saldo)}'
                                       : '\$ ${futureCuenta[index].saldo}',
                                   style: const TextStyle(
-                                      color: Color(0xFF4E4E4E),
+                                      color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16.0),
                                 )

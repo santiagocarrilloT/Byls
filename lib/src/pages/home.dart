@@ -244,8 +244,8 @@ class _HomeState extends State<Home> {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF00BFA5),
+      appBar: AppBar( 
+        backgroundColor: const Color(0xFF044454),
         title: Center(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -254,22 +254,21 @@ class _HomeState extends State<Home> {
               const Text(
                 'Cuenta: ',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 15,
                 ),
               ),
-
               const SizedBox(width: 10),
 
               // Dropdown para seleccionar cuenta
-              DropdownButton(
+              DropdownButton(                
                 value: selectedCuentaId,
                 icon: const Icon(Icons.arrow_downward,
-                    color: Color.fromARGB(255, 0, 0, 0)),
+                    color: Color(0xFF00BFA5)),
                 iconSize: 24,
                 elevation: 16,
                 style: const TextStyle(color: Color(0xFFFFFFFF)),
-                dropdownColor: const Color(0xFFFFFFFF),
+                dropdownColor: const Color(0xFF04242C),
                 onChanged: (int? newValue) {
                   setState(
                     () {
@@ -285,7 +284,7 @@ class _HomeState extends State<Home> {
                     child: Text(
                       cuenta.nombreCuenta,
                       style: const TextStyle(
-                        color: Colors.black,
+                        color: Colors.white,
                         fontSize: 15,
                       ),
                     ),
@@ -299,7 +298,7 @@ class _HomeState extends State<Home> {
               // Botón para crear nueva cuenta
               IconButton(
                 icon: const Icon(Icons.add_card,
-                    color: Color.fromARGB(255, 0, 0, 0)),
+                    color: Color.fromARGB(255, 255, 255, 255)),
                 onPressed: () {
                   context.go('/NuevaCuenta');
                 },
@@ -310,7 +309,7 @@ class _HomeState extends State<Home> {
       ),
       body: Stack(
         children: [
-          Container(color: const Color(0xFF00BFA5)),
+          Container(color: const Color(0xFF044454)),
           Positioned(
             top: 1,
             left: 0,
@@ -330,7 +329,7 @@ class _HomeState extends State<Home> {
             bottom: 0,
             child: Container(
               decoration: const BoxDecoration(
-                color: Color(0xFF006064), //Color(0xFF00A5B5),
+                color: Color(0xFF04242C), //Color(0xFF00A5B5),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(50),
                   topRight: Radius.circular(50),
@@ -352,7 +351,7 @@ class _HomeState extends State<Home> {
                           'Gastos',
                           style: TextStyle(
                             color: selectedType == 'Gasto'
-                                ? const Color(0xFFb4f4bc)
+                                ? const Color(0xFF00BFA5)
                                 : Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -369,7 +368,7 @@ class _HomeState extends State<Home> {
                           'Ingreso',
                           style: TextStyle(
                             color: selectedType == 'Ingreso'
-                                ? const Color(0xFFb4f4bc)
+                                ? const Color(0xFF00BFA5)
                                 : Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -382,11 +381,11 @@ class _HomeState extends State<Home> {
                   Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00BFA5),
+                      color: const Color(0xFF044454),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: const [
                         BoxShadow(
-                          color: Colors.black26,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           blurRadius: 10,
                           offset: Offset(0, 5),
                         ),
@@ -400,15 +399,15 @@ class _HomeState extends State<Home> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 10),
                         ToggleButtons(
                           selectedColor:
-                              Colors.white, // Color del texto seleccionado
-                          fillColor: const Color(
-                              0xFF006064), // Fondo del botón seleccionado
-                          color: Colors.black,
+                              const Color.fromARGB(255, 0, 0, 0), // Color del texto seleccionado
+                          fillColor: const Color.fromARGB(155, 255, 255, 255), // Fondo del botón seleccionado
+                          color: const Color.fromARGB(255, 255, 255, 255),
                           borderRadius: BorderRadius.circular(10),
                           isSelected: _selections,
                           children: const [
@@ -436,7 +435,7 @@ class _HomeState extends State<Home> {
                           onPressed: (int index) async {
                             if (index == 2) {
                               final int? selectedMonth =
-                                  await showMonthPicker(context);
+                                  await showMonthPicker(context);                                
                               if (selectedMonth != null) {
                                 // Actualiza el estado de manera sincrónica
                                 setState(() {
@@ -563,20 +562,20 @@ class _HomeState extends State<Home> {
                                   color:
                                       const Color.fromARGB(155, 255, 255, 255),
                                   border: Border.all(
-                                      color: const Color(0xFF006064)),
+                                      color: const Color(0xFF044454)),
                                   borderRadius: BorderRadius.circular(10.0),
                                 ),
                                 child: ListTile(
                                   title: Text(
                                     '${filteredTransacciones[index].nombreCategoria}',
                                     style: const TextStyle(
-                                        color: Color(0xFF4E4E4E)),
+                                        color: Colors.black),
                                   ),
                                   leading: Hero(
                                     tag: index,
                                     child: Padding(
                                       padding: const EdgeInsets.all(4.0),
-                                      child: Icon(icono),
+                                      child: Icon(icono, color: Colors.black),
                                     ),
                                   ),
                                   trailing: Row(
@@ -589,7 +588,7 @@ class _HomeState extends State<Home> {
                                                     .montoTransaccion)
                                             : '\$ ${filteredTransacciones[index].montoTransaccion}',
                                         style: const TextStyle(
-                                          color: Color(0xFF4E4E4E),
+                                          color: Colors.black,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16.0,
                                         ),
@@ -625,7 +624,7 @@ class _HomeState extends State<Home> {
               final RenderBox overlay =
                   Overlay.of(context).context.findRenderObject() as RenderBox;
               showMenu(
-                color: const Color(0xFF00BFA5),
+                color: const Color(0xFF044454),
                 context: context,
                 position: RelativeRect.fromLTRB(
                   overlay.size.width - 10, // Distancia del lado derecho
@@ -636,8 +635,10 @@ class _HomeState extends State<Home> {
                 items: [
                   PopupMenuItem(
                     child: ListTile(
-                      title: const Text('Transacción'),
-                      leading: const Icon(Icons.add),
+                      title: const Text('Transacción', 
+                        style: TextStyle(color: Colors.white)),
+                      leading: const Icon(Icons.add,
+                        color: Colors.white),
                       onTap: () {
                         context.go('/transaccion');
                       },
@@ -645,13 +646,14 @@ class _HomeState extends State<Home> {
                   ),
                   PopupMenuItem(
                     child: ListTile(
-                      title: const Text('Cuentas'),
+                      title: const Text('Cuentas', 
+                        style: TextStyle(color: Colors.white)),
                       leading: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: const [
-                          Icon(Icons.account_balance),
+                          Icon(Icons.add_card, 
+                            color: Colors.white),
                           SizedBox(width: 2),
-                          Icon(Icons.add),
                         ],
                       ),
                       onTap: () {

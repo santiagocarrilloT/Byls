@@ -14,8 +14,18 @@ class SignUp extends StatefulWidget {
 class _SigUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Stack(
+    return  Scaffold(
+      appBar:  AppBar(
+        backgroundColor: const Color(0xFF044454),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            context.go('/signIn');
+          },
+        ),
+        title: const Text('Crear Cuenta', style: TextStyle(color: Colors.white)),
+      ),
+      body: const Stack(
         children: [
           Fondo(),
           Contenido(),
@@ -75,7 +85,7 @@ class Logobyls extends StatelessWidget {
         const Text(
           'Byls',
           style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 28,
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter Tight'),
@@ -104,7 +114,7 @@ class _DatosState extends State<Datos> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF044454),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -113,9 +123,9 @@ class _DatosState extends State<Datos> {
           const Align(
             alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
             child: Text(
-              'Crea Tu Cuenta',
+              'Crear Cuenta',
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -126,10 +136,20 @@ class _DatosState extends State<Datos> {
           TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
               hintText: 'Correo',
-              hintStyle: TextStyle(color: Colors.grey),
-              border: OutlineInputBorder(),
+              filled: true, 
+              fillColor: const Color(0xFF04242C),
+              hintStyle: const TextStyle(color: Colors.white),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
+                borderSide: const BorderSide(color: Colors.white),
+              ),
             ),
           ),
           const SizedBox(
@@ -141,10 +161,20 @@ class _DatosState extends State<Datos> {
           TextFormField(
             controller: passwordController,
             obscureText: obs,
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintStyle: const TextStyle(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              hintStyle: const TextStyle(color: Colors.white),
               hintText: 'Contraseña',
+              filled: true, 
+              fillColor: const Color(0xFF04242C),
               suffixIcon: IconButton(
                 icon: icono,
                 onPressed: () {
@@ -152,9 +182,9 @@ class _DatosState extends State<Datos> {
                     obs
                         ? (
                             obs = false,
-                            icono = const Icon(Icons.visibility_off)
+                            icono = const Icon(Icons.visibility_off, color: Colors.white)
                           )
-                        : (obs = true, icono = const Icon(Icons.visibility));
+                        : (obs = true, icono = const Icon(Icons.visibility, color: Colors.white));
                   });
                 },
               ),
@@ -298,11 +328,7 @@ class Botones extends StatelessWidget {
           height: 14,
           width: double.infinity,
         ),
-        TextButton(
-            onPressed: () {
-              context.go('/signIn');
-            },
-            child: const Text('Volver al Inicio'))
+        
       ],
     );
   }
@@ -318,7 +344,7 @@ class Fondo extends StatelessWidget {
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
+              colors: [Color(0xFF044454), Color(0xFF00BFA5)])),
     );
   }
 }

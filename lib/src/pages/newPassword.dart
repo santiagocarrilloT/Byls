@@ -18,8 +18,18 @@ class NewPassword extends StatefulWidget {
 class _NewPassState extends State<NewPassword> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Stack(
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF044454),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            GoRouter.of(context).pushReplacement('/app_entry', extra: 3);
+          },
+        ),
+        title: const Text('Cambiar Contraseña', style: TextStyle(color: Colors.white)),
+      ),
+      body: const Stack(
         children: [
           Fondo(),
           Contenido(),
@@ -110,7 +120,7 @@ class _DatosState extends State<Datos> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF044454),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -119,26 +129,11 @@ class _DatosState extends State<Datos> {
           const Align(
             alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
             child: Text(
-              'Ingresa la Nueva Contraseña',
+              'Ingresa la nueva contraseña',
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8.5),
-            decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 70, 194, 80),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Text(
-              '¡Genial, ahora ingresa la nueva contraseña!',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
-              ),
             ),
           ),
           const SizedBox(
@@ -148,10 +143,20 @@ class _DatosState extends State<Datos> {
             controller: passwordController,
             obscureText: obs1,
             keyboardType: TextInputType.emailAddress,
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: 'Contraseña',
-              hintStyle: const TextStyle(color: Colors.grey),
-              border: const OutlineInputBorder(),
+              hintStyle: const TextStyle(color: Colors.white),
+              filled: true,
+              fillColor: const Color(0xFF04242C),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
+                borderSide: const BorderSide(color: Colors.white),
+              ),
               suffixIcon: IconButton(
                 icon: icono,
                 onPressed: () {
@@ -159,9 +164,9 @@ class _DatosState extends State<Datos> {
                     obs1
                         ? (
                             obs1 = false,
-                            icono = const Icon(Icons.visibility_off)
+                            icono = const Icon(Icons.visibility_off, color: Colors.white),
                           )
-                        : (obs1 = true, icono = const Icon(Icons.visibility));
+                        : (obs1 = true, icono = const Icon(Icons.visibility, color: Colors.white));
                   });
                 },
               ),
@@ -173,9 +178,19 @@ class _DatosState extends State<Datos> {
           TextFormField(
             controller: confirmPasswordController,
             obscureText: obs2,
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintStyle: const TextStyle(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              hintStyle: const TextStyle(color: Colors.white),
+              filled: true,
+              fillColor: const Color(0xFF04242C),
               hintText: 'Confirma contraseña',
               suffixIcon: IconButton(
                 icon: icono,
@@ -184,9 +199,9 @@ class _DatosState extends State<Datos> {
                     obs2
                         ? (
                             obs2 = false,
-                            icono = const Icon(Icons.visibility_off)
+                            icono = const Icon(Icons.visibility_off, color: Colors.white),
                           )
-                        : (obs2 = true, icono = const Icon(Icons.visibility));
+                        : (obs2 = true, icono = const Icon(Icons.visibility, color: Colors.white));
                   });
                 },
               ),
@@ -266,9 +281,9 @@ class Botones extends StatelessWidget {
             },
             style: ButtonStyle(
                 backgroundColor:
-                    WidgetStateProperty.all<Color>(const Color(0xFF00BFA5))),
+                    WidgetStateProperty.all<Color>(const Color(0xFF04242C))),
             child: const Text(
-              'Recuperar Contraseña',
+              'Cambiar Contraseña',
               style: TextStyle(color: Colors.white),
             ),
           ),
@@ -298,7 +313,7 @@ class Fondo extends StatelessWidget {
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
+              colors: [Color(0xFF044454), Color(0xFF00BFA5)])),
     );
   }
 }

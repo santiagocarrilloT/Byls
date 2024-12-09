@@ -220,14 +220,17 @@ class _NotificationsTransactionsState extends State<NotificationsTransactions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Programar Notificación'),
+        title: const Text('Programar Notificación',
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Color(0xFF044454),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            context.go("/app_entry");
+            context.go("/transaccion");
           },
         ),
       ),
+      backgroundColor: const Color(0xFF04242C),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -235,7 +238,7 @@ class _NotificationsTransactionsState extends State<NotificationsTransactions> {
           children: [
             const Text(
               'Selecciona la Fecha y Hora',
-              style: TextStyle(fontSize: 18),
+              style: TextStyle(fontSize: 18, color: Colors.white),
             ),
             const SizedBox(height: 10),
             Row(
@@ -245,10 +248,15 @@ class _NotificationsTransactionsState extends State<NotificationsTransactions> {
                   fechaSeleccionada == null
                       ? 'Fecha no seleccionada'
                       : DateFormat('yyyy-MM-dd').format(fechaSeleccionada!),
+                  style: const TextStyle(color: Colors.white),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF044454),
+                  ),
                   onPressed: () => seleccionarFecha(context),
-                  child: const Text('Seleccionar Fecha'),
+                  child: const Text('Seleccionar Fecha',
+                      style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -260,20 +268,28 @@ class _NotificationsTransactionsState extends State<NotificationsTransactions> {
                   horaSeleccionada == null
                       ? 'Hora no seleccionada'
                       : horaSeleccionada!.format(context),
+                  style: const TextStyle(color: Colors.white),
                 ),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF044454),
+                  ),
                   onPressed: () => seleccionarHora(context),
-                  child: const Text('Seleccionar Hora'),
+                  child: const Text('Seleccionar Hora', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
             const SizedBox(height: 20),
             Center(
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF044454),
+                ),
                 onPressed: () {
                   _programarNotificacion();
                 },
-                child: const Text('Programar Notificación'),
+                child: const Text('Programar Notificación',
+                    style: TextStyle(color: Colors.white)),
               ),
             ),
           ],

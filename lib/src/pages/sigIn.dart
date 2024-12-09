@@ -77,7 +77,7 @@ class Logobyls extends StatelessWidget {
         const Text(
           'Byls',
           style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 25,
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter Tight'),
@@ -108,7 +108,7 @@ class _DatosState extends State<Datos> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF044454),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -119,7 +119,7 @@ class _DatosState extends State<Datos> {
             child: Text(
               'Bienvenido de Nuevo',
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -130,10 +130,20 @@ class _DatosState extends State<Datos> {
           TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
+                borderSide: const BorderSide(color: Colors.white),
+              ),
               hintText: 'Correo',
-              hintStyle: TextStyle(color: Colors.grey),
-              border: OutlineInputBorder(),
+              hintStyle: const TextStyle(color: Colors.white),
+              filled: true,
+              fillColor: const Color(0xFF04242C),
             ),
           ),
           const SizedBox(
@@ -142,10 +152,21 @@ class _DatosState extends State<Datos> {
           TextFormField(
             controller: passwordController,
             obscureText: obs,
+            style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintStyle: const TextStyle(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
+                borderSide: const BorderSide(color: Colors.white),
+              ),
+              hintStyle: const TextStyle(color: Colors.white),
               hintText: 'Contraseña',
+              filled: true,
+              fillColor: const Color(0xFF04242C),
+              
               suffixIcon: IconButton(
                 icon: icono,
                 onPressed: () {
@@ -153,9 +174,9 @@ class _DatosState extends State<Datos> {
                     obs
                         ? (
                             obs = false,
-                            icono = const Icon(Icons.visibility_off)
+                            icono = const Icon(Icons.visibility_off, color: Colors.white)
                           )
-                        : (obs = true, icono = const Icon(Icons.visibility));
+                        : (obs = true, icono = const Icon(Icons.visibility, color: Colors.white));
                   });
                 },
               ),
@@ -213,7 +234,7 @@ class _RememberState extends State<Remember> {
             context.go('/resetPass');
           },
           style: TextButton.styleFrom(textStyle: const TextStyle(fontSize: 15)),
-          child: const Text('¿Olvidaste tu contraseña?'),
+          child: const Text('¿Olvidaste tu contraseña?', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
@@ -267,7 +288,7 @@ class Botones extends StatelessWidget {
             ),
             child: const Text(
               'Iniciar Sesión',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.black, fontSize: 16),
             ),
           ),
         ),
@@ -278,7 +299,7 @@ class Botones extends StatelessWidget {
           onPressed: () {
             context.go('/signUp');
           },
-          child: const Text('¿No tienes cuenta?'),
+          child: const Text('¿No tienes cuenta?', style: TextStyle(color: Colors.white)),
         ),
       ],
     );
@@ -295,7 +316,7 @@ class Fondo extends StatelessWidget {
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
+              colors: [Color(0xFF044454), Color(0xFF00BFA5)])),
     );
   }
 }

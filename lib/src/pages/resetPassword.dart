@@ -14,8 +14,18 @@ class ResetPass extends StatefulWidget {
 class _ResetPassState extends State<ResetPass> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Stack(
+    return Scaffold(
+      appBar:  AppBar(
+        backgroundColor: const Color(0xFF044454),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            context.go('/signIn');
+          },
+        ),
+        title: const Text('Recuperar contraseña', style: TextStyle(color: Colors.white)),
+      ),
+      body: const Stack(
         children: [
           Fondo(),
           Contenido(),
@@ -75,7 +85,7 @@ class Logobyls extends StatelessWidget {
         const Text(
           'Byls',
           style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
               fontSize: 28,
               fontWeight: FontWeight.bold,
               fontFamily: 'Inter Tight'),
@@ -105,7 +115,7 @@ class _DatosState extends State<Datos> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Color(0xFF044454),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
@@ -114,9 +124,9 @@ class _DatosState extends State<Datos> {
           const Align(
             alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
             child: Text(
-              'Recupera Tu Contraseña',
+              'Recuperar contraseña',
               style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
@@ -125,7 +135,7 @@ class _DatosState extends State<Datos> {
             alignment: Alignment.centerLeft, // Alinea el texto a la izquierda
             child: Text(
               'Ingresa tu correo, enviaremos un código de verificación',
-              style: TextStyle(color: Colors.black),
+              style: TextStyle(color: Colors.white),
             ),
           ),
           const SizedBox(
@@ -134,10 +144,20 @@ class _DatosState extends State<Datos> {
           TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
               hintText: 'Correo',
-              hintStyle: TextStyle(color: Colors.grey),
-              border: OutlineInputBorder(),
+              filled: true, 
+              fillColor: const Color(0xFF04242C),
+              hintStyle: const TextStyle(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15.0), // Bordes redondeados
+                borderSide: const BorderSide(color: Colors.white),
+              ),
             ),
           ),
           const SizedBox(
@@ -207,11 +227,6 @@ class Botones extends StatelessWidget {
           height: 25,
           width: double.infinity,
         ),
-        TextButton(
-            onPressed: () {
-              context.go('/signIn');
-            },
-            child: const Text('Volver al Inicio Sesión')),
       ],
     );
   }
@@ -298,7 +313,7 @@ class Fondo extends StatelessWidget {
           gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFF00BFA5), Color(0xFF00BFA5)])),
+              colors: [Color(0xFF044454), Color(0xFF00BFA5)])),
     );
   }
 }
