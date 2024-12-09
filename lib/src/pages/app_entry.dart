@@ -1,5 +1,6 @@
 import 'package:byls_app/src/pages/accountsUser.dart';
-import 'package:byls_app/src/pages/graphics.dart';
+
+import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:byls_app/src/pages/reportsUser.dart';
 import 'package:flutter/material.dart';
 import 'home.dart';
@@ -42,7 +43,15 @@ class _NavigationClassState extends State<NavigationClass> {
         selectedItemColor: const Color(0xFF00BFA5),
         unselectedItemColor: const Color.fromARGB(255, 0, 0, 0),
         type: _bottomNavType,
-        onTap: (index) {
+        onTap: (index) async {
+          //Cargar datos guardados con shared preferences
+          bool? habilitarPuntuacion = await Opciones.loadPuntuacion();
+          int? selectedCuentaId = await Opciones.loadCuenta();
+
+          // Manejar valores nulos proporcionando valores predeterminados
+          Opciones.habilitarPuntuacion = habilitarPuntuacion ?? false;
+          Opciones.selectedCuentaId = selectedCuentaId ?? 0;
+
           setState(() {
             if (seleccionarVentana != null) {
               _selectedIndex = seleccionarVentana!;
