@@ -1,902 +1,712 @@
+import 'package:byls_app/models/categorias_usuario.dart';
+import 'package:byls_app/src/pages/graphics.dart';
+import 'package:byls_app/src/pages/optionsSettings.dart';
+import 'package:byls_app/utils/format_utils.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:byls_app/controllers/Transaccion_provider.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/models/cuenta_model.dart';
-import 'package:byls_app/models/totalCuentas_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
-import 'package:byls_app/src/pages/componentsReport.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
+import 'package:byls_app/controllers/ingresos_controller.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 
-class ReportsUser extends StatefulWidget {
-  const ReportsUser({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<ReportsUser> createState() => _ReportsUserState();
+  State<Home> createState() => _HomeState();
 }
 
-class _ReportsUserState extends State<ReportsUser> {
-  Componentsreport componentsreports = Componentsreport();
-  double widthPantalla = 0.0;
-  double heightPantalla = 0.0;
+class _HomeState extends State<Home> {
+  //Inicializar cambio en formato del saldo
+  FormatoUtils formatoUtils = FormatoUtils();
 
-  List<SaldoFecha> saldosPositivos = [];
-  List<SaldoFecha> saldosNegativos = [];
+  String selectedPeriodo = 'Día';
+  int? selectedYear;
+  int? selectedMonth;
 
-  List<IncomeModel> dataTransacciones = [];
-  List<double> transaccionesSuma = [0, 0];
+  //Map para las categorías de usuario
+  Map<String, String> categoriasUsuarios = {};
 
-  bool habilitarSaldoPos = false;
-  List<double> saldoCuentasPositivo = [
-    /* 0.0 , 0.0 , 12000, 23000, 0.0, 314000 */
-  ];
-  List<double> saldoCuentasNegativo = [];
-  List<DateTime> fechasPositivo = [
-    /* DateTime.now().subtract(const Duration(days: 5)),
-    DateTime.now().subtract(const Duration(days: 4)),
-    DateTime.now().subtract(const Duration(days: 3)),
-    DateTime.now().subtract(const Duration(days: 2)),
-    DateTime.now().subtract(const Duration(days: 1)),*/
-  ];
-  List<DateTime> fechasNegativo = [
-    /* DateTime.now().subtract(const Duration(days: 1)), */
-  ];
-  String? fechaResumen = 'Mes';
-  DateTime now = DateTime.now();
-  DateTime rangoFechas = DateTime.now();
+  //Inicializar controlador de ingresos
+  IngresosController ingresosController = IngresosController();
+  List<CuentaModel> cuentas = [];
+  int? selectedCuentaId;
+  double saldoCuenta = 0.0;
+  String tipoMoneda = 'USD';
+  List<bool> _selections = [
+    false,
+    false,
+    false,
+    false,
+    true
+  ]; //List.generate(5, (_) => false);
+
+  List<IncomeModel> futureIngresos = [];
+  String selectedType =
+      'Ingreso'; // Variable para gestionar el tipo de transacción
 
   @override
   void initState() {
     super.initState();
-    fetchTotalCuentas();
-
-    if (fechaResumen != null) {
-      fetchTransacciones(fechaResumen!);
-      rangoFechasResumen();
-    } else {
-      fetchTransacciones('Mes');
-      rangoFechasResumen();
-    }
+    fetchCuentas();
+    fecthNombre();
   }
 
-  Future<void> fetchTotalCuentas() async {
+  Future<void> fetchCuentas() async {
     final authService = Provider.of<AuthController>(context, listen: false);
     final userId = authService.currentUser?.id;
-    final cuentasUsuario = await CuentaModel.saldoTotalUsuario(userId!);
+    final cuentasUsuario = await CuentaModel.getCuentas(userId!);
     setState(() {
-      for (var cuenta in cuentasUsuario) {
-        if (cuenta['total'] as double >= 0) {
-          saldosPositivos.add(SaldoFecha(
-              cuenta['total'] as double, cuenta['fecha'] as DateTime));
-        } else {
-          saldosNegativos.add(SaldoFecha(
-              cuenta['total'] as double, cuenta['fecha'] as DateTime));
-        }
+      cuentas = cuentasUsuario;
+      if (cuentas.isNotEmpty) {
+        selectedCuentaId = cuentas[0].idCuenta;
+        tipoMoneda = cuentas[0].tipoMoneda!;
+        cargarTransacciones();
+        cargarSaldoCuenta(selectedCuentaId!);
       }
-      // Ordenar las listas por fecha
-      saldosPositivos.sort((a, b) => a.fecha.compareTo(b.fecha));
-      saldosNegativos.sort((a, b) => a.fecha.compareTo(b.fecha));
-
-      // Extraer las listas de saldos y fechas ordenadas
-      setState(() {
-        saldoCuentasPositivo = saldosPositivos.map((sf) => sf.saldo).toList();
-        fechasPositivo = saldosPositivos.map((sf) => sf.fecha).toList();
-        saldoCuentasNegativo = saldosNegativos.map((sf) => sf.saldo).toList();
-        fechasNegativo = saldosNegativos.map((sf) => sf.fecha).toList();
-      });
     });
   }
 
-  // Función para las transacciones totales
-  void fetchTransacciones(String fechaResumen) async {
-    try {
-      List<IncomeModel> transacciones =
-          await IncomeModel.getTransaccionesFiltradasPorPeriodo(fechaResumen);
+  Future<void> cargarSaldoCuenta(int cuentaId) async {
+    final cuentaSeleccionada =
+        cuentas.firstWhere((cuenta) => cuenta.idCuenta == cuentaId);
+    setState(() {
+      saldoCuenta = cuentaSeleccionada.saldo;
+      _selections = [false, false, false, false, true];
+    });
+  }
 
+  Future<void> cargarTransacciones() async {
+    try {
+      List<IncomeModel> transaccionesFiltro =
+          await IncomeModel.getTransacciones(selectedCuentaId!);
       setState(() {
-        dataTransacciones = transacciones;
-        sumarTransacciones(dataTransacciones);
+        futureIngresos = transaccionesFiltro;
       });
     } catch (e) {
       print('Error fetching transacciones: $e');
     }
   }
 
-  // Función para sumar el total de las transacciones entre Ingresos y Egresos
-  void sumarTransacciones(List<IncomeModel> dataTransacciones) {
-    for (var transaccion in dataTransacciones) {
-      if (transaccion.tipoTransaccion == 'Ingreso') {
-        transaccionesSuma[0] += transaccion.cantidadTransaccion;
-      } else {
-        transaccionesSuma[1] += transaccion.cantidadTransaccion;
+  void fetchTransacciones() async {
+    try {
+      List<IncomeModel> transacciones =
+          await IncomeModel.getTodasTransacciones();
+      setState(() {
+        futureIngresos = transacciones;
+      });
+    } catch (e) {
+      print('Error fetching transacciones: $e');
+    }
+  }
+
+  Future<void> fecthNombre() async {
+    final authService = Provider.of<AuthController>(context, listen: false);
+    final userId = authService.currentUser?.id;
+    final categoriasUsuario =
+        await CategoriasusuarioModel.getCategoriasIcono(userId!);
+    setState(() {
+      categoriasUsuarios = categoriasUsuario;
+    });
+  }
+
+  // Función para conocer los colores de las categorías
+  Categoria getIcon(String nombreCategoria) {
+    // Obtener el nombre del icono original de la categoría
+    var iconoOriginal = categoriasUsuarios[nombreCategoria];
+
+    // Si la categoría del usuario contiene el icono original, entonces se devuelve la categoría con el icono original
+    if (categoriasUsuarios.containsKey(iconoOriginal)) {
+      return Categoria(
+        nombre: nombreCategoria,
+        icono: categoriasIngreso
+            .firstWhere(
+              (element) => element.nombre == iconoOriginal,
+            )
+            .icono,
+        color: Colors.black,
+      );
+    } else {
+      switch (selectedType == 'Ingreso') {
+        case true:
+          return categoriasIngreso.firstWhere(
+            (element) => element.nombre == iconoOriginal,
+          );
+        case false:
+          return categoriasGasto
+              .firstWhere((element) => element.nombre == iconoOriginal);
       }
     }
   }
 
-  void rangoFechasResumen() {
-    switch (fechaResumen) {
-      case 'Día':
+//Vista para elegir fecha en mes
+  Future<int?> showMonthPicker(BuildContext context) async {
+    final List<String> monthNames = [
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre'
+    ];
+
+    return await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Seleccionar Mes'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                monthNames.length,
+                (index) => ListTile(
+                  title: Text(monthNames[index]),
+                  onTap: () {
+                    Navigator.pop(context,
+                        index + 1); // Retorna el mes seleccionado (1-12)
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> cargarTransaccionesFecha(
+      {int? selectedMonth, int? selectedYear}) async {
+    try {
+      if (selectedCuentaId != null) {
+        List<IncomeModel> transaccionesFiltro =
+            await IncomeModel.transaccionesFiltradasPeriodoPersonalizado(
+          selectedPeriodo,
+          selectedCuentaId!,
+          month: selectedMonth,
+          year: selectedYear,
+        );
         setState(() {
-          rangoFechas = DateTime(now.year, now.month, now.day);
+          futureIngresos = transaccionesFiltro;
         });
-        break;
-      case 'Semana':
-        setState(() {
-          rangoFechas = now.subtract(Duration(days: now.weekday - 1));
-        });
-        break;
-      case 'Mes':
-        setState(() {
-          rangoFechas = DateTime(now.year, now.month, 1);
-        });
-        break;
-      case 'Año':
-        setState(() {
-          rangoFechas = DateTime(now.year, 1, 1);
-        });
-        break;
-      default:
-        throw ArgumentError('Periodo no válido');
+      } else {
+        print('Error: Usuario no autenticado.');
+      }
+    } catch (e) {
+      print('Error fetching transacciones: $e');
     }
+  }
+
+//Vista para elegir fecha en año
+  Future<int?> showYearPicker(BuildContext context) async {
+    return await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        int currentYear = DateTime.now().year;
+        return AlertDialog(
+          title: const Text('Seleccionar Año'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: List.generate(
+                20, // Mostrar los últimos 20 años
+                (index) {
+                  int year = currentYear - index;
+                  return ListTile(
+                    title: Text('$year'),
+                    onTap: () {
+                      Navigator.pop(
+                          context, year); // Retorna el año seleccionado
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    widthPantalla = MediaQuery.of(context).size.width;
+    // Filtrar transacciones según el tipo seleccionado
+    List<IncomeModel> filteredTransacciones = futureIngresos
+        .where((transaccion) => transaccion.tipoTransaccion == selectedType)
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(''),
-        backgroundColor: const Color(0xFF006064),
-        //Modificar tamaño de la barra de navegación
-        toolbarHeight: 0.0,
-      ),
-      body: SingleChildScrollView(
-        child: Builder(builder: (context) {
-          return Stack(
+        backgroundColor: const Color(0xFF00BFA5),
+        title: Center(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    // Resumen (Grafica Pastel)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: widthPantalla * 0.9,
-                            height: 190,
-                            color: const Color.fromARGB(183, 0, 0, 0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      height: 18,
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: Text(
-                                        '$fechaResumen Actual',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Padding(
-                                      //Centrar el padding verticalmente
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: SizedBox(
-                                        width: 100,
-                                        height: 100,
-                                        child: transaccionesSuma.isEmpty
-                                            ? const Text('Aún no hay datos')
-                                            : _buildPieChart(transaccionesSuma),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      height: 45,
-                                    ),
-                                    const Padding(
-                                        padding: EdgeInsets.only(right: 11.0),
-                                        child: Text(
-                                          'Ingreso:',
-                                          style: TextStyle(color: Colors.green),
-                                        )),
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 11.0),
-                                      child: Text(
-                                        'Egreso:',
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 11.0),
-                                      child: Text(
-                                        transaccionesSuma.isEmpty
-                                            ? 'Aún no hay datos'
-                                            : 'Total:',
-                                        style: (transaccionesSuma[0] -
-                                                    transaccionesSuma[1]) >=
-                                                0
-                                            ? const TextStyle(
-                                                color: Colors.green)
-                                            : const TextStyle(
-                                                color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Expanded(
-                                  child:
-                                      Container(), // Ocupa el espacio restante
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      height: 45,
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 11.0),
-                                      child: Text(
-                                        transaccionesSuma.isEmpty
-                                            ? '-'
-                                            : '\$${transaccionesSuma[0]}',
-                                        style: const TextStyle(
-                                            color: Colors.green),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 11.0),
-                                      child: Text(
-                                        transaccionesSuma.isEmpty
-                                            ? '-'
-                                            : '\$-${transaccionesSuma[1]}',
-                                        style:
-                                            const TextStyle(color: Colors.red),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 11.0),
-                                      child: Text(
-                                        transaccionesSuma.isEmpty
-                                            ? '-'
-                                            : '\$${transaccionesSuma[0] - transaccionesSuma[1]}',
-                                        style: (transaccionesSuma[0] -
-                                                    transaccionesSuma[1]) >=
-                                                0
-                                            ? const TextStyle(
-                                                color: Colors.green)
-                                            : const TextStyle(
-                                                color: Colors.red),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          //Título de la gráfica
-                          Container(
-                            width: widthPantalla * 0.9,
-                            height: 30,
-                            alignment: Alignment.center,
-                            child: const Text(
-                              'Resumen Transacciones',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-
-                          // Ícono en la esquina superior derecha
-                          Positioned(
-                            top: 28,
-                            right: 10,
-                            child: IconButton(
-                              onPressed: () {
-                                showValidateOTPResumen(context);
-                              },
-                              icon: const Icon(
-                                Icons.menu_rounded,
-                                color: Colors.white,
-                              ),
-                              constraints: const BoxConstraints(),
-                              padding: EdgeInsets.zero,
-                              splashRadius: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(
-                      height: 20,
-                    ),
-
-                    //Balance (Grafica de Línea)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: widthPantalla * 0.9,
-                            height: 230,
-                            color: const Color.fromARGB(183, 0, 0, 0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const SizedBox(
-                                      height: 36,
-                                    ),
-                                    Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10.0),
-                                      child: habilitarSaldoPos
-                                          ? const Text(
-                                              'Balance Cuentas Positivo',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            )
-                                          : const Text(
-                                              'Balance Cuentas Negativo',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(
-                                  height: 28,
-                                ),
-
-                                // Gráfica de líneas
-                                habilitarSaldoPos
-                                    ? Center(
-                                        child: SizedBox(
-                                          width: widthPantalla * 0.8,
-                                          height: 125,
-                                          child: saldoCuentasPositivo.isEmpty ||
-                                                  saldoCuentasPositivo.length ==
-                                                      1
-                                              ? const Center(
-                                                  child: Text(
-                                                    'Aún no hay datos',
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 20),
-                                                  ),
-                                                )
-                                              : _buildLineChart(
-                                                  fechasPositivo.reversed
-                                                      .toList(),
-                                                  saldoCuentasPositivo),
-                                        ),
-                                      )
-                                    : Center(
-                                        child: SizedBox(
-                                          width: widthPantalla * 0.8,
-                                          height: 125,
-                                          child: saldoCuentasNegativo.isEmpty ||
-                                                  saldoCuentasNegativo.length ==
-                                                      1
-                                              ? const Center(
-                                                  child: Text(
-                                                    'No hay balance negativo',
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 20),
-                                                  ),
-                                                )
-                                              : _buildLineChart(fechasNegativo,
-                                                  saldoCuentasNegativo),
-                                        ),
-                                      )
-                              ],
-                            ),
-                          ),
-                          //Título de la gráfica
-                          Container(
-                            width: widthPantalla * 0.9,
-                            height: 32,
-                            alignment: Alignment.center,
-                            child: const Text(
-                              'Balance',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-
-                          // Ícono en la esquina superior derecha
-                          Positioned(
-                            top: 25,
-                            right: 10,
-                            child: IconButton(
-                              onPressed: () {
-                                showValidateOTPBalance(
-                                    context, habilitarSaldoPos ? 'Pos' : 'Neg');
-                              },
-                              icon: const Icon(
-                                Icons.menu_rounded,
-                                color: Colors.white,
-                              ),
-                              constraints: const BoxConstraints(),
-                              padding: EdgeInsets.zero,
-                              splashRadius: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(
-                      height: 20,
-                    ),
-
-                    //Transacciones por cuenta (Gráfica de Pastel)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        width: widthPantalla * 0.9,
-                        height: 190,
-                        color: const Color.fromARGB(183, 0, 0, 0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment
-                              .start, // Alineación vertical general
-                          children: [
-                            // Título de la gráfica
-                            const Padding(
-                              padding: EdgeInsets.only(
-                                  top:
-                                      5.0), // Espaciado superior para el título
-                              child: Text(
-                                'Resumen transacciones por cuenta',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => context.go('/graficos'),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment
-                                      .center, // Centra verticalmente
-                                  children: [
-                                    const SizedBox(
-                                      width: 10,
-                                    ), // Espaciado izquierdo
-                                    const Padding(
-                                      padding: EdgeInsets.only(left: 10.0),
-                                      child: Text(
-                                        'Toca para explorar\ningresos y egresos\nen detalle',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    const Spacer(), // Empuja el gráfico hacia la derecha
-                                    SizedBox(
-                                      width: 100,
-                                      height: 100,
-                                      child: PieChart(
-                                        PieChartData(
-                                          sections: [
-                                            PieChartSectionData(
-                                              color: Colors.blue,
-                                              value: 33,
-                                              title: '',
-                                            ),
-                                            PieChartSectionData(
-                                              color: Colors.yellow,
-                                              value: 33,
-                                              title: '',
-                                            ),
-                                            PieChartSectionData(
-                                              color: Colors.green,
-                                              value: 33,
-                                              title: '',
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const Spacer(), // Asegura un balance entre texto y gráfico
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
+              //Texto Seleccionar Cuenta
+              const Text(
+                'Cuenta: ',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 15,
                 ),
-              )
-            ],
-          );
-        }),
-      ),
-    );
-  }
+              ),
 
-  //Función para construir la gráfica de líneas
-  Widget _buildLineChart(List<DateTime> fechas, List<double> saldoCuentas) {
-    int ind = -1;
-    return LineChart(
-      LineChartData(
-        // Configuración de los ejes
-        gridData: const FlGridData(show: true),
-        titlesData: FlTitlesData(
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                int index = value.toInt();
-                if (index >= 0 && index < fechas.length && index != ind) {
-                  ind = index;
-                  // Asegúrate de no exceder el límite
-                  return Text(
-                    DateFormat('MM/dd').format(fechas[index]),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+              const SizedBox(width: 10),
+
+              // Dropdown para seleccionar cuenta
+              DropdownButton(
+                value: selectedCuentaId,
+                icon: const Icon(Icons.arrow_downward,
+                    color: Color.fromARGB(255, 0, 0, 0)),
+                iconSize: 24,
+                elevation: 16,
+                style: const TextStyle(color: Color(0xFFFFFFFF)),
+                dropdownColor: const Color(0xFFFFFFFF),
+                onChanged: (int? newValue) {
+                  setState(
+                    () {
+                      selectedCuentaId = newValue;
+                      cargarSaldoCuenta(selectedCuentaId!);
+                      cargarTransacciones();
+                    },
+                  );
+                },
+                items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
+                  return DropdownMenuItem<int>(
+                    value: cuenta.idCuenta,
+                    child: Text(
+                      cuenta.nombreCuenta,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 15,
+                      ),
                     ),
                   );
-                }
-                return Container();
-              },
+                }).toList(),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+
+              const SizedBox(width: 10),
+
+              // Botón para crear nueva cuenta
+              IconButton(
+                icon: const Icon(Icons.add_card,
+                    color: Color.fromARGB(255, 0, 0, 0)),
+                onPressed: () {
+                  context.go('/NuevaCuenta');
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          Container(color: const Color(0xFF00BFA5)),
+          Positioned(
+            top: 1,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: SaldoDisplay(
+                saldoCuenta: saldoCuenta,
+                divisa: tipoMoneda,
+                formatoUtils: formatoUtils,
+              ),
             ),
           ),
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              interval: 1000000,
-              showTitles: true,
-              reservedSize: 70,
-              getTitlesWidget: (value, meta) {
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    "\$${value.toInt()}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.10 + 10,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF006064), //Color(0xFF00A5B5),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
+                ),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 18),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedType = 'Gasto'; // Cambia el tipo a Gasto
+                          });
+                        },
+                        child: Text(
+                          'Gastos',
+                          style: TextStyle(
+                            color: selectedType == 'Gasto'
+                                ? const Color(0xFFb4f4bc)
+                                : Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            selectedType = 'Ingreso';
+                          });
+                        },
+                        child: Text(
+                          'Ingreso',
+                          style: TextStyle(
+                            color: selectedType == 'Ingreso'
+                                ? const Color(0xFFb4f4bc)
+                                : Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00BFA5),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 10,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text(
+                          'Seleccionar periodo',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ToggleButtons(
+                          selectedColor:
+                              Colors.white, // Color del texto seleccionado
+                          fillColor: const Color(
+                              0xFF006064), // Fondo del botón seleccionado
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(10),
+                          isSelected: _selections,
+                          children: const [
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text('Día'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text('Semana'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text('Mes'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text('Año'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12),
+                              child: Text('Todos'),
+                            ),
+                          ],
+                          onPressed: (int index) async {
+                            if (index == 2) {
+                              final int? selectedMonth =
+                                  await showMonthPicker(context);
+                              if (selectedMonth != null) {
+                                // Actualiza el estado de manera sincrónica
+                                setState(() {
+                                  _selections = [
+                                    false,
+                                    false,
+                                    true,
+                                    false,
+                                    false
+                                  ];
+                                  selectedPeriodo = 'Mes';
+                                  this.selectedMonth = selectedMonth;
+                                });
+                                cargarTransaccionesFecha(
+                                    selectedMonth: selectedMonth);
+                              }
+                            } else if (index == 3) {
+                              final int? selectedYear =
+                                  await showYearPicker(context);
+                              if (selectedYear != null) {
+                                setState(() {
+                                  _selections = [
+                                    false,
+                                    false,
+                                    false,
+                                    true,
+                                    false
+                                  ];
+                                  selectedPeriodo = 'Año';
+                                  this.selectedYear = selectedYear;
+                                });
+                                cargarTransaccionesFecha(
+                                    selectedYear: selectedYear);
+                              }
+                            } else {
+                              switch (index) {
+                                case 0:
+                                  selectedPeriodo = 'Día';
+                                  _selections = [
+                                    true,
+                                    false,
+                                    false,
+                                    false,
+                                    false
+                                  ];
+                                  break;
+                                case 1:
+                                  selectedPeriodo = 'Semana';
+                                  _selections = [
+                                    false,
+                                    true,
+                                    false,
+                                    false,
+                                    false
+                                  ];
+                                  break;
+                                case 4:
+                                  selectedPeriodo = 'Todos';
+                                  _selections = [
+                                    false,
+                                    false,
+                                    false,
+                                    false,
+                                    true
+                                  ];
+                                  break;
+                              }
+                              cargarTransaccionesFecha();
+                            }
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
+                  const SizedBox(height: 10),
+                  filteredTransacciones.isEmpty
+                      ? Container(
+                          alignment: Alignment.center,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 50.0, horizontal: 10.0),
+                          child: const Text(
+                            'No hay transacciones',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                        )
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: filteredTransacciones.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              var icono;
+                              selectedType == 'Gasto'
+                                  ? icono = categoriasGasto
+                                      .firstWhere(
+                                        (element) =>
+                                            element.nombre ==
+                                            filteredTransacciones[index]
+                                                .nombreCategoria,
+                                        orElse: () => getIcon(
+                                            filteredTransacciones[index]
+                                                    .nombreCategoria ??
+                                                ''),
+                                      )
+                                      .icono
+                                  : icono = categoriasIngreso
+                                      .firstWhere(
+                                        (element) =>
+                                            element.nombre ==
+                                            filteredTransacciones[index]
+                                                .nombreCategoria,
+                                        orElse: () => getIcon(
+                                            filteredTransacciones[index]
+                                                    .nombreCategoria ??
+                                                ''),
+                                      )
+                                      .icono;
+                              icono ??= Icons.abc;
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 5.0, horizontal: 10.0),
+                                decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(155, 255, 255, 255),
+                                  border: Border.all(
+                                      color: const Color(0xFF006064)),
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: ListTile(
+                                  title: Text(
+                                    '${filteredTransacciones[index].nombreCategoria}',
+                                    style: const TextStyle(
+                                        color: Color(0xFF4E4E4E)),
+                                  ),
+                                  leading: Hero(
+                                    tag: index,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Icon(icono),
+                                    ),
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        Opciones.habilitarPuntuacion
+                                            ? formatoUtils.formatNumber(
+                                                filteredTransacciones[index]
+                                                    .montoTransaccion)
+                                            : '\$ ${filteredTransacciones[index].montoTransaccion}',
+                                        style: const TextStyle(
+                                          color: Color(0xFF4E4E4E),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    final transaccionProvider =
+                                        Provider.of<TransaccionProvider>(
+                                            context,
+                                            listen: false);
+                                    transaccionProvider.setCurrentTransaccion(
+                                        filteredTransacciones[index]);
+                                    context.go('/transaccionEdit',
+                                        extra: filteredTransacciones[index]);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                ],
+              ),
             ),
           ),
-        ),
-        borderData: FlBorderData(
-          show: true,
-          border: const Border(
-            left: BorderSide(color: Colors.white),
-            bottom: BorderSide(color: Colors.white),
-          ),
-        ),
-        // Límites del gráfico
-        minX: 0,
-        maxX: fechas.length.toDouble(),
-
-        minY: habilitarSaldoPos
-            ? 0
-            : saldoCuentas.reduce((a, b) => a < b ? a : b) - 500,
-
-        maxY: habilitarSaldoPos
-            ? saldoCuentas.reduce((a, b) => a > b ? a : b) + 500
-            : saldoCuentas.reduce((a, b) => a > b ? a : b) + 500,
-        // Datos de la gráfica
-        lineBarsData: [
-          LineChartBarData(
-            spots: List.generate(fechas.length, (index) {
-              // Convertimos las fechas en índices del eje X
-              return FlSpot(index.toDouble(), saldoCuentas[index]);
-            }),
-            isCurved: true,
-            gradient: habilitarSaldoPos
-                ? const LinearGradient(colors: [Colors.blue, Colors.purple])
-                : const LinearGradient(colors: [Colors.red, Colors.purple]),
-            belowBarData: BarAreaData(
-              show: true,
-              gradient: habilitarSaldoPos
-                  ? LinearGradient(
-                      colors: [
-                        Colors.blue.withOpacity(0.3),
-                        Colors.purple.withOpacity(0.1),
-                      ],
-                    )
-                  : LinearGradient(
-                      colors: [
-                        Colors.red.withOpacity(0.3),
-                        Colors.purple.withOpacity(0.1),
-                      ],
+        ],
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              final RenderBox overlay =
+                  Overlay.of(context).context.findRenderObject() as RenderBox;
+              showMenu(
+                color: const Color(0xFF00BFA5),
+                context: context,
+                position: RelativeRect.fromLTRB(
+                  overlay.size.width - 10, // Distancia del lado derecho
+                  overlay.size.height - 50, // Distancia del borde inferior
+                  10, // Distancia del lado izquierdo
+                  0, // Distancia del borde superior
+                ),
+                items: [
+                  PopupMenuItem(
+                    child: ListTile(
+                      title: const Text('Transacción'),
+                      leading: const Icon(Icons.add),
+                      onTap: () {
+                        context.go('/transaccion');
+                      },
                     ),
+                  ),
+                  PopupMenuItem(
+                    child: ListTile(
+                      title: const Text('Cuentas'),
+                      leading: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.account_balance),
+                          SizedBox(width: 2),
+                          Icon(Icons.add),
+                        ],
+                      ),
+                      onTap: () {
+                        context.go('/NuevaCuenta');
+                      },
+                    ),
+                  ),
+                ],
+              );
+              // Navegar a la pantalla de transacción
+              //context.go('/transaccion');
+            },
+            child: const Icon(
+              Icons.add,
             ),
           ),
         ],
       ),
     );
   }
+}
 
-//Función para mostrar un diálogo de confirmación para cambiar las fechas de la gráfica
-  showValidateOTPBalance(BuildContext context, String tipoBalance) {
-    Widget cancelButton = ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor:
-            WidgetStateProperty.all<Color>(const Color(0xFF838282)),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      onPressed: () async {
-        Navigator.of(context).pop();
-      },
-      child: const Text(
-        "No",
-        style: TextStyle(color: Colors.white),
-      ),
-    );
+class SaldoDisplay extends StatelessWidget {
+  final double saldoCuenta;
+  final String? divisa;
+  final FormatoUtils formatoUtils;
 
-    Widget continueButton = ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      onPressed: () async {
-        setState(() {
-          tipoBalance == 'Pos'
-              ? habilitarSaldoPos = true
-              : habilitarSaldoPos = false;
-        });
+  const SaldoDisplay(
+      {super.key,
+      required this.saldoCuenta,
+      required this.divisa,
+      required this.formatoUtils});
 
-        // Cerrar el diálogo
-        Navigator.of(context).pop();
-      },
-      child: const Text("Si", style: TextStyle(color: Colors.white)),
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Tipo de Balance:"),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return DropdownButtonFormField<String>(
-                value: tipoBalance,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    tipoBalance = newValue!;
-                    tipoBalance == 'Pos'
-                        ? habilitarSaldoPos = true
-                        : habilitarSaldoPos = false;
-                  });
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Pos',
-                    child: Text('Balance Positivo'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Neg',
-                    child: Text('Balance Negativo'),
-                  ),
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Signo Balance:',
-                  labelStyle: const TextStyle(
-                    color: Color(0xFF00BFA5),
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.watch_later,
-                    color: Color(0xFF00BFA5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
-              );
-            },
-          ),
-          actions: [
-            cancelButton,
-            continueButton,
-          ],
-        );
-      },
-    );
-  }
-
-  // Función para construir una gráfica dinámica basada en los valores de la categoría
-  Widget _buildPieChart(List<double> data) {
-    if (data[0] == 0 && data[1] == 0) {
-      return Container(
-        alignment: Alignment.center,
-        child: const Text(
-          'Aún no hay datos',
-          style: TextStyle(color: Colors.white),
-        ),
-      );
-    } else {
-      return PieChart(
-        PieChartData(
-          sections: [
-            PieChartSectionData(
-              color: Colors.green,
-              value: data[0],
-              title: '',
+  @override
+  Widget build(BuildContext context) {
+    return saldoCuenta >= 0
+        ? Text(
+            Opciones.habilitarPuntuacion
+                ? '\$ ${formatoUtils.formatNumber(saldoCuenta)} $divisa'
+                : saldoCuenta.toStringAsFixed(2),
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFb4f4bc),
             ),
-            PieChartSectionData(
-              color: Colors.red,
-              value: data[1],
-              title: '',
+          )
+        : Text(
+            Opciones.habilitarPuntuacion
+                ? '\$ -${formatoUtils.formatNumber(saldoCuenta * (-1))} $divisa'
+                : saldoCuenta.toStringAsFixed(2),
+            style: const TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Color.fromARGB(255, 224, 17, 17),
             ),
-          ],
-        ),
-      );
-    }
-  }
-
-//Función para mostrar un diálogo de confirmación para cambiar las fechas de la gráfica
-  showValidateOTPResumen(BuildContext context) {
-    Widget cancelButton = ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor:
-            WidgetStateProperty.all<Color>(const Color(0xFF838282)),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      onPressed: () async {
-        Navigator.of(context).pop();
-      },
-      child: const Text(
-        "No",
-        style: TextStyle(color: Colors.white),
-      ),
-    );
-
-    Widget continueButton = ElevatedButton(
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(Colors.green),
-        shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-      ),
-      onPressed: () async {
-        transaccionesSuma = [0, 0];
-        fetchTransacciones(fechaResumen!);
-        rangoFechasResumen();
-        // Cerrar el diálogo
-        Navigator.of(context).pop();
-      },
-      child: const Text("Si", style: TextStyle(color: Colors.white)),
-    );
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Modificar Fecha Resumen:"),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return DropdownButtonFormField<String>(
-                value: fechaResumen,
-                onChanged: (String? newValue) {
-                  setState(() {
-                    fechaResumen = newValue!;
-                  });
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Día',
-                    child: Text('Día Actual'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Semana',
-                    child: Text('Semana Actual'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Mes',
-                    child: Text('Mes Actual'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Año',
-                    child: Text('Año Actual'),
-                  ),
-                ],
-                decoration: InputDecoration(
-                  labelText: 'Fecha:',
-                  labelStyle: const TextStyle(
-                    color: Color(0xFF00BFA5),
-                  ),
-                  prefixIcon: const Icon(
-                    Icons.watch_later,
-                    color: Color(0xFF00BFA5),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
-                  ),
-                ),
-              );
-            },
-          ),
-          actions: [
-            cancelButton,
-            continueButton,
-          ],
-        );
-      },
-    );
+          );
   }
 }
