@@ -170,9 +170,6 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                     child: ElevatedButton(
                       onPressed: () {
                         try {
-                          /*icono = colecctionIcons.firstWhere((element) =>
-                              element['nombre'] == selectedCategory)['icono'];*/
-
                           if (cuenta == null) {
                             cuentaController.createCuenta(
                               double.parse(_cantidadController.text),
@@ -266,6 +263,7 @@ showValidateOTP(BuildContext context, String nombreCuenta, String idCuenta,
     ),
     onPressed: () async {
       try {
+        print(idCuenta);
         cuenta.deleteCuenta(idCuenta);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

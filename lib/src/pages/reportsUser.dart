@@ -2,7 +2,6 @@ import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:byls_app/models/cuenta_model.dart';
 import 'package:byls_app/models/totalCuentas_model.dart';
 import 'package:byls_app/models/transacciones_model.dart';
-import 'package:byls_app/src/pages/componentsReport.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +16,6 @@ class ReportsUser extends StatefulWidget {
 }
 
 class _ReportsUserState extends State<ReportsUser> {
-  Componentsreport componentsreports = Componentsreport();
   double widthPantalla = 0.0;
   double heightPantalla = 0.0;
 

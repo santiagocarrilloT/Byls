@@ -170,7 +170,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                 labelText: 'Cantidad $selectedTipoDivisa',
                 labelStyle: const TextStyle(color: Colors.white),
                 border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.attach_money),
+                prefixIcon: const Icon(Icons.date_range),
                 focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFF00BFA5)),
                 ),

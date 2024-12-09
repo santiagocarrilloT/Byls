@@ -3,8 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class TransferenciaModel {
   final int idTransferencia;
   final String uid;
-  final String idCuentaOrigen;
-  final String idCuentaDestino;
+  final int idCuentaOrigen;
+  final int idCuentaDestino;
   final double cantidad;
   final String? descripcion;
   final DateTime fechaTransferencia;
@@ -19,24 +19,13 @@ class TransferenciaModel {
     required this.fechaTransferencia,
   });
 
-  // Método para obtener el saldo de una cuenta específica
-/* static Future<double> getSaldoCuenta(int idCuenta) async {
-  final response = await Supabase.instance.client
-      .from('cuentas')
-      .select('saldo')
-      .eq('idcuenta', idCuenta)
-      .single();  // Obtener solo un resultado
-
-  return (response['saldo'] as num).toDouble();
-} */
-
   // Método para convertir un mapa en una instancia de CuentaModel
   factory TransferenciaModel.fromMap(Map<String, dynamic> map) {
     return TransferenciaModel(
       idTransferencia: map['idtransferencia'],
       uid: map['uid'],
-      idCuentaOrigen: map['idcuentaorigen'],
-      idCuentaDestino: map['idcuentadestino'],
+      idCuentaOrigen: map['id_cuentaorigen'],
+      idCuentaDestino: map['id_cuentadestino'],
       cantidad: (map['cantidad'] as num).toDouble(),
       descripcion: map['descripcion'],
       fechaTransferencia: DateTime.parse(map['fecha_transferencia']),
@@ -48,8 +37,8 @@ class TransferenciaModel {
     return {
       'idtransferencia': idTransferencia,
       'uid': uid,
-      'idCuentaOrigen': idCuentaOrigen,
-      'idCuentaDestino': idCuentaDestino,
+      'id_cuentaOrigen': idCuentaOrigen,
+      'id_cuentaDestino': idCuentaDestino,
       'cantidad': cantidad,
       'descripcion': descripcion,
       'fecha_transferencia': fechaTransferencia.toIso8601String(),
@@ -59,13 +48,69 @@ class TransferenciaModel {
   // Método para obtener las cuentas de un usuario por su UID
   static Future<List<TransferenciaModel>> getTransferencias() async {
     final userId = Supabase.instance.client.auth.currentUser;
-    final cuentas = await Supabase.instance.client
+    final transferencias = await Supabase.instance.client
         .from('transferencias')
         .select()
-        .eq('uid', userId!);
+        .eq('uid', userId!.id);
 
     final List<TransferenciaModel> transferenciasUsuario = [];
-    for (final item in cuentas) {
+
+    for (final item in transferencias) {
+      transferenciasUsuario.add(TransferenciaModel.fromMap(item));
+    }
+    return transferenciasUsuario;
+  }
+
+  static Future<List<TransferenciaModel>> cargarTransferenciasPorCuentaOrigen(
+      idCuentaOrigen) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+    final transferencias = await Supabase.instance.client
+        .from('transferencias')
+        .select()
+        .eq('uid', userId!)
+        .eq('id_cuentaorigen', idCuentaOrigen);
+    //.order('fecha_transferencia', ascending: false);
+
+    final List<TransferenciaModel> transferenciasUsuario = [];
+
+    for (final item in transferencias) {
+      transferenciasUsuario.add(TransferenciaModel.fromMap(item));
+    }
+    return transferenciasUsuario;
+  }
+
+  static Future<List<TransferenciaModel>> cargarTransferenciasPorFecha(periodo,
+      {int? month, int? year}) async {
+    final userId = Supabase.instance.client.auth.currentUser?.id;
+
+    DateTime now = DateTime.now();
+    DateTime startDate;
+
+    switch (periodo) {
+      case 'Día':
+        startDate = DateTime(now.year, now.month, now.day);
+        break;
+      case 'Semana':
+        startDate = now.subtract(Duration(days: now.weekday - 1));
+        break;
+      case 'Mes':
+        startDate = DateTime(now.year, now.month, 1);
+        break;
+      case 'Año':
+        startDate = DateTime(now.year, 1, 1);
+        break;
+      default:
+        throw ArgumentError('Periodo no válido');
+    }
+    final transferencias = await Supabase.instance.client
+        .from('transferencias')
+        .select()
+        .eq('uid', userId!)
+        .gte('fecha_transferencia', startDate.toIso8601String());
+
+    final List<TransferenciaModel> transferenciasUsuario = [];
+
+    for (final item in transferencias) {
       transferenciasUsuario.add(TransferenciaModel.fromMap(item));
     }
     return transferenciasUsuario;
