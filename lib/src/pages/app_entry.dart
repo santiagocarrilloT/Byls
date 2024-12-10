@@ -50,7 +50,7 @@ class _NavigationClassState extends State<NavigationClass> {
           selectedItemColor: const Color(0xFF00BFA5),
           unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
           type: _bottomNavType,
-          onTap: (index) {
+          onTap: (index) async {
            //Cargar datos guardados con shared preferences
           bool? habilitarPuntuacion = await Opciones.loadPuntuacion();
           int? selectedCuentaId = await Opciones.loadCuenta();
