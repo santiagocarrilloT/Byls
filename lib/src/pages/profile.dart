@@ -40,7 +40,8 @@ class _ProfileViewState extends State<ProfileView> {
     final authController = Provider.of<AuthController>(context);
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFF044454), // Cambia el color de fondo aquí
+        backgroundColor:
+            const Color(0xFF044454), // Cambia el color de fondo aquí
         body: Column(
           children: [
             Container(
@@ -87,7 +88,8 @@ class _ProfileViewState extends State<ProfileView> {
                       },
                     ),
                     ListTile(
-                      leading: const Icon(Icons.lock_reset, color: Colors.white),
+                      leading:
+                          const Icon(Icons.lock_reset, color: Colors.white),
                       title: const Text(
                         "Cambiar contraseña",
                         style: TextStyle(color: Colors.white),
@@ -106,24 +108,25 @@ class _ProfileViewState extends State<ProfileView> {
                       onTap: () {},
                     ),
                     ListTile(
-                      leading:
-                          const Icon(Icons.logout_outlined, color: Colors.white),
+                      leading: const Icon(Icons.logout_outlined,
+                          color: Colors.white),
                       title: const Text(
                         "Cerrar Sesión",
                         style: TextStyle(color: Colors.white),
                       ),
                       onTap: () async {
-                      await Opciones.removeValue();
-                      authController.signOutCt();
-                      context.go('/signIn');
-                    },
-                  ),
-                ],
+                        await Opciones.removeValue();
+                        authController.signOutCt();
+                        context.go('/signIn');
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
+            )
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -204,7 +204,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                         margin: const EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 10.0),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(155, 255, 255, 255),
+                          color: const Color(0xFF044454),
                           border: Border.all(color: const Color(0xFF006064)),
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -218,7 +218,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                                         .idCuentaOrigen]
                                     .toString(),
                                 style: const TextStyle(
-                                  color: Color(0xFF4E4E4E),
+                                  color: Color(0xFF044454),
                                   fontSize: 14.5,
                                 ),
                               ),
