@@ -1,4 +1,5 @@
 // ignore: depend_on_referenced_packages
+import 'package:byls_app/models/cuenta_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class IncomeModel {
@@ -80,6 +81,7 @@ class IncomeModel {
 
   static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(
       String periodo) async {
+    final userId = Supabase.instance.client.auth.currentUser!.id;
     DateTime now = DateTime.now();
     DateTime startDate;
 
@@ -107,6 +109,12 @@ class IncomeModel {
         .lte('fecha_transaccion', now.toIso8601String());
 
     final List<dynamic> data = response;
+
+    //Obtener las cuentas del usuario
+    final Map<int, String> cuentas = await CuentaModel.cuentasPorNombre();
+    //Eliminar las transacciones que no pertenecen al usuario
+    data.removeWhere((element) => !cuentas.containsKey(element['id_cuenta']));
+
     return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
   }
 

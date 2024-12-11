@@ -208,19 +208,20 @@ class _OpcionesState extends State<Opciones> {
         return AlertDialog(
           title: const Text(
             "Seleccionar una cuenta inicial",
-            style: TextStyle(fontSize: 18.0),
+            style: TextStyle(fontSize: 18.0, color: Colors.white),
           ),
+          backgroundColor: const Color(0xFF04242C), 
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return DropdownButton(
                 // Dropdown para seleccionar cuenta
                 value: cuentaSeleccionada,
                 icon: const Icon(Icons.arrow_downward,
-                    color: Color.fromARGB(255, 0, 0, 0)),
+                    color: Colors.white),
                 iconSize: 24,
                 elevation: 16,
-                style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                dropdownColor: const Color(0xFFFFFFFF),
+                style: const TextStyle(color: Colors.white),
+                dropdownColor: const Color(0xFF04242C),
                 onChanged: (int? newValue) {
                   setState(
                     () {

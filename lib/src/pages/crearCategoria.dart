@@ -17,45 +17,44 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
   // Crea una instancia de AuthController
   final AuthController authController = AuthController();
 
-  
   // Iconos para categorías de gastos
   final Map<IconData, String> iconosGastos = {
     // Hogar y Vida Diaria
-    Icons.home: 'house',
+    Icons.home: 'home',
     Icons.kitchen: 'kitchen',
     Icons.bed: 'bed',
-    Icons.weekend: 'living_room',
-    Icons.bathtub: 'bathroom',
-    Icons.lightbulb: 'electricity',
-    
+    Icons.weekend: 'weekend',
+    Icons.bathtub: 'bathtub',
+    Icons.lightbulb: 'lightbulb',
+
     // Transporte
-    Icons.directions_car: 'car',
+    Icons.directions_car: 'directions_car',
     Icons.motorcycle: 'motorcycle',
-    Icons.directions_bus: 'bus',
-    Icons.directions_bike: 'bike',
-    Icons.local_shipping: 'shipping',
-    Icons.airplanemode_active: 'airplane',
+    Icons.directions_bus: 'directions_bus',
+    Icons.directions_bike: 'directions_bike',
+    Icons.local_shipping: 'local_shipping',
+    Icons.airplanemode_active: 'airplanemode_active',
     Icons.train: 'train',
     Icons.subway: 'subway',
-    
+
     // Alimentos y Bebidas
-    Icons.local_pizza: 'pizza',
-    Icons.local_cafe: 'cafe',
-    Icons.local_dining: 'restaurant',
+    Icons.local_pizza: 'local_pizza',
+    Icons.local_cafe: 'local_cafe',
+    Icons.local_dining: 'local_dining',
 
     // Entretenimiento
     Icons.movie: 'movie',
-    Icons.music_note: 'music',
+    Icons.music_note: 'music_note',
     Icons.tv: 'tv',
     Icons.book: 'book',
-    
+
     // Salud y Bienestar
-    Icons.fitness_center: 'gym',
+    Icons.fitness_center: 'fitness_center',
     Icons.medical_services: 'medical_services',
     Icons.health_and_safety: 'health_and_safety',
     Icons.spa: 'spa',
-    Icons.self_improvement: 'meditation',
-    
+    Icons.self_improvement: 'self_improvement',
+
     // Otros
     Icons.shopping_cart: 'shopping_cart',
     Icons.shopping_bag: 'shopping_bag',
@@ -65,12 +64,12 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
   // Iconos para categorías de ingresos
   final Map<IconData, String> iconosIngresos = {
     // Finanzas y Negocios
-    Icons.attach_money: 'money',
-    Icons.trending_up: 'investment',
-    Icons.monetization_on: 'savings',
-    Icons.account_balance_wallet: 'wallet',
+    Icons.attach_money: 'attach_money',
+    Icons.trending_up: 'trending_up',
+    Icons.monetization_on: 'monetization_on',
+    Icons.account_balance_wallet: 'account_balance_wallet',
     Icons.business: 'business',
-    
+
     // Trabajo y Educación
     Icons.school: 'school',
     Icons.science: 'science',
@@ -79,14 +78,13 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
 
     // Viajes y Ocio
     Icons.explore: 'explore',
-    Icons.beach_access: 'beach',
-    
+    Icons.beach_access: 'beach_access',
+
     // Tecnología
-    Icons.phone_android: 'smartphone',
+    Icons.phone_android: 'phone_android',
     Icons.computer: 'computer',
     Icons.devices: 'devices',
   };
-
 
   // Guardar categoría en la base de datos usando AuthController
   Future<void> _guardarCategoria() async {
@@ -139,7 +137,8 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF044454),
-        title: const Text("Crear Categoría", style: TextStyle(color: Colors.white)),
+        title: const Text("Crear Categoría",
+            style: TextStyle(color: Colors.white)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -243,37 +242,37 @@ class _CrearCategoriaScreenState extends State<CrearCategoriaScreen> {
                   style: TextStyle(color: Colors.white)),
               const SizedBox(height: 10),
               Expanded(
-              child: SingleChildScrollView(
-                child: Center(
-                  child: Wrap(
-                    spacing: 10.0,
-                    runSpacing: 10.0,
-                    children: iconosDisponibles.keys.map((icon) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            iconoSeleccionado = icon;
-                          });
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: iconoSeleccionado == icon
-                              ? selectedColor
-                              : Colors.grey[700],
-                          child: Icon(
-                            icon,
-                            color: iconoSeleccionado == icon
-                                ? Colors.white
-                                : Colors.black,
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: Wrap(
+                      spacing: 10.0,
+                      runSpacing: 10.0,
+                      children: iconosDisponibles.keys.map((icon) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              iconoSeleccionado = icon;
+                            });
+                          },
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundColor: iconoSeleccionado == icon
+                                ? selectedColor
+                                : Colors.grey[700],
+                            child: Icon(
+                              icon,
+                              color: iconoSeleccionado == icon
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Botón para guardar la categoría
               Center(

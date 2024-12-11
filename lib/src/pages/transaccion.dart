@@ -142,16 +142,15 @@ class _TransaccionState extends State<Transaccion> {
           onPressed: () {
             context.go("/app_entry");
           },
-        color: Colors.white,
-        ),        
+          color: Colors.white,
+        ),
         //poner color al text del appbar
-        title: const Text("Transacción" , style: TextStyle(color: Colors.white)),
+        title: const Text("Transacción", style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF044454),
         actions: [
           //Notificación de transacción
           IconButton(
-            icon: const Icon(Icons.notification_add,
-                color: Color(0xFF00BFA5)),
+            icon: const Icon(Icons.notification_add, color: Color(0xFF00BFA5)),
             onPressed: () async {
               if (selectedCategory != null &&
                   _descripcionController.text.isNotEmpty &&
@@ -200,21 +199,25 @@ class _TransaccionState extends State<Transaccion> {
                       decoration: InputDecoration(
                         labelText: 'Valor',
                         labelStyle: const TextStyle(color: Colors.white),
-                        prefixIcon: const Icon(Icons.attach_money, color: Color(0xFF00BFA5)),
+                        prefixIcon: const Icon(Icons.attach_money,
+                            color: Color(0xFF00BFA5)),
                         // Borde cuando el campo está enfocado
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF00BFA5), width: 2.0),
                         ),
                         // Borde cuando el campo está habilitado pero no enfocado
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF044454), width: 2.0),
                         ),
                         // Sin borde adicional para el estado normal
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF044454), width: 2.0),
                         ),
                         filled: true, // Fondo para el campo
                         fillColor: const Color(0xFF044454), // Color del fondo
@@ -248,7 +251,7 @@ class _TransaccionState extends State<Transaccion> {
                         ),
                         prefixIcon: const Icon(
                           Icons.account_balance_wallet,
-                          color: Color(0xFF00BFA5), 
+                          color: Color(0xFF00BFA5),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18),
@@ -400,17 +403,22 @@ class _TransaccionState extends State<Transaccion> {
                     // Selector de fecha
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today, color: Color(0xFF00BFA5)),
+                        const Icon(Icons.calendar_today,
+                            color: Color(0xFF00BFA5)),
                         const SizedBox(width: 10),
                         Text(
-                          DateFormat('dd/MM/yyyy', ).format(selectedDate),
-                          style: const TextStyle(fontSize: 16, color: Colors.white),                        
+                          DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(selectedDate),
+                          style: const TextStyle(
+                              fontSize: 16, color: Colors.white),
                         ),
                         const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () => _selectDate(context),
                           style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white, backgroundColor: const Color(0xFF044454),
+                            foregroundColor: Colors.white,
+                            backgroundColor: const Color(0xFF044454),
                           ),
                           child: const Text('Seleccionar fecha'),
                         ),
@@ -420,29 +428,36 @@ class _TransaccionState extends State<Transaccion> {
 
                     // Campo para la descripción
                     TextField(
-                      style: const TextStyle(color: Colors.white), // Color del texto ingresado
+                      style: const TextStyle(
+                          color: Colors.white), // Color del texto ingresado
                       controller: _descripcionController,
                       maxLines: 2, // Permitir hasta 2 líneas
                       decoration: InputDecoration(
                         labelText: 'Descripción',
-                        labelStyle: const TextStyle(color: Colors.white), // Estilo de la etiqueta
-                        prefixIcon: const Icon(Icons.edit, color: Color(0xFF00BFA5)), // Ícono al inicio
+                        labelStyle: const TextStyle(
+                            color: Colors.white), // Estilo de la etiqueta
+                        prefixIcon: const Icon(Icons.edit,
+                            color: Color(0xFF00BFA5)), // Ícono al inicio
                         filled: true, // Activar fondo personalizado
-                        fillColor: const Color(0xFF044454), // Color de fondo del campo
+                        fillColor:
+                            const Color(0xFF044454), // Color de fondo del campo
                         // Borde al enfocar
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF00BFA5), width: 2.0),
                         ),
                         // Borde cuando no está enfocado
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF044454), width: 2.0),
                         ),
                         // Borde por defecto
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
+                          borderSide: const BorderSide(
+                              color: Color(0xFF044454), width: 2.0),
                         ),
                       ),
                     ),
@@ -524,8 +539,9 @@ class _TransaccionState extends State<Transaccion> {
                           //Cuenta que fue seleccionada
                         },
                         style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white, backgroundColor: const Color(0xFF044454),
-                          ),
+                          foregroundColor: Colors.white,
+                          backgroundColor: const Color(0xFF044454),
+                        ),
                         child: const Text('Guardar Transacción'),
                       ),
                     ),
@@ -546,43 +562,43 @@ IconData _getIconByName(String iconName) {
       return Icons.kitchen;
     case 'bed':
       return Icons.bed;
-    case 'living_room':
+    case 'weekend':
       return Icons.weekend;
-    case 'bathroom':
+    case 'bathtub':
       return Icons.bathtub;
-    case 'electricity':
+    case 'lightbulb':
       return Icons.lightbulb;
-    case 'car':
+    case 'directions_car':
       return Icons.directions_car;
     case 'motorcycle':
       return Icons.motorcycle;
-    case 'bus':
+    case 'directions_bus':
       return Icons.directions_bus;
-    case 'bike':
+    case 'directions_bike':
       return Icons.directions_bike;
-    case 'shipping':
+    case 'local_shipping':
       return Icons.local_shipping;
-    case 'airplane':
+    case 'airplanemode_active':
       return Icons.airplanemode_active;
     case 'train':
       return Icons.train;
-    case 'subway':
+    case 'directions_subway':
       return Icons.directions_subway;
-    case 'pizza':
+    case 'local_pizza':
       return Icons.local_pizza;
-    case 'cafe':
+    case 'local_cafe':
       return Icons.local_cafe;
-    case 'restaurant':
+    case 'local_dining':
       return Icons.local_dining;
     case 'movie':
       return Icons.movie;
-    case 'music':
+    case 'music_note':
       return Icons.music_note;
     case 'tv':
       return Icons.tv;
     case 'book':
       return Icons.book;
-    case 'gym':
+    case 'fitness_center':
       return Icons.fitness_center;
     case 'shopping_cart':
       return Icons.shopping_cart;
@@ -590,11 +606,11 @@ IconData _getIconByName(String iconName) {
       return Icons.pets;
 
     // Iconos para categorías de ingresos
-    case 'money':
+    case 'attach_money':
       return Icons.attach_money;
-    case 'investment':
+    case 'trending_up':
       return Icons.trending_up;
-    case 'wallet':
+    case 'account_balance_wallet':
       return Icons.account_balance_wallet;
     case 'business':
       return Icons.business;
@@ -608,9 +624,9 @@ IconData _getIconByName(String iconName) {
       return Icons.engineering;
     case 'explore':
       return Icons.explore;
-    case 'beach':
+    case 'beach_access':
       return Icons.beach_access;
-    case 'smartphone':
+    case 'phone_android':
       return Icons.phone_android;
     case 'computer':
       return Icons.computer;
@@ -621,4 +637,3 @@ IconData _getIconByName(String iconName) {
       return Icons.help;
   }
 }
-
