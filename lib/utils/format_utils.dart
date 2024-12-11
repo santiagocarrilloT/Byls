@@ -43,6 +43,10 @@ class FormatoUtils {
       } else {
         // Si el índice es múltiplo de 3 y no es el primer dígito, se agrega una coma
         if (contDecimales >= 3 && ind != 0) {
+          if (parteEntera[ind] == '-') {
+            return separarDecimales(
+                '${parteEntera[ind]}$valorAcumulado', ind + 1, 1);
+          }
           return separarDecimales(
               '${parteEntera[ind]},$valorAcumulado', ind + 1, 1);
         } else {

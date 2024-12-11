@@ -151,7 +151,7 @@ class _GraphicsViewState extends State<GraphicsView> {
         ),
         title: const Text(
           'Transacciones por Cuenta',
-          style: TextStyle(color: Colors.white ,fontSize: 18),
+          style: TextStyle(color: Colors.white, fontSize: 18),
         ),
         /*title:  Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -245,7 +245,8 @@ class _GraphicsViewState extends State<GraphicsView> {
                         : Colors.white,
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0), // Redondea la esquina superior derecha
+                        topLeft: Radius.circular(
+                            20.0), // Redondea la esquina superior derecha
                         bottomLeft: Radius.circular(20.0),
                       ), // Sin bordes redondeados
                     ),
@@ -270,7 +271,8 @@ class _GraphicsViewState extends State<GraphicsView> {
                         : const Color(0xFF044454),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(20.0), // Redondea la esquina superior derecha
+                        topRight: Radius.circular(
+                            20.0), // Redondea la esquina superior derecha
                         bottomRight: Radius.circular(20.0),
                       ), // Sin bordes redondeados
                     ),
@@ -477,7 +479,9 @@ final List<Categoria> categoriasGasto = [
       icono: Icons.subscriptions,
       color: Colors.deepPurple),
   Categoria(
-      nombre: 'Transporte', icono: Icons.directions_bus, color: Colors.grey),
+      nombre: 'Transporte',
+      icono: Icons.directions_bus,
+      color: Colors.purpleAccent),
   Categoria(nombre: 'house', icono: Icons.home, color: Colors.grey),
   Categoria(nombre: 'school', icono: Icons.school, color: Colors.grey),
   Categoria(nombre: 'fastfood', icono: Icons.fastfood, color: Colors.grey),
@@ -493,7 +497,7 @@ final List<Categoria> categoriasGasto = [
       color: Colors.grey),
   Categoria(
       nombre: 'shopping_cart', icono: Icons.shopping_cart, color: Colors.grey),
-  Categoria(nombre: 'car_rental', icono: Icons.car_rental, color: Colors.grey),
+  Categoria(nombre: 'directions_car', icono: Icons.directions_car, color: Colors.grey),
   Categoria(nombre: 'hotel', icono: Icons.hotel, color: Colors.grey),
 ];
 

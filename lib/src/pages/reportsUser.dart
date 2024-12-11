@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 
 class ReportsUser extends StatefulWidget {
   const ReportsUser({super.key});
@@ -262,7 +261,7 @@ class _ReportsUserState extends State<ReportsUser> {
                                       child: Text(
                                         transaccionesSuma.isEmpty
                                             ? '-'
-                                            : '\$${transaccionesSuma[0]}',
+                                            : '\$${transaccionesSuma[0].toStringAsFixed(3)}',
                                         style: const TextStyle(
                                             color: Colors.green),
                                       ),
@@ -273,7 +272,7 @@ class _ReportsUserState extends State<ReportsUser> {
                                       child: Text(
                                         transaccionesSuma.isEmpty
                                             ? '-'
-                                            : '\$-${transaccionesSuma[1]}',
+                                            : '\$-${transaccionesSuma[1].toStringAsFixed(3)}',
                                         style:
                                             const TextStyle(color: Colors.red),
                                       ),
@@ -284,7 +283,7 @@ class _ReportsUserState extends State<ReportsUser> {
                                       child: Text(
                                         transaccionesSuma.isEmpty
                                             ? '-'
-                                            : '\$${transaccionesSuma[0] - transaccionesSuma[1]}',
+                                            : '\$${(transaccionesSuma[0] - transaccionesSuma[1]).toStringAsFixed(3)}',
                                         style: (transaccionesSuma[0] -
                                                     transaccionesSuma[1]) >=
                                                 0
@@ -666,8 +665,7 @@ class _ReportsUserState extends State<ReportsUser> {
   showValidateOTPBalance(BuildContext context, String tipoBalance) {
     Widget cancelButton = ElevatedButton(
       style: ButtonStyle(
-        backgroundColor:
-            WidgetStateProperty.all<Color>(Colors.red),
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -709,7 +707,8 @@ class _ReportsUserState extends State<ReportsUser> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Tipo de Balance:", style: TextStyle(color: Colors.white)),
+          title: const Text("Tipo de Balance:",
+              style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF04242C),
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
@@ -730,11 +729,13 @@ class _ReportsUserState extends State<ReportsUser> {
                   items: const [
                     DropdownMenuItem(
                       value: 'Pos',
-                      child: Text('Balance Positivo', style: TextStyle(color: Colors.white)),
+                      child: Text('Balance Positivo',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     DropdownMenuItem(
                       value: 'Neg',
-                      child: Text('Balance Negativo', style: TextStyle(color: Colors.white)),
+                      child: Text('Balance Negativo',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                   decoration: InputDecoration(
@@ -756,7 +757,7 @@ class _ReportsUserState extends State<ReportsUser> {
                     ),
                   ),
                 ),
-              );  
+              );
             },
           ),
           actions: [
@@ -802,8 +803,7 @@ class _ReportsUserState extends State<ReportsUser> {
   showValidateOTPResumen(BuildContext context) {
     Widget cancelButton = ElevatedButton(
       style: ButtonStyle(
-        backgroundColor:
-            WidgetStateProperty.all<Color>(Colors.red), 
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.red),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -846,12 +846,14 @@ class _ReportsUserState extends State<ReportsUser> {
             "Modificar Fecha Resumen:",
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: const Color(0xFF04242C), // Cambia el color de fondo aquí
+          backgroundColor:
+              const Color(0xFF04242C), // Cambia el color de fondo aquí
           content: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
               return Theme(
                 data: Theme.of(context).copyWith(
-                  canvasColor: const Color(0xFF04242C), // Cambia el color de fondo del menú desplegable aquí
+                  canvasColor: const Color(
+                      0xFF04242C), // Cambia el color de fondo del menú desplegable aquí
                 ),
                 child: DropdownButtonFormField<String>(
                   value: fechaResumen,
@@ -863,19 +865,23 @@ class _ReportsUserState extends State<ReportsUser> {
                   items: const [
                     DropdownMenuItem(
                       value: 'Día',
-                      child: Text('Día Actual', style: TextStyle(color: Colors.white)),
+                      child: Text('Día Actual',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     DropdownMenuItem(
                       value: 'Semana',
-                      child: Text('Semana Actual', style: TextStyle(color: Colors.white)),
+                      child: Text('Semana Actual',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     DropdownMenuItem(
                       value: 'Mes',
-                      child: Text('Mes Actual', style: TextStyle(color: Colors.white)),
+                      child: Text('Mes Actual',
+                          style: TextStyle(color: Colors.white)),
                     ),
                     DropdownMenuItem(
                       value: 'Año',
-                      child: Text('Año Actual', style: TextStyle(color: Colors.white)),
+                      child: Text('Año Actual',
+                          style: TextStyle(color: Colors.white)),
                     ),
                   ],
                   decoration: InputDecoration(

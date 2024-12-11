@@ -28,14 +28,14 @@ class _NavigationClassState extends State<NavigationClass> {
 
   static final List<Widget> _pages = <Widget>[
     const Home(),
-    const ReportsUser(),    
+    const ReportsUser(),
     const AccountsUser(), // Pantalla de inicio
     const ProfileView(), // Pantalla de perfil
   ];
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
+    return Scaffold(
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -45,19 +45,20 @@ class _NavigationClassState extends State<NavigationClass> {
           ),
         ),
         child: BottomNavigationBar(
-          backgroundColor: Colors.transparent, // Hacer transparente para que se vea el color del contenedor
+          backgroundColor: Colors
+              .transparent, // Hacer transparente para que se vea el color del contenedor
           currentIndex: _selectedIndex,
           selectedItemColor: const Color(0xFF00BFA5),
           unselectedItemColor: const Color.fromARGB(255, 255, 255, 255),
           type: _bottomNavType,
           onTap: (index) async {
-           //Cargar datos guardados con shared preferences
-          bool? habilitarPuntuacion = await Opciones.loadPuntuacion();
-          int? selectedCuentaId = await Opciones.loadCuenta();
+            //Cargar datos guardados con shared preferences
+            bool? habilitarPuntuacion = await Opciones.loadPuntuacion();
+            int? selectedCuentaId = await Opciones.loadCuenta();
 
-          // Manejar valores nulos proporcionando valores predeterminados
-          Opciones.habilitarPuntuacion = habilitarPuntuacion ?? false;
-          Opciones.selectedCuentaId = selectedCuentaId ?? 0;
+            // Manejar valores nulos proporcionando valores predeterminados
+            Opciones.habilitarPuntuacion = habilitarPuntuacion ?? false;
+            Opciones.selectedCuentaId = selectedCuentaId ?? 0;
             setState(() {
               if (seleccionarVentana != null) {
                 _selectedIndex = seleccionarVentana!;

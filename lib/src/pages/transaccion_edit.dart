@@ -191,15 +191,15 @@ class _TransaccionEditState extends State<TransaccionEdit> {
           onPressed: () {
             context.go("/app_entry", extra: 1);
           },
-        color: Colors.white,
+          color: Colors.white,
         ),
-        title: const Text("Editar Transacción", style: TextStyle(color: Colors.white)),
+        title: const Text("Editar Transacción",
+            style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF044454),
         actions: [
           //Notificación de transacción
           IconButton(
-            icon: const Icon(Icons.notification_add,
-                color: Color(0xFF00BFA5)),
+            icon: const Icon(Icons.notification_add, color: Color(0xFF00BFA5)),
             onPressed: () async {
               context.go('/configurarNotificaciones');
             },
@@ -265,27 +265,31 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   FilteringTextInputFormatter.digitsOnly,
                 ],
                 decoration: InputDecoration(
-                        labelText: 'Valor',
-                        labelStyle: const TextStyle(color: Colors.white),
-                        prefixIcon: const Icon(Icons.attach_money, color: Color(0xFF00BFA5)),
-                        // Borde cuando el campo está enfocado
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
-                        ),
-                        // Borde cuando el campo está habilitado pero no enfocado
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
-                        ),
-                        // Sin borde adicional para el estado normal
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
-                        ),
-                        filled: true, // Fondo para el campo
-                        fillColor: const Color(0xFF044454), // Color del fondo
-                      ),
+                  labelText: 'Valor',
+                  labelStyle: const TextStyle(color: Colors.white),
+                  prefixIcon:
+                      const Icon(Icons.attach_money, color: Color(0xFF00BFA5)),
+                  // Borde cuando el campo está enfocado
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
+                  ),
+                  // Borde cuando el campo está habilitado pero no enfocado
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF044454), width: 2.0),
+                  ),
+                  // Sin borde adicional para el estado normal
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF044454), width: 2.0),
+                  ),
+                  filled: true, // Fondo para el campo
+                  fillColor: const Color(0xFF044454), // Color del fondo
+                ),
               ),
 
               const SizedBox(height: 15),
@@ -310,27 +314,25 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   });
                 },
                 decoration: InputDecoration(
-                        labelText: 'Cuenta',
-                        labelStyle: const TextStyle(
-                          color: Colors.white,
-                        ),
-                        prefixIcon: const Icon(
-                          Icons.account_balance_wallet,
-                          color: Color(0xFF00BFA5), 
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide:
-                              const BorderSide(color: Color(0xFF00BFA5)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(18),
-                          borderSide:
-                              const BorderSide(color: Color(0xFF044454)),
-                        ),
-                        filled: true, // Habilita el fondo del campo
-                        fillColor: const Color(0xFF044454), // Fondo del campo
-                      ),
+                  labelText: 'Cuenta',
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                  ),
+                  prefixIcon: const Icon(
+                    Icons.account_balance_wallet,
+                    color: Color(0xFF00BFA5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF00BFA5)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: const BorderSide(color: Color(0xFF044454)),
+                  ),
+                  filled: true, // Habilita el fondo del campo
+                  fillColor: const Color(0xFF044454), // Fondo del campo
+                ),
               ),
 
               const SizedBox(height: 15),
@@ -453,10 +455,9 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                           Text(
                             category.nombre,
                             style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white
-                            ),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
                           ),
                         ],
                       ),
@@ -480,7 +481,8 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                   ElevatedButton(
                     onPressed: () => _selectDate(context),
                     style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white, backgroundColor: const Color(0xFF044454),
+                      foregroundColor: Colors.white,
+                      backgroundColor: const Color(0xFF044454),
                     ),
                     child: const Text('Seleccionar fecha'),
                   ),
@@ -495,27 +497,33 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                 controller: _descripcionController,
                 maxLines: 2,
                 decoration: InputDecoration(
-                        labelText: 'Descripción',
-                        labelStyle: const TextStyle(color: Colors.white), // Estilo de la etiqueta
-                        prefixIcon: const Icon(Icons.edit, color: Color(0xFF00BFA5)), // Ícono al inicio
-                        filled: true, // Activar fondo personalizado
-                        fillColor: const Color(0xFF044454), // Color de fondo del campo
-                        // Borde al enfocar
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
-                        ),
-                        // Borde cuando no está enfocado
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
-                        ),
-                        // Borde por defecto
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(color: Color(0xFF044454), width: 2.0),
-                        ),
-                      ),
+                  labelText: 'Descripción',
+                  labelStyle: const TextStyle(
+                      color: Colors.white), // Estilo de la etiqueta
+                  prefixIcon: const Icon(Icons.edit,
+                      color: Color(0xFF00BFA5)), // Ícono al inicio
+                  filled: true, // Activar fondo personalizado
+                  fillColor:
+                      const Color(0xFF044454), // Color de fondo del campo
+                  // Borde al enfocar
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF00BFA5), width: 2.0),
+                  ),
+                  // Borde cuando no está enfocado
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF044454), width: 2.0),
+                  ),
+                  // Borde por defecto
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        const BorderSide(color: Color(0xFF044454), width: 2.0),
+                  ),
+                ),
               ),
 
               const SizedBox(height: 20),
@@ -524,7 +532,8 @@ class _TransaccionEditState extends State<TransaccionEdit> {
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: const Color(0xFF044454),
+                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF044454),
                   ),
                   onPressed: () async {
                     // Cuenta seleccionada
@@ -673,7 +682,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
 
 IconData _getIconByName(String iconName) {
   switch (iconName) {
-    // Iconos para categorías de gastos
+    /* // Iconos para categorías de gastos
     case 'house':
       return Icons.home;
     case 'kitchen':
@@ -745,6 +754,87 @@ IconData _getIconByName(String iconName) {
     case 'beach':
       return Icons.beach_access;
     case 'smartphone':
+      return Icons.phone_android;
+    case 'computer':
+      return Icons.computer;
+    case 'devices':
+      return Icons.devices;
+    // Ícono por defecto si no coincide con ninguna categoría
+    default:
+      return Icons.help; */
+
+    // Iconos para categorías de gastos
+    case 'house':
+      return Icons.home;
+    case 'kitchen':
+      return Icons.kitchen;
+    case 'bed':
+      return Icons.bed;
+    case 'weekend':
+      return Icons.weekend;
+    case 'bathtub':
+      return Icons.bathtub;
+    case 'lightbulb':
+      return Icons.lightbulb;
+    case 'directions_car':
+      return Icons.directions_car;
+    case 'motorcycle':
+      return Icons.motorcycle;
+    case 'directions_bus':
+      return Icons.directions_bus;
+    case 'directions_bike':
+      return Icons.directions_bike;
+    case 'local_shipping':
+      return Icons.local_shipping;
+    case 'airplanemode_active':
+      return Icons.airplanemode_active;
+    case 'train':
+      return Icons.train;
+    case 'directions_subway':
+      return Icons.directions_subway;
+    case 'local_pizza':
+      return Icons.local_pizza;
+    case 'local_cafe':
+      return Icons.local_cafe;
+    case 'local_dining':
+      return Icons.local_dining;
+    case 'movie':
+      return Icons.movie;
+    case 'music_note':
+      return Icons.music_note;
+    case 'tv':
+      return Icons.tv;
+    case 'book':
+      return Icons.book;
+    case 'fitness_center':
+      return Icons.fitness_center;
+    case 'shopping_cart':
+      return Icons.shopping_cart;
+    case 'pets':
+      return Icons.pets;
+
+    // Iconos para categorías de ingresos
+    case 'attach_money':
+      return Icons.attach_money;
+    case 'trending_up':
+      return Icons.trending_up;
+    case 'account_balance_wallet':
+      return Icons.account_balance_wallet;
+    case 'business':
+      return Icons.business;
+    case 'school':
+      return Icons.school;
+    case 'science':
+      return Icons.science;
+    case 'work':
+      return Icons.work;
+    case 'engineering':
+      return Icons.engineering;
+    case 'explore':
+      return Icons.explore;
+    case 'beach_access':
+      return Icons.beach_access;
+    case 'phone_android':
       return Icons.phone_android;
     case 'computer':
       return Icons.computer;

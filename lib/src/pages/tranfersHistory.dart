@@ -86,15 +86,62 @@ class _TranfersHistoryState extends State<TranfersHistory> {
         title: const Text('Historial Transferencias',
             style: TextStyle(color: Colors.white)),
       ),
-      backgroundColor: const Color(0xFF04242C),      
+      backgroundColor: const Color(0xFF04242C),
       body: futureTransferencias.isEmpty
-      
-          ? const Column(
+          ? Column(
               children: [
-                SizedBox(
-                  height: 20,
+                const SizedBox(
+                  height: 10,
                 ),
-                Center(
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          showValidateCambiarCuenta(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color(0xFF044454), // Color de fondo
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                                15), // Redondea la esquina superior izquierda
+                          ),
+                        ),
+                        iconAlignment: IconAlignment.start,
+                        child: const Text(
+                          'Cuenta',
+                          style: TextStyle(color: Colors.white, fontSize: 14.5),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          showValidateCambiarPeriodo(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF044454),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
+                        iconAlignment: IconAlignment.start,
+                        child: const Text(
+                          'Fecha',
+                          style: TextStyle(color: Colors.white, fontSize: 14.5),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const Center(
                     child: Text(
                   'No se encontraron transferencias',
                   style: TextStyle(color: Colors.white, fontSize: 18),
@@ -117,7 +164,8 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                           backgroundColor:
                               const Color(0xFF044454), // Color de fondo
                           shape: RoundedRectangleBorder(
-                           borderRadius: BorderRadius.circular(15), // Redondea la esquina superior izquierda
+                            borderRadius: BorderRadius.circular(
+                                15), // Redondea la esquina superior izquierda
                           ),
                         ),
                         iconAlignment: IconAlignment.start,
@@ -136,8 +184,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                           showValidateCambiarPeriodo(context);
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color(0xFF044454),
+                          backgroundColor: const Color(0xFF044454),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
                           ),
@@ -160,21 +207,23 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                         margin: const EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 10.0),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(155, 255, 255, 255),
+                          color: const Color(0xFF044454),
                           border: Border.all(color: const Color(0xFF006064)),
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: Column(
                           children: [
                             Text(
-                                '${futureTransferencias[index].fechaTransferencia.day}/${futureTransferencias[index].fechaTransferencia.month}/${futureTransferencias[index].fechaTransferencia.year}'),
+                              '${futureTransferencias[index].fechaTransferencia.day}/${futureTransferencias[index].fechaTransferencia.month}/${futureTransferencias[index].fechaTransferencia.year}',
+                              style: const TextStyle(color: Colors.white),
+                            ),
                             ListTile(
                               title: Text(
                                 nombreCuentas[futureTransferencias[index]
                                         .idCuentaOrigen]
                                     .toString(),
                                 style: const TextStyle(
-                                  color: Color(0xFF4E4E4E),
+                                  color: Color.fromARGB(255, 255, 255, 255),
                                   fontSize: 14.5,
                                 ),
                               ),
@@ -183,18 +232,20 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                                 child: const Padding(
                                   padding: EdgeInsets.only(
                                       right: 4.0, left: 4.0, bottom: 4.0),
-                                  child: Icon(Icons.send),
+                                  child: Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    futureTransferencias[index]
-                                        .cantidad
-                                        .toString(),
+                                    '\$ ${futureTransferencias[index].cantidad.toString()}',
                                     style: const TextStyle(
-                                        color: Color(0xFF4E4E4E),
+                                        color:
+                                            Color.fromARGB(255, 255, 255, 255),
                                         fontSize: 14.5),
                                   )
                                 ],
@@ -220,8 +271,8 @@ class _TranfersHistoryState extends State<TranfersHistory> {
       BuildContext context, TransferenciaModel futureTransferencias) {
     Widget cancelButton = ElevatedButton(
       style: ButtonStyle(
-        backgroundColor:
-            WidgetStateProperty.all<Color>(const Color(0xFF838282)),
+        backgroundColor: WidgetStateProperty.all<Color>(
+            const Color.fromARGB(255, 255, 255, 255)),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -257,7 +308,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                   color: const Color(0xCE000000),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
-                child: Row(                                    
+                child: Row(
                   children: [
                     const Icon(
                       Icons.send,
@@ -471,8 +522,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
               return DropdownButton<String>(
                 // Dropdown para seleccionar cuenta
                 value: selectedPeriodo,
-                icon: const Icon(Icons.arrow_downward,
-                    color: Colors.white),
+                icon: const Icon(Icons.arrow_downward, color: Colors.white),
                 iconSize: 24,
                 elevation: 16,
                 style: const TextStyle(color: Colors.white),
@@ -576,8 +626,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
               return DropdownButton(
                 // Dropdown para seleccionar cuenta
                 value: selectedCuentaId,
-                icon: const Icon(Icons.arrow_downward,
-                    color: Colors.white),
+                icon: const Icon(Icons.arrow_downward, color: Colors.white),
                 iconSize: 24,
                 elevation: 16,
                 style: const TextStyle(color: Colors.white),
@@ -586,8 +635,6 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                   setState(
                     () {
                       selectedCuentaId = newValue;
-                      print(nombreCuentas);
-                      print(selectedCuentaId);
                     },
                   );
                 },
