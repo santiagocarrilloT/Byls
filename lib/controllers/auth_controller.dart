@@ -71,26 +71,6 @@ class AuthController {
 
   User? get currentUser => _client.auth.currentUser;
 
-  // Función para insertar una transacción
-  Future<void> insertarTransaccion(
-      String descripcion,
-      String nombre_categoria,
-      double montoTransaccion,
-      String tipoTransaccion,
-      DateTime fechaTransaccion) async {
-    await _client.from('transacciones').insert(
-      {
-        'id_cuenta': '5',
-        'descripcion': descripcion,
-        'monto_transaccion': montoTransaccion,
-        'tipo_transaccion': tipoTransaccion,
-        'fecha_transaccion': fechaTransaccion.toIso8601String(),
-        'nombre_categoria': nombre_categoria,
-        // 'id_cuenta': idCuenta, // Añádelo cuando tengas el id_cuenta
-      },
-    );
-  }
-
   Future<bool> verifySesion() async {
     //final session = _client.accessToken
     final session = _client.auth.currentSession;

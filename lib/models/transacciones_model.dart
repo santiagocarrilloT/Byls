@@ -81,7 +81,6 @@ class IncomeModel {
 
   static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(
       String periodo) async {
-    final userId = Supabase.instance.client.auth.currentUser!.id;
     DateTime now = DateTime.now();
     DateTime startDate;
 
