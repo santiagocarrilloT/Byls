@@ -1,21 +1,24 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
 
 class TransferenciaController {
+  // El backend crea la transferencia + las 2 transacciones enlazadas y mueve
+  // ambos saldos en una sola sesión transaccional.
   Future<void> insertarTransferencia(
       String idCuentaOrigen,
       String idCuentaDestino,
       double cantidad,
       String descripcion,
       DateTime fechaTransferencia) async {
-    final userId = Supabase.instance.client.auth.currentUser!.id;
-
-    await Supabase.instance.client.from('transferencias').insert({
-      'uid': userId,
-      'id_cuentaorigen': idCuentaOrigen,
-      'id_cuentadestino': idCuentaDestino,
-      'cantidad': cantidad,
+    await ApiService.post('/transferencias', {
+      'cuenta_origen_id': idCuentaOrigen,
+      'cuenta_destino_id': idCuentaDestino,
+      'monto': cantidad,
       'descripcion': descripcion,
-      'fecha_transferencia': fechaTransferencia.toIso8601String(),
+      'fecha': fechaTransferencia.toUtc().toIso8601String(),
     });
+  }
+
+  Future<void> deleteTransferencia(String idTransferencia) async {
+    await ApiService.delete('/transferencias/$idTransferencia');
   }
 }

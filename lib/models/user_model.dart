@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/sesion.dart';
 
 class UserModel {
   final String id;
@@ -21,19 +21,9 @@ class UserModel {
   }
 
   static Future<UserModel?> getUsuarioActual() async {
-    final user = Supabase.instance.client.auth.currentUser;
-
-    if (user != null) {
-      //Objeto Usuario
-      final usuario = UserModel(
-        id: user.id, // ID del usuario autenticado
-        email: user.email!, // Email del usuario
-      );
-      return usuario;
-    } else {
-      print('No hay usuario autenticado');
-      return null;
-    }
+    final user = Sesion.usuario;
+    if (user == null) return null;
+    return UserModel(id: user.id, email: user.email);
   }
 }
 

@@ -27,8 +27,8 @@ class _TransferAccountsState extends State<TransferAccounts> {
   DateTime selectedDate = DateTime.now(); // Fecha seleccionada
 
   double? saldoCuenta;
-  int? selectedCuentaIdOrigen;
-  int? selectedCuentaIdDestino;
+  String? selectedCuentaIdOrigen;
+  String? selectedCuentaIdDestino;
   String? selectedTipoDivisa;
 
   @override
@@ -38,7 +38,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
   }
 
   //Función para cargar saldo de la cuenta de origen
-  Future<void> cargarSaldoCuenta(int selectedCuentaIdOrigen) async {
+  Future<void> cargarSaldoCuenta(String selectedCuentaIdOrigen) async {
     final cuentaSeleccionada = cuentas
         .firstWhere((cuenta) => cuenta.idCuenta == selectedCuentaIdOrigen);
     setState(() {
@@ -131,7 +131,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                         ),
                       ))
                   .toList(),
-              onChanged: (int? newValue) {
+              onChanged: (String? newValue) {
                 setState(() {
                   selectedCuentaIdOrigen = newValue;
                   cargarSaldoCuenta(selectedCuentaIdOrigen!);
@@ -209,7 +209,7 @@ class _TransferAccountsState extends State<TransferAccounts> {
                         ),
                       ))
                   .toList(),
-              onChanged: (int? newValue) {
+              onChanged: (String? newValue) {
                 setState(() {
                   selectedCuentaIdDestino = newValue;
                 });

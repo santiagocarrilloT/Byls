@@ -29,7 +29,7 @@ class _TransaccionState extends State<Transaccion> {
 
   bool isLoading = true;
 
-  int? selectedCuentaId;
+  String? selectedCuentaId;
 
   @override
   void initState() {
@@ -239,7 +239,7 @@ class _TransaccionState extends State<Transaccion> {
                                 ),
                               ))
                           .toList(),
-                      onChanged: (int? newValue) {
+                      onChanged: (String? newValue) {
                         setState(() {
                           selectedCuentaId = newValue;
                         });
@@ -466,75 +466,65 @@ class _TransaccionState extends State<Transaccion> {
                     Center(
                       child: ElevatedButton(
                         onPressed: () async {
-                          // Cuenta seleccionada
-                          String idCuentaSelec = (cuentas
-                                  .firstWhere((element) =>
-                                      element.idCuenta == selectedCuentaId)
-                                  .idCuenta)
-                              .toString();
+                          // ---- Validaciones (antes fallaban sin mostrar nada) ----
+                          void aviso(String texto, Color color) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(texto), backgroundColor: color),
+                            );
+                          }
 
-                          // Saldo de la cuenta seleccionada
-                          double saldo = (cuentas
-                                  .firstWhere((element) =>
-                                      element.idCuenta == selectedCuentaId)
-                                  .saldo)
-                              .toDouble();
+                          if (cuentas.isEmpty) {
+                            aviso(
+                                'Primero crea una cuenta (Cuentas → Agregar cuenta)',
+                                Colors.orange);
+                            return;
+                          }
+                          final cuentaSel = cuentas
+                              .where((c) => c.idCuenta == selectedCuentaId)
+                              .toList();
+                          if (cuentaSel.isEmpty) {
+                            aviso('Selecciona una cuenta', Colors.orange);
+                            return;
+                          }
+                          final monto = double.tryParse(_cantidadController.text
+                              .trim()
+                              .replaceAll('.', '')
+                              .replaceAll(',', '.'));
+                          if (monto == null || monto <= 0) {
+                            aviso(
+                                'Escribe el monto solo con números (ej. 100000)',
+                                Colors.orange);
+                            return;
+                          }
+                          if (selectedCategory == null) {
+                            aviso('Selecciona una categoría', Colors.orange);
+                            return;
+                          }
 
                           try {
-                            if (_cantidadController.text != '' ||
-                                _descripcionController.text != '' ||
-                                selectedCategory != null) {
-                              //Insertar gasto o ingreso
-                              await ingresosController.insertarTransaccion(
-                                  idCuentaSelec,
-                                  _descripcionController.text,
-                                  selectedCategory!,
-                                  double.parse(_cantidadController.text),
-                                  isGastosSelected ? 'Gasto' : 'Ingreso',
-                                  selectedDate);
+                            // El backend guarda el movimiento y actualiza el saldo de la cuenta
+                            await ingresosController.insertarTransaccion(
+                                cuentaSel.first.idCuenta,
+                                _descripcionController.text,
+                                selectedCategory!,
+                                monto,
+                                isGastosSelected ? 'Gasto' : 'Ingreso',
+                                selectedDate);
 
-                              //Actualizar saldo de la cuenta
-                              cuentaController.actualizarSaldo(
-                                  saldo,
-                                  idCuentaSelec,
-                                  double.parse(_cantidadController.text),
-                                  isGastosSelected ? false : true);
+                            aviso(isGastosSelected ? 'Gasto guardado' : 'Ingreso guardado',
+                                Colors.green);
 
-                              //Mostrar mensaje de gasto o ingreso guardado
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                isGastosSelected
-                                    ? const SnackBar(
-                                        content: Text('Gasto guardado'),
-                                        backgroundColor: Colors.green,
-                                      )
-                                    : const SnackBar(
-                                        content: Text('Ingreso guardado'),
-                                        backgroundColor: Colors.green,
-                                      ),
-                              );
-
-                              //Redirigir a la pantalla de ingresos
-                              context.go("/app_entry");
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Por favor, complete todos los campos'),
-                                  backgroundColor: Colors.yellow,
-                                ),
-                              );
-                              return;
-                            }
+                            //Redirigir a la pantalla de ingresos
+                            context.go("/app_entry");
                           } catch (e) {
-                            // Mostrar mensaje de error al guardar gasto o ingreso
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(isGastosSelected
-                                    ? 'Error al guardar gasto'
-                                    : 'Error al guardar ingreso'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
+                            // Muestra el motivo real (backend apagado, sesión vencida, etc.)
+                            final detalle = e.toString().contains('Failed to fetch') ||
+                                    e.toString().contains('ClientException')
+                                ? 'No hay conexión con el backend. ¿Está corriendo npm run dev?'
+                                : e.toString();
+                            aviso(
+                                '${isGastosSelected ? 'Error al guardar gasto' : 'Error al guardar ingreso'}: $detalle',
+                                Colors.red);
                           }
                           //Cuenta que fue seleccionada
                         },

@@ -11,10 +11,10 @@ class TranfersHistory extends StatefulWidget {
 }
 
 class _TranfersHistoryState extends State<TranfersHistory> {
-  int? selectedCuentaId;
+  String? selectedCuentaId;
   String selectedPeriodo = 'T';
   List<TransferenciaModel> futureTransferencias = [];
-  Map<int, String> nombreCuentas = {};
+  Map<String, String> nombreCuentas = {};
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
 
   void informacionCuentas() async {
     try {
-      Map<int, String> cuentas = await CuentaModel.cuentasPorNombre();
+      Map<String, String> cuentas = await CuentaModel.cuentasPorNombre();
       setState(() {
         nombreCuentas = cuentas;
         print(nombreCuentas);
@@ -48,7 +48,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
     }
   }
 
-  void cargarTransferenciasCuentaOrigen(int idCuenta) async {
+  void cargarTransferenciasCuentaOrigen(String idCuenta) async {
     try {
       List<TransferenciaModel> transferenciasUser =
           await TransferenciaModel.cargarTransferenciasPorCuentaOrigen(
@@ -108,7 +108,6 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                                 15), // Redondea la esquina superior izquierda
                           ),
                         ),
-                        iconAlignment: IconAlignment.start,
                         child: const Text(
                           'Cuenta',
                           style: TextStyle(color: Colors.white, fontSize: 14.5),
@@ -129,7 +128,6 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        iconAlignment: IconAlignment.start,
                         child: const Text(
                           'Fecha',
                           style: TextStyle(color: Colors.white, fontSize: 14.5),
@@ -168,7 +166,6 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                                 15), // Redondea la esquina superior izquierda
                           ),
                         ),
-                        iconAlignment: IconAlignment.start,
                         child: const Text(
                           'Cuenta',
                           style: TextStyle(color: Colors.white, fontSize: 14.5),
@@ -189,7 +186,6 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        iconAlignment: IconAlignment.start,
                         child: const Text(
                           'Fecha',
                           style: TextStyle(color: Colors.white, fontSize: 14.5),
@@ -601,7 +597,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
         ),
       ),
       onPressed: () async {
-        if (selectedCuentaId == -1) {
+        if (selectedCuentaId == 'todas') {
           informacionTrasnferencias();
         } else {
           cargarTransferenciasCuentaOrigen(selectedCuentaId!);
@@ -631,7 +627,7 @@ class _TranfersHistoryState extends State<TranfersHistory> {
                 elevation: 16,
                 style: const TextStyle(color: Colors.white),
                 dropdownColor: const Color(0xFF04242C),
-                onChanged: (int? newValue) {
+                onChanged: (String? newValue) {
                   setState(
                     () {
                       selectedCuentaId = newValue;
@@ -654,11 +650,11 @@ class _TranfersHistoryState extends State<TranfersHistory> {
   }
 
   //Método para obtener las cuentas de un usuario por su UID
-  List<DropdownMenuItem<int>> getDropdownCuentas() {
-    List<DropdownMenuItem<int>> items = [];
+  List<DropdownMenuItem<String>> getDropdownCuentas() {
+    List<DropdownMenuItem<String>> items = [];
     nombreCuentas.forEach((key, value) {
       items.add(
-        DropdownMenuItem<int>(
+        DropdownMenuItem<String>(
           value: key,
           child: Text(
             value,
@@ -668,8 +664,8 @@ class _TranfersHistoryState extends State<TranfersHistory> {
     });
     //Añadir la opción al final del DropDown de mostrar todas las cuentas
     items.add(
-      const DropdownMenuItem<int>(
-        value: -1,
+      const DropdownMenuItem<String>(
+        value: 'todas',
         child: Text(
           'Todas',
         ),

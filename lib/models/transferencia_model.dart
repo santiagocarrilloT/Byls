@@ -1,11 +1,12 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
 
 class TransferenciaModel {
-  final int idTransferencia;
+  final String idTransferencia; // ObjectId de MongoDB en texto
   final String uid;
-  final int idCuentaOrigen;
-  final int idCuentaDestino;
-  final double cantidad;
+  final String idCuentaOrigen;
+  final String idCuentaDestino;
+  final double cantidad; // monto_origen
+  final double cantidadDestino; // monto_destino (igual a cantidad si es la misma moneda)
   final String? descripcion;
   final DateTime fechaTransferencia;
 
@@ -15,104 +16,59 @@ class TransferenciaModel {
     required this.idCuentaOrigen,
     required this.idCuentaDestino,
     required this.cantidad,
+    required this.cantidadDestino,
     this.descripcion,
     required this.fechaTransferencia,
   });
 
-  // Método para convertir un mapa en una instancia de CuentaModel
+  // Documento de la colección "transferencias" -> TransferenciaModel
   factory TransferenciaModel.fromMap(Map<String, dynamic> map) {
     return TransferenciaModel(
-      idTransferencia: map['idtransferencia'],
-      uid: map['uid'],
-      idCuentaOrigen: map['id_cuentaorigen'],
-      idCuentaDestino: map['id_cuentadestino'],
-      cantidad: (map['cantidad'] as num).toDouble(),
+      idTransferencia: map['_id'],
+      uid: map['uid'] ?? '',
+      idCuentaOrigen: map['cuenta_origen_id'],
+      idCuentaDestino: map['cuenta_destino_id'],
+      cantidad: ApiService.aDouble(map['monto_origen']),
+      cantidadDestino: ApiService.aDouble(map['monto_destino'] ?? map['monto_origen']),
       descripcion: map['descripcion'],
-      fechaTransferencia: DateTime.parse(map['fecha_transferencia']),
+      fechaTransferencia: DateTime.parse(map['fecha']).toLocal(),
     );
   }
 
-  // Método para convertir una instancia de CuentaModel en un mapa
   Map<String, dynamic> toMap() {
     return {
-      'idtransferencia': idTransferencia,
+      '_id': idTransferencia,
       'uid': uid,
-      'id_cuentaOrigen': idCuentaOrigen,
-      'id_cuentaDestino': idCuentaDestino,
-      'cantidad': cantidad,
+      'cuenta_origen_id': idCuentaOrigen,
+      'cuenta_destino_id': idCuentaDestino,
+      'monto_origen': cantidad,
+      'monto_destino': cantidadDestino,
       'descripcion': descripcion,
-      'fecha_transferencia': fechaTransferencia.toIso8601String(),
+      'fecha': fechaTransferencia.toUtc().toIso8601String(),
     };
   }
 
-  // Método para obtener las cuentas de un usuario por su UID
+  static List<TransferenciaModel> _lista(dynamic data) =>
+      (data as List<dynamic>).map((t) => TransferenciaModel.fromMap(t)).toList();
+
+  // Todas las transferencias del usuario
   static Future<List<TransferenciaModel>> getTransferencias() async {
-    final userId = Supabase.instance.client.auth.currentUser;
-    final transferencias = await Supabase.instance.client
-        .from('transferencias')
-        .select()
-        .eq('uid', userId!.id);
-
-    final List<TransferenciaModel> transferenciasUsuario = [];
-
-    for (final item in transferencias) {
-      transferenciasUsuario.add(TransferenciaModel.fromMap(item));
-    }
-    return transferenciasUsuario;
+    return _lista(await ApiService.get('/transferencias'));
   }
 
-  static Future<List<TransferenciaModel>> cargarTransferenciasPorCuentaOrigen(
-      idCuentaOrigen) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    final transferencias = await Supabase.instance.client
-        .from('transferencias')
-        .select()
-        .eq('uid', userId!)
-        .eq('id_cuentaorigen', idCuentaOrigen);
-    //.order('fecha_transferencia', ascending: false);
-
-    final List<TransferenciaModel> transferenciasUsuario = [];
-
-    for (final item in transferencias) {
-      transferenciasUsuario.add(TransferenciaModel.fromMap(item));
-    }
-    return transferenciasUsuario;
+  static Future<List<TransferenciaModel>> cargarTransferenciasPorCuentaOrigen(String idCuentaOrigen) async {
+    return _lista(await ApiService.get('/transferencias', query: {'cuenta_origen_id': idCuentaOrigen}));
   }
 
-  static Future<List<TransferenciaModel>> cargarTransferenciasPorFecha(periodo,
+  // Periodo: 'Día' | 'Semana' | 'Mes' | 'Año'
+  static Future<List<TransferenciaModel>> cargarTransferenciasPorFecha(String periodo,
       {int? month, int? year}) async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-
-    DateTime now = DateTime.now();
-    DateTime startDate;
-
-    switch (periodo) {
-      case 'Día':
-        startDate = DateTime(now.year, now.month, now.day);
-        break;
-      case 'Semana':
-        startDate = now.subtract(Duration(days: now.weekday - 1));
-        break;
-      case 'Mes':
-        startDate = DateTime(now.year, now.month, 1);
-        break;
-      case 'Año':
-        startDate = DateTime(now.year, 1, 1);
-        break;
-      default:
-        throw ArgumentError('Periodo no válido');
-    }
-    final transferencias = await Supabase.instance.client
-        .from('transferencias')
-        .select()
-        .eq('uid', userId!)
-        .gte('fecha_transferencia', startDate.toIso8601String());
-
-    final List<TransferenciaModel> transferenciasUsuario = [];
-
-    for (final item in transferencias) {
-      transferenciasUsuario.add(TransferenciaModel.fromMap(item));
-    }
-    return transferenciasUsuario;
+    const validos = ['Día', 'Semana', 'Mes', 'Año'];
+    if (!validos.contains(periodo)) throw ArgumentError('Periodo no válido');
+    return _lista(await ApiService.get('/transferencias', query: {
+      'periodo': periodo,
+      'mes': month,
+      'anio': year,
+    }));
   }
 }

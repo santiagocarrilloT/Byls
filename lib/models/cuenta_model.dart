@@ -1,12 +1,13 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
 
 class CuentaModel {
-  final int idCuenta;
+  final String idCuenta; // ObjectId de MongoDB en texto
   final String uid;
   final String nombreCuenta;
   final double saldo;
   final String? tipoMoneda;
   final String? icono;
+  final String? tipoCuenta;
 
   CuentaModel({
     required this.idCuenta,
@@ -15,83 +16,60 @@ class CuentaModel {
     required this.saldo,
     this.tipoMoneda,
     this.icono,
+    this.tipoCuenta,
   });
 
   // Método para obtener el saldo de una cuenta específica
-  static Future<double> getSaldoCuenta(int idCuenta) async {
-    final response = await Supabase.instance.client
-        .from('cuentas')
-        .select('saldo')
-        .eq('idcuenta', idCuenta)
-        .single(); // Obtener solo un resultado
-
-    return (response['saldo'] as num).toDouble();
+  static Future<double> getSaldoCuenta(String idCuenta) async {
+    final response = await ApiService.get('/cuentas/$idCuenta/saldo');
+    return ApiService.aDouble(response['saldo']);
   }
 
-  // Método para convertir un mapa en una instancia de CuentaModel
+  // Método para convertir un mapa (documento de la colección "cuentas") en CuentaModel
   factory CuentaModel.fromMap(Map<String, dynamic> map) {
     return CuentaModel(
-      idCuenta: map['idcuenta'],
-      uid: map['uid'],
-      nombreCuenta: map['nombre_cuenta'],
-      saldo: map['saldo']?.toDouble() ?? 0.0,
-      tipoMoneda: map['tipo_moneda'],
-      icono: map['iconoCuenta'],
+      idCuenta: map['_id'],
+      uid: map['uid'] ?? '',
+      nombreCuenta: map['nombre_cuenta'] ?? '',
+      saldo: ApiService.aDouble(map['saldo']),
+      tipoMoneda: map['moneda'],
+      icono: map['icono_cuenta'],
+      tipoCuenta: map['tipo_cuenta'],
     );
   }
 
-  // Método para convertir una instancia de CuentaModel en un mapa
   Map<String, dynamic> toMap() {
     return {
-      'idcuenta': idCuenta,
+      '_id': idCuenta,
       'uid': uid,
       'nombre_cuenta': nombreCuenta,
       'saldo': saldo,
-      'tipo_moneda': tipoMoneda,
-      'iconoCuenta': icono,
+      'moneda': tipoMoneda,
+      'icono_cuenta': icono,
+      'tipo_cuenta': tipoCuenta,
     };
   }
 
-  // Método para obtener las cuentas de un usuario por su UID
-  static Future<List<CuentaModel>> getCuentas(String userId) async {
-    final cuentas = await Supabase.instance.client
-        .from('cuentas')
-        .select()
-        .eq('uid', userId);
-
-    final List<CuentaModel> cuentasUsuario = [];
-    for (final item in cuentas) {
-      cuentasUsuario.add(CuentaModel.fromMap(item));
-    }
-    return cuentasUsuario;
+  // Cuentas del usuario. El backend filtra por el usuario del token, el
+  // parámetro se conserva para no romper las llamadas existentes.
+  static Future<List<CuentaModel>> getCuentas([String? userId]) async {
+    final List<dynamic> cuentas = await ApiService.get('/cuentas');
+    return cuentas.map((item) => CuentaModel.fromMap(item)).toList();
   }
 
-  static Future<Map<int, String>> cuentasPorNombre() async {
-    final userId = Supabase.instance.client.auth.currentUser;
-    final cuentasNombre = await Supabase.instance.client
-        .from('cuentas')
-        .select()
-        .eq('uid', userId!.id);
-    final Map<int, String> cuentas = {};
-    for (final item in cuentasNombre) {
-      cuentas[item['idcuenta']] = item['nombre_cuenta'];
-    }
-    return cuentas;
+  static Future<Map<String, String>> cuentasPorNombre() async {
+    final cuentas = await getCuentas();
+    return {for (final c in cuentas) c.idCuenta: c.nombreCuenta};
   }
 
-  static Future<List<Map<String, dynamic>>> saldoTotalUsuario(
-      String idUsuario) async {
-    final totalCuentas = await Supabase.instance.client
-        .from('totalcuentasdiario')
-        .select()
-        .eq('uid', idUsuario);
-    final List<Map<String, dynamic>> saldoTotal = [];
-    for (final item in totalCuentas) {
-      saldoTotal.add({
-        'fecha': DateTime.parse(item['fecha']),
-        'total': item['total'],
-      });
-    }
-    return saldoTotal;
+  // Patrimonio total por día (antes tabla "totalcuentasdiario", ahora aggregation en MongoDB)
+  static Future<List<Map<String, dynamic>>> saldoTotalUsuario([String? idUsuario]) async {
+    final List<dynamic> totalCuentas = await ApiService.get('/reportes/saldo-diario');
+    return totalCuentas
+        .map((item) => {
+              'fecha': DateTime.parse(item['fecha']).toLocal(),
+              'total': item['total'],
+            })
+        .toList();
   }
 }

@@ -6,12 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Opciones extends StatefulWidget {
   static bool habilitarPuntuacion = false;
-  static int? selectedCuentaId;
+  static String? selectedCuentaId; // ObjectId de MongoDB
 
   static Future<void> saveValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('habilitarPuntuacion', Opciones.habilitarPuntuacion);
-    prefs.setInt('selectedCuentaId', Opciones.selectedCuentaId!);
+    prefs.setString('selectedCuentaIdMongo', Opciones.selectedCuentaId!);
   }
 
   static Future<bool?> loadPuntuacion() async {
@@ -19,15 +19,16 @@ class Opciones extends StatefulWidget {
     return prefs.getBool('habilitarPuntuacion');
   }
 
-  static Future<int?> loadCuenta() async {
+  static Future<String?> loadCuenta() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('selectedCuentaId');
+    return prefs.getString('selectedCuentaIdMongo');
   }
 
   static Future<void> removeValue() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('habilitarPuntuacion');
     prefs.remove('selectedCuentaId');
+    prefs.remove('selectedCuentaIdMongo');
   }
 
   const Opciones({super.key});
@@ -37,7 +38,7 @@ class Opciones extends StatefulWidget {
 }
 
 class _OpcionesState extends State<Opciones> {
-  Map<int, String> nombreCuentas = {};
+  Map<String, String> nombreCuentas = {};
 
   @override
   void initState() {
@@ -48,7 +49,7 @@ class _OpcionesState extends State<Opciones> {
 
   void informacionCuentas() async {
     try {
-      Map<int, String> cuentas = await CuentaModel.cuentasPorNombre();
+      Map<String, String> cuentas = await CuentaModel.cuentasPorNombre();
       setState(() {
         nombreCuentas = cuentas;
       });
@@ -98,7 +99,7 @@ class _OpcionesState extends State<Opciones> {
                 color: Colors.white,
               ),
               onTap: () => {
-                if (Opciones.selectedCuentaId == 0)
+                if (Opciones.selectedCuentaId == '')
                   {
                     showValidateCambiarCuenta(
                         context, nombreCuentas.keys.first),
@@ -151,7 +152,7 @@ class _OpcionesState extends State<Opciones> {
   }
 
   //Función para mostrar un diálogo de confirmación para seleccionar una cuenta inicial
-  showValidateCambiarCuenta(BuildContext context, int? cuentaSeleccionada) {
+  showValidateCambiarCuenta(BuildContext context, String? cuentaSeleccionada) {
     Widget cancelButton = ElevatedButton(
       style: ButtonStyle(
         backgroundColor:
@@ -222,7 +223,7 @@ class _OpcionesState extends State<Opciones> {
                 elevation: 16,
                 style: const TextStyle(color: Colors.white),
                 dropdownColor: const Color(0xFF04242C),
-                onChanged: (int? newValue) {
+                onChanged: (String? newValue) {
                   setState(
                     () {
                       cuentaSeleccionada = newValue;
@@ -245,11 +246,11 @@ class _OpcionesState extends State<Opciones> {
   }
 
   //Método para obtener las cuentas de un usuario por su UID
-  List<DropdownMenuItem<int>> getDropdownCuentas() {
-    List<DropdownMenuItem<int>> items = [];
+  List<DropdownMenuItem<String>> getDropdownCuentas() {
+    List<DropdownMenuItem<String>> items = [];
     nombreCuentas.forEach((key, value) {
       items.add(
-        DropdownMenuItem<int>(
+        DropdownMenuItem<String>(
           value: key,
           child: Text(
             value,

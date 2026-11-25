@@ -1,102 +1,65 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
+import 'package:byls_app/services/sesion.dart';
 
-//Controladores para la sesión del usuario
+// Controladores para la sesión del usuario.
+// Antes usaba Supabase Auth; ahora los usuarios viven en MongoDB (colección
+// "usuarios") y el backend entrega un token JWT.
 class AuthController {
-  final _client = Supabase.instance.client;
-
   Future<void> signInCt(String email, String password) async {
-    try {
-      await _client.auth.signInWithPassword(email: email, password: password);
-    } catch (e) {
-      throw Exception(e);
-    }
+    final r = await ApiService.post('/auth/login', {'email': email.trim(), 'password': password});
+    await Sesion.guardar(r['token'], r['usuario']);
   }
 
+  // Crea el usuario y deja la sesión iniciada (ya no hay correo de confirmación).
   Future<void> signUpCt(String email, String password) async {
-    try {
-      await _client.auth.signUp(email: email, password: password);
-    } catch (e) {
-      throw Exception(e);
-    }
+    final r = await ApiService.post('/auth/registro', {'email': email.trim(), 'password': password});
+    await Sesion.guardar(r['token'], r['usuario']);
   }
 
   Future<void> signOutCt() async {
-    try {
-      await _client.auth.signOut();
-    } catch (e) {
-      throw Exception(e);
-    }
+    await Sesion.cerrar();
   }
 
+  // Genera un código de recuperación de 6 dígitos. Como no hay servicio de
+  // correo, el código aparece en la consola del backend (terminal de npm run dev).
   Future<void> resetPasswordCt(String email) async {
-    try {
-      await _client.auth.resetPasswordForEmail(
-        email,
-      );
-    } catch (e) {
-      throw Exception(e);
-    }
+    await ApiService.post('/auth/recuperar', {'email': email.trim()});
   }
 
+  // Verifica el código y deja la sesión iniciada para poder cambiar la contraseña.
   Future<bool> verifyOTPandChangePassword(String otp, String email) async {
     try {
-      final response = await _client.auth.verifyOTP(
-        email: email,
-        token: otp,
-        type: OtpType.recovery,
-      );
+      final r = await ApiService.post('/auth/verificar-codigo', {'email': email.trim(), 'codigo': otp.trim()});
+      await Sesion.guardar(r['token'], r['usuario']);
+      return true;
+    } on ApiException catch (e) {
+      if (e.status == 400) return false;
+      rethrow;
+    }
+  }
 
-      // Verifica si el correo del usuario es igual al correo ingresado
-      if (response.user?.email == email) {
-        return true;
-      } else {
+  Future<void> updatePasswordCt(String newPassword) async {
+    if (!Sesion.activa) throw Exception('No hay una sesión activa');
+    await ApiService.post('/auth/cambiar-password', {'nueva': newPassword});
+  }
+
+  UsuarioSesion? get currentUser => Sesion.usuario;
+
+  // Revisa si hay una sesión guardada y si el backend la sigue aceptando.
+  Future<bool> verifySesion() async {
+    await Sesion.cargar();
+    if (!Sesion.activa) return false;
+    try {
+      await ApiService.get('/auth/yo');
+      return true;
+    } on ApiException catch (e) {
+      if (e.status == 401) {
+        await Sesion.cerrar();
         return false;
       }
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  Future<void> updatePasswordCt(String new_password) async {
-    final session = _client.auth.currentSession;
-    if (session == null) {
-      throw Exception('No hay una sesión activa');
-    }
-    try {
-      await _client.auth.updateUser(UserAttributes(password: new_password));
-    } catch (e) {
-      throw Exception(e);
-    }
-  }
-
-  User? get currentUser => _client.auth.currentUser;
-
-  // Función para insertar una transacción
-  Future<void> insertarTransaccion(
-      String descripcion,
-      String nombre_categoria,
-      double montoTransaccion,
-      String tipoTransaccion,
-      DateTime fechaTransaccion) async {
-    await _client.from('transacciones').insert(
-      {
-        'id_cuenta': '5',
-        'descripcion': descripcion,
-        'monto_transaccion': montoTransaccion,
-        'tipo_transaccion': tipoTransaccion,
-        'fecha_transaccion': fechaTransaccion.toIso8601String(),
-        'nombre_categoria': nombre_categoria,
-        // 'id_cuenta': idCuenta, // Añádelo cuando tengas el id_cuenta
-      },
-    );
-  }
-
-  Future<bool> verifySesion() async {
-    //final session = _client.accessToken
-    final session = _client.auth.currentSession;
-    if (session == null) {
-      return false;
-    } else {
+      return true;
+    } catch (_) {
+      // Backend apagado o sin red: se conserva la sesión guardada.
       return true;
     }
   }

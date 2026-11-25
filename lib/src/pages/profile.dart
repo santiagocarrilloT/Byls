@@ -2,7 +2,6 @@ import 'package:byls_app/models/user_model.dart';
 import 'package:byls_app/src/pages/optionsSettings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:byls_app/controllers/auth_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -99,7 +98,7 @@ class _ProfileViewState extends State<ProfileView> {
                       },
                     ),
                     ListTile(
-                      leading: const Icon(FontAwesomeIcons.receipt,
+                      leading: const Icon(Icons.receipt_long,
                           color: Colors.white),
                       title: const Text(
                         "Privacidad",

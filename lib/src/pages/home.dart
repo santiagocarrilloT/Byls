@@ -32,7 +32,7 @@ class _HomeState extends State<Home> {
   //Inicializar controlador de ingresos
   IngresosController ingresosController = IngresosController();
   List<CuentaModel> cuentas = [];
-  int? selectedCuentaId;
+  String? selectedCuentaId;
   double saldoCuenta = 0.0;
   String tipoMoneda = 'USD';
   List<bool> _selections = [false, false, false, false, true];
@@ -56,7 +56,7 @@ class _HomeState extends State<Home> {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
         //Opciones para seleccionar la cuenta por defecto
-        if (Opciones.selectedCuentaId == 0 ||
+        if (Opciones.selectedCuentaId == '' ||
             Opciones.selectedCuentaId == null) {
           selectedCuentaId = cuentas[0].idCuenta;
         } else {
@@ -71,7 +71,7 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Future<void> cargarSaldoCuenta(int cuentaId) async {
+  Future<void> cargarSaldoCuenta(String cuentaId) async {
     final cuentaSeleccionada =
         cuentas.firstWhere((cuenta) => cuenta.idCuenta == cuentaId);
     setState(() {
@@ -271,7 +271,7 @@ class _HomeState extends State<Home> {
                 elevation: 16,
                 style: const TextStyle(color: Color(0xFFFFFFFF)),
                 dropdownColor: const Color(0xFF04242C),
-                onChanged: (int? newValue) {
+                onChanged: (String? newValue) {
                   setState(
                     () {
                       selectedCuentaId = newValue;
@@ -280,8 +280,8 @@ class _HomeState extends State<Home> {
                     },
                   );
                 },
-                items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
-                  return DropdownMenuItem<int>(
+                items: cuentas.map<DropdownMenuItem<String>>((CuentaModel cuenta) {
+                  return DropdownMenuItem<String>(
                     value: cuenta.idCuenta,
                     child: Text(
                       cuenta.nombreCuenta,
