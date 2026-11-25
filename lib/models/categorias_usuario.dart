@@ -1,14 +1,14 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
 
 class CategoriasusuarioModel {
-  final int idCategoria;
+  final String idCategoria; // ObjectId de MongoDB en texto
   final String uid;
   final String nombreCategoria;
-  final String colorCategoria;
-  final String tipoCategoria;
+  final String colorCategoria; // formato 0xFFRRGGBB
+  final String tipoCategoria; // 'Gasto' | 'Ingreso'
   final String iconoCategoria;
+  final bool esSistema;
 
-  // Constructor privado para evitar la instanciación directa
   CategoriasusuarioModel._({
     required this.uid,
     required this.idCategoria,
@@ -16,78 +16,38 @@ class CategoriasusuarioModel {
     required this.colorCategoria,
     required this.tipoCategoria,
     required this.iconoCategoria,
+    required this.esSistema,
   });
 
-  // Método para convertir un mapa en una instancia de CategoriasusuarioModel
+  // Documento de la colección "categorias" -> CategoriasusuarioModel
   factory CategoriasusuarioModel.fromMap(Map<String, dynamic> map) {
     return CategoriasusuarioModel._(
-      idCategoria: map['id_categoria'],
-      uid: map['uid'],
-      nombreCategoria: map['nombre_categoria'],
-      colorCategoria: map['color_categoria'],
-      tipoCategoria: map['tipo_categoria'],
-      iconoCategoria: map['icono_categoria'],
+      idCategoria: map['_id'],
+      uid: map['uid'] ?? '',
+      nombreCategoria: map['nombre_categoria'] ?? '',
+      colorCategoria: map['color_categoria'] ?? '0xFF9E9E9E',
+      tipoCategoria: ApiService.capitalizar(map['tipo_categoria']),
+      iconoCategoria: map['icono_categoria'] ?? '',
+      esSistema: map['es_sistema'] == true,
     );
   }
 
-  // Método para obtener las categorías de un usuario por su UID
-  static Future<List<CategoriasusuarioModel>> getCategorias(
-      String userId) async {
-    final categorias = await Supabase.instance.client
-        .from('categoriasusuario')
-        .select()
-        .eq('uid', userId) as List<dynamic>?;
-
-    // Convertimos los datos a una lista de CategoriasusuarioModel
-    final List<CategoriasusuarioModel> categoriasUsuario = [];
-    if (categorias != null) {
-      for (final item in categorias) {
-        // Crea la instancia usando el fromMap
-        categoriasUsuario.add(CategoriasusuarioModel.fromMap(item));
-      }
-    }
-    return categoriasUsuario;
+  // Categorías creadas por el usuario (las del sistema ya vienen fijas en
+  // lib/models/categorias.dart, por eso se piden con solo_usuario=true).
+  static Future<List<CategoriasusuarioModel>> getCategorias([String? userId]) async {
+    final List<dynamic> categorias = await ApiService.get('/categorias', query: {'solo_usuario': 'true'});
+    return categorias.map((item) => CategoriasusuarioModel.fromMap(item)).toList();
   }
 
-  // Método para obtener SOLO el nombre de las categorías de un usuario por su ID
-  static Future<Map<String, String>> getCategoriasNombre(String userId) async {
-    final categorias = await getCategorias(userId);
-
-    Map<String, String> categoriasMap() {
-      return {
-        for (var cat in categorias) cat.nombreCategoria: cat.colorCategoria
-      };
-    }
-
-    // Convertimos los datos a una lista de CategoriasusuarioModel
-    /* final List<CategoriasusuarioModel> categoriasUsuario = [];
-    if (categorias != null) {
-      for (final item in categorias) {
-        // Crea la instancia usando el fromMap
-        categoriasUsuario.add(CategoriasusuarioModel.fromMap(item));
-      }
-    } */
-    return categoriasMap();
+  // nombre -> color
+  static Future<Map<String, String>> getCategoriasNombre([String? userId]) async {
+    final categorias = await getCategorias();
+    return {for (var cat in categorias) cat.nombreCategoria: cat.colorCategoria};
   }
 
-  // Método para obtener SOLO el icono de las categorías de un usuario por su ID
-  static Future<Map<String, String>> getCategoriasIcono(String userId) async {
-    final categorias = await getCategorias(userId);
-
-    Map<String, String> categoriasMap() {
-      return {
-        for (var cat in categorias) cat.nombreCategoria: cat.iconoCategoria
-      };
-    }
-
-    // Convertimos los datos a una lista de CategoriasusuarioModel
-    /* final List<CategoriasusuarioModel> categoriasUsuario = [];
-    if (categorias != null) {
-      for (final item in categorias) {
-        // Crea la instancia usando el fromMap
-        categoriasUsuario.add(CategoriasusuarioModel.fromMap(item));
-      }
-    } */
-    return categoriasMap();
+  // nombre -> icono
+  static Future<Map<String, String>> getCategoriasIcono([String? userId]) async {
+    final categorias = await getCategorias();
+    return {for (var cat in categorias) cat.nombreCategoria: cat.iconoCategoria};
   }
 }

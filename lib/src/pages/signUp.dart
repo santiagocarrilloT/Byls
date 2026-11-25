@@ -321,8 +321,8 @@ class Botones extends StatelessWidget {
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Error al crear la cuenta'),
+                  SnackBar(
+                    content: Text('Error al crear la cuenta: $capturaError'),
                     backgroundColor: Colors.red,
                   ),
                 );

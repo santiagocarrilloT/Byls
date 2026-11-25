@@ -278,7 +278,7 @@ class Botones extends StatelessWidget {
                 if (capturaError.contains('user-disabled')) {
                   return onError('Usuario deshabilitado');
                 }
-                return onError('Error desconocido');
+                return onError(capturaError.replaceFirst('Exception: ', ''));
               }
             },
             style: ButtonStyle(

@@ -176,11 +176,31 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                     width: double.infinity,
                     height: 40,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        // Validaciones antes de llamar al backend
+                        final saldo = double.tryParse(_cantidadController.text
+                            .trim()
+                            .replaceAll('.', '')
+                            .replaceAll(',', '.'));
+                        String? problema;
+                        if (_nombreController.text.trim().isEmpty) {
+                          problema = 'Escribe un nombre para la cuenta';
+                        } else if (saldo == null) {
+                          problema = 'Escribe el saldo solo con números (ej. 100000)';
+                        } else if (selectedCategory == null) {
+                          problema = 'Selecciona un ícono para la cuenta';
+                        }
+                        if (problema != null) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(problema),
+                            backgroundColor: Colors.red,
+                          ));
+                          return;
+                        }
                         try {
                           if (cuenta == null) {
-                            cuentaController.createCuenta(
-                              double.parse(_cantidadController.text),
+                            await cuentaController.createCuenta(
+                              saldo!,
                               _nombreController.text,
                               selectedCategory!,
                               'COP',
@@ -191,8 +211,8 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                               backgroundColor: Colors.green,
                             ));
                           } else {
-                            cuentaController.updateCuenta(
-                              double.parse(_cantidadController.text),
+                            await cuentaController.updateCuenta(
+                              saldo!,
                               _nombreController.text,
                               selectedCategory!,
                               'COP',
@@ -208,11 +228,16 @@ class _NewAccountMoneyState extends State<NewAccountMoney> {
                           GoRouter.of(context).go('/app_entry');
                         } catch (e) {
                           //Mens
+                          // Muestra el motivo real (ej. backend apagado o sesión vencida)
+                          final detalle = e.toString().contains('Failed to fetch') ||
+                                  e.toString().contains('ClientException')
+                              ? 'No hay conexión con el backend. ¿Está corriendo npm run dev?'
+                              : e.toString();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(cuenta == null
-                                  ? 'Error al crear cuenta'
-                                  : 'Error al actualizar cuenta'),
+                                  ? 'Error al crear cuenta: $detalle'
+                                  : 'Error al actualizar cuenta: $detalle'),
                               backgroundColor: Colors.red,
                             ),
                           );

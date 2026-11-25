@@ -54,11 +54,11 @@ class _NavigationClassState extends State<NavigationClass> {
           onTap: (index) async {
             //Cargar datos guardados con shared preferences
             bool? habilitarPuntuacion = await Opciones.loadPuntuacion();
-            int? selectedCuentaId = await Opciones.loadCuenta();
+            String? selectedCuentaId = await Opciones.loadCuenta();
 
             // Manejar valores nulos proporcionando valores predeterminados
             Opciones.habilitarPuntuacion = habilitarPuntuacion ?? false;
-            Opciones.selectedCuentaId = selectedCuentaId ?? 0;
+            Opciones.selectedCuentaId = selectedCuentaId ?? '';
             setState(() {
               if (seleccionarVentana != null) {
                 _selectedIndex = seleccionarVentana!;

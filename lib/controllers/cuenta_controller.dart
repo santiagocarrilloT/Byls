@@ -1,26 +1,20 @@
-import 'package:byls_app/controllers/ingresos_controller.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
 
 class CuentaController {
-  IngresosController ingresosController = IngresosController();
   Future<void> createCuenta(
     double saldo,
     String nombre,
     String iconoCategoria,
-    String tipoMoneda,
-  ) async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) {
-      return;
-    }
-    await Supabase.instance.client.from('cuentas').insert({
-      'uid': user.id,
-      'saldo': saldo,
+    String tipoMoneda, {
+    String tipoCuenta = 'banco', // tarjeta | banco | efectivo | billetera
+  }) async {
+    await ApiService.post('/cuentas', {
       'nombre_cuenta': nombre,
-      'tipo_moneda': tipoMoneda,
-      'iconoCuenta': iconoCategoria,
+      'saldo_inicial': saldo,
+      'moneda': tipoMoneda,
+      'icono_cuenta': iconoCategoria,
+      'tipo_cuenta': tipoCuenta,
     });
-    //print(response.toString());
   }
 
   Future<void> updateCuenta(
@@ -30,86 +24,49 @@ class CuentaController {
     String tipoMoneda,
     String idCuenta,
   ) async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) {
-      return;
-    }
-    await Supabase.instance.client.from('cuentas').update({
+    await ApiService.put('/cuentas/$idCuenta', {
       'saldo': saldo,
       'nombre_cuenta': nombre,
-      'tipo_moneda': tipoMoneda,
-      'iconoCuenta': iconoCategoria,
-    }).eq('idcuenta', idCuenta);
+      'moneda': tipoMoneda,
+      'icono_cuenta': iconoCategoria,
+    });
   }
 
+  // El backend borra la cuenta, sus movimientos y sus transferencias en una sola operación.
   Future<void> deleteCuenta(String idCuenta) async {
-    ingresosController.deleteIngresoPorCuenta(idCuenta);
-    await Supabase.instance.client
-        .from('cuentas')
-        .delete()
-        .eq('idcuenta', idCuenta);
+    await ApiService.delete('/cuentas/$idCuenta');
   }
 
+  // ---------------------------------------------------------------------------
+  // Los tres métodos siguientes ya NO hacen nada: con MongoDB el backend
+  // actualiza el saldo automáticamente (en la misma sesión transaccional) cada
+  // vez que se crea, edita o borra un movimiento o una transferencia (RF-07).
+  // Se dejan para no romper las pantallas que todavía los llaman; si se
+  // mantuvieran activos, el saldo se movería dos veces.
+  // ---------------------------------------------------------------------------
+  @Deprecated('El backend actualiza el saldo. Se puede borrar la llamada.')
   Future<void> actualizarSaldo(
     double saldo,
     String idCuenta,
     double montoTransaccion,
     bool tipoTransaccion,
-  ) async {
-    //Si tipoTransaccion es true, es un ingreso (Suma), si es false, es un egreso (Resta)
-    print(tipoTransaccion);
-    await Supabase.instance.client.from('cuentas').update({
-      'saldo': saldo + (tipoTransaccion ? montoTransaccion : -montoTransaccion),
-    }).eq('idcuenta', idCuenta);
-  }
+  ) async {}
 
+  @Deprecated('El backend actualiza el saldo. Se puede borrar la llamada.')
   Future<void> actualizarSaldoMonto(
     double saldo,
     String idCuenta,
     double montoTransaccionAnterior,
     double montoTransaccionNueva,
     bool tipoTransaccion,
-  ) async {
-    switch (tipoTransaccion) {
-      case true:
-        //(Gastos) Si tipoTransaccion es true, primero se suma el monto anterior y luego se resta el nuevo monto
-        saldo = saldo + montoTransaccionAnterior;
-        saldo = saldo - montoTransaccionNueva;
-        break;
-      case false:
-        //(Ingresos) Si tipoTransaccion es false, primero se resta el monto anterior y luego se suma el nuevo monto
-        saldo = saldo - montoTransaccionAnterior;
-        saldo = saldo + montoTransaccionNueva;
-        break;
-    }
+  ) async {}
 
-    await Supabase.instance.client.from('cuentas').update({
-      'saldo': saldo,
-    }).eq('idcuenta', idCuenta);
-  }
-
+  @Deprecated('El backend actualiza el saldo. Se puede borrar la llamada.')
   Future<void> actualizarSaldoTipoTransaccion(
     double saldo,
     String idCuenta,
     double montoTransaccionAnterior,
     double montoTransaccionNueva,
     bool tipoTransaccion,
-  ) async {
-    switch (tipoTransaccion) {
-      case true:
-        //(Gastos a Ingresos) Si tipoTransaccion es true, primero se suma el monto anterior y luego se resta el nuevo monto
-        saldo = saldo + montoTransaccionAnterior;
-        saldo = saldo + montoTransaccionNueva;
-        break;
-      case false:
-        //(Ingresos a Gastos) Si tipoTransaccion es false, primero se resta el monto anterior y luego se suma el nuevo monto
-        saldo = saldo - montoTransaccionAnterior;
-        saldo = saldo - montoTransaccionNueva;
-        break;
-    }
-
-    await Supabase.instance.client.from('cuentas').update({
-      'saldo': saldo,
-    }).eq('idcuenta', idCuenta);
-  }
+  ) async {}
 }

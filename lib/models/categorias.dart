@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 // Clase de Categoría
 class Categoria {
-  final int id;
+  final Object id; // int en las categorías fijas, String (ObjectId) en las de MongoDB
   final String nombre;
   final IconData icono;
   final Color color;

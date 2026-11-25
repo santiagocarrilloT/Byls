@@ -1,0 +1,27 @@
+{
+  "name": "byls-backend",
+  "version": "1.0.0",
+  "description": "API REST de Byls sobre MongoDB (base de datos finanzas)",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "init-db": "node scripts/init-db.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^6.10.0"
+  },
+  "optionalDependencies": {
+    "firebase-admin": "^12.7.0"
+  }
+}

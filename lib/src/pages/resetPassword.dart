@@ -212,6 +212,7 @@ class Botones extends StatelessWidget {
                 if (capturaError.contains('User not found')) {
                   return onError('Correo no válido');
                 }
+                return onError(capturaError.replaceFirst('Exception: ', ''));
               }
             },
             style: ButtonStyle(

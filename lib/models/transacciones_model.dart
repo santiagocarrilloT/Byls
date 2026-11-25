@@ -1,15 +1,15 @@
-// ignore: depend_on_referenced_packages
-import 'package:byls_app/models/cuenta_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
 
 class IncomeModel {
-  final int idTransaccion;
-  final int? idCuenta; // Relaciona con CuentaModel, puede ser null
+  final String idTransaccion; // ObjectId de MongoDB en texto
+  final String? idCuenta; // Relaciona con CuentaModel
   final double montoTransaccion;
-  final String tipoTransaccion;
+  final String tipoTransaccion; // 'Ingreso' | 'Gasto'
   final DateTime fechaTransaccion;
-  final String? descripcion; // Puede ser null
-  final String? nombreCategoria; // Puede ser null
+  final String? descripcion;
+  final String? nombreCategoria;
+  final String? idCategoria;
+  final String? colorCategoria;
 
   IncomeModel({
     required this.idTransaccion,
@@ -19,139 +19,77 @@ class IncomeModel {
     required this.fechaTransaccion,
     this.descripcion,
     this.nombreCategoria,
+    this.idCategoria,
+    this.colorCategoria,
   });
 
-  // Crear una instancia de IncomeModel desde un Map
+  // Documento de la colección "transacciones" -> IncomeModel
   factory IncomeModel.fromMap(Map<String, dynamic> map) {
+    final categoria = map['categoria'] as Map<String, dynamic>?;
     return IncomeModel(
-      idTransaccion: map['id_transaccion'],
-      idCuenta: map['id_cuenta'],
-      montoTransaccion: (map['monto_transaccion'] as num).toDouble(),
-      tipoTransaccion: map['tipo_transaccion'],
-      fechaTransaccion: DateTime.parse(map['fecha_transaccion']),
+      idTransaccion: map['_id'],
+      idCuenta: map['cuenta_id'],
+      montoTransaccion: ApiService.aDouble(map['monto']),
+      tipoTransaccion: ApiService.capitalizar(map['tipo']),
+      fechaTransaccion: DateTime.parse(map['fecha']).toLocal(),
       descripcion: map['descripcion'],
-      nombreCategoria: map['nombre_categoria'],
+      nombreCategoria: categoria?['nombre_categoria'],
+      idCategoria: categoria?['id'],
+      colorCategoria: categoria?['color_categoria'],
     );
   }
 
-  // Convertir la instancia de IncomeModel a Map
   Map<String, dynamic> toMap() {
     return {
-      'id_transaccion': idTransaccion,
-      'id_cuenta': idCuenta,
-      'monto_transaccion': montoTransaccion,
-      'tipo_transaccion': tipoTransaccion,
-      'fecha_transaccion': fechaTransaccion.toIso8601String(),
+      '_id': idTransaccion,
+      'cuenta_id': idCuenta,
+      'monto': montoTransaccion,
+      'tipo': tipoTransaccion.toLowerCase(),
+      'fecha': fechaTransaccion.toUtc().toIso8601String(),
       'descripcion': descripcion,
       'nombre_categoria': nombreCategoria,
     };
   }
 
-  // Getter para saber si es un ingreso
   bool get esIngreso => tipoTransaccion.toLowerCase() == 'ingreso';
 
-  // Agregar getters para las propiedades que se están usando en home.dart
-  DateTime get fecha =>
-      fechaTransaccion; // Acceder a la fecha de la transacción
-  String get nombreTransaccion =>
-      descripcion ?? 'Transacción'; // Descripción como nombre
-  String get tipo => tipoTransaccion; // Tipo de transacción
-  double get monto => montoTransaccion; // Monto de la transacción
-  double get cantidadTransaccion => montoTransaccion; // Agregar este getter
+  // Getters usados en home.dart
+  DateTime get fecha => fechaTransaccion;
+  String get nombreTransaccion => descripcion ?? 'Transacción';
+  String get tipo => tipoTransaccion;
+  double get monto => montoTransaccion;
+  double get cantidadTransaccion => montoTransaccion;
 
-  // Método para traer todas las transacciones
+  static List<IncomeModel> _lista(dynamic data) =>
+      (data as List<dynamic>).map((t) => IncomeModel.fromMap(t)).toList();
+
+  // Todas las transacciones del usuario
   static Future<List<IncomeModel>> getTodasTransacciones() async {
-    final response =
-        await Supabase.instance.client.from('transacciones').select();
-
-    final List<dynamic> data = response;
-    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+    return _lista(await ApiService.get('/transacciones'));
   }
 
-  // Método para traer las transacciones filtradas por idCuenta
-  static Future<List<IncomeModel>> getTransacciones(int idCuenta) async {
-    final response = await Supabase.instance.client
-        .from('transacciones')
-        .select()
-        .eq('id_cuenta', idCuenta); // Filtrando por id_cuenta
-
-    final List<dynamic> data = response;
-    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+  // Transacciones de una cuenta
+  static Future<List<IncomeModel>> getTransacciones(String idCuenta) async {
+    return _lista(await ApiService.get('/transacciones', query: {'cuenta_id': idCuenta}));
   }
 
-  static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(
-      String periodo) async {
-    final userId = Supabase.instance.client.auth.currentUser!.id;
-    DateTime now = DateTime.now();
-    DateTime startDate;
-
-    switch (periodo) {
-      case 'Día':
-        startDate = DateTime(now.year, now.month, now.day);
-        break;
-      case 'Semana':
-        startDate = now.subtract(Duration(days: now.weekday - 1));
-        break;
-      case 'Mes':
-        startDate = DateTime(now.year, now.month, 1);
-        break;
-      case 'Año':
-        startDate = DateTime(now.year, 1, 1);
-        break;
-      default:
-        throw ArgumentError('Periodo no válido');
-    }
-
-    final response = await Supabase.instance.client
-        .from('transacciones')
-        .select()
-        .gte('fecha_transaccion', startDate.toIso8601String())
-        .lte('fecha_transaccion', now.toIso8601String());
-
-    final List<dynamic> data = response;
-
-    //Obtener las cuentas del usuario
-    final Map<int, String> cuentas = await CuentaModel.cuentasPorNombre();
-    //Eliminar las transacciones que no pertenecen al usuario
-    data.removeWhere((element) => !cuentas.containsKey(element['id_cuenta']));
-
-    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+  // Periodo: 'Día' | 'Semana' | 'Mes' | 'Año'
+  static Future<List<IncomeModel>> getTransaccionesFiltradasPorPeriodo(String periodo) async {
+    const validos = ['Día', 'Semana', 'Mes', 'Año'];
+    if (!validos.contains(periodo)) throw ArgumentError('Periodo no válido');
+    return _lista(await ApiService.get('/transacciones', query: {'periodo': periodo}));
   }
 
-  // Nuevo: Método para traer transacciones filtradas por periodo
+  // Transacciones de una cuenta en un periodo; month (1-12) / year opcionales
   static Future<List<IncomeModel>> transaccionesFiltradasPeriodoPersonalizado(
-      String periodo, int cuentaId,
+      String periodo, String cuentaId,
       {int? month, int? year}) async {
-    DateTime now = DateTime.now();
-    DateTime startDate;
-    DateTime endDate;
-
-    if (periodo == 'Mes' && month != null) {
-      startDate = DateTime(now.year, month, 1);
-      endDate =
-          DateTime(now.year, month + 1, 1).subtract(const Duration(days: 1));
-    } else if (periodo == 'Año' && year != null) {
-      startDate = DateTime(year, 1, 1);
-      endDate = DateTime(year + 1, 1, 1).subtract(const Duration(days: 1));
-    } else if (periodo == 'Día') {
-      startDate = DateTime(now.year, now.month, now.day);
-      endDate = now;
-    } else if (periodo == 'Semana') {
-      startDate = now.subtract(Duration(days: now.weekday - 1));
-      endDate = startDate.add(const Duration(days: 6));
-    } else {
-      startDate = DateTime(1970); // Para "Todos"
-      endDate = now;
-    }
-
-    final response = await Supabase.instance.client
-        .from('transacciones')
-        .select()
-        .eq('id_cuenta', cuentaId)
-        .gte('fecha_transaccion', startDate.toIso8601String())
-        .lte('fecha_transaccion', endDate.toIso8601String());
-
-    final List<dynamic> data = response;
-    return data.map((transaccion) => IncomeModel.fromMap(transaccion)).toList();
+    const validos = ['Día', 'Semana', 'Mes', 'Año'];
+    return _lista(await ApiService.get('/transacciones', query: {
+      'cuenta_id': cuentaId,
+      'periodo': validos.contains(periodo) ? periodo : 'Todos',
+      'mes': periodo == 'Mes' ? month : null,
+      'anio': periodo == 'Año' ? year : null,
+    }));
   }
 }

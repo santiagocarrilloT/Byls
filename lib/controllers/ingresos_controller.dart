@@ -1,25 +1,25 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/api_service.dart';
 
 class IngresosController {
-  // Función para insertar una transacción
+  // Crea un ingreso o gasto. El backend busca la categoría por nombre, calcula
+  // monto_base y actualiza el saldo de la cuenta.
   Future<void> insertarTransaccion(
       String idCuenta,
       String descripcion,
       String nombreCategoria,
       double montoTransaccion,
-      String tipoTransaccion,
-      DateTime fechaTransaccion) async {
-    await Supabase.instance.client.from('transacciones').insert(
-      {
-        'id_cuenta': idCuenta,
-        'descripcion': descripcion,
-        'monto_transaccion': montoTransaccion,
-        'tipo_transaccion': tipoTransaccion,
-        'fecha_transaccion': fechaTransaccion.toIso8601String(),
-        'nombre_categoria': nombreCategoria,
-        // 'id_cuenta': idCuenta, // Añádelo cuando tengas el id_cuenta
-      },
-    );
+      String tipoTransaccion, // 'Ingreso' | 'Gasto'
+      DateTime fechaTransaccion,
+      {String? idLocal}) async {
+    await ApiService.post('/transacciones', {
+      'cuenta_id': idCuenta,
+      'descripcion': descripcion,
+      'nombre_categoria': nombreCategoria,
+      'monto': montoTransaccion,
+      'tipo': tipoTransaccion.toLowerCase(),
+      'fecha': fechaTransaccion.toUtc().toIso8601String(),
+      if (idLocal != null) 'id_local': idLocal,
+    });
   }
 
   Future<void> updateIngreso(
@@ -31,27 +31,21 @@ class IngresosController {
     DateTime fechaTransaccion,
     String nombreCategoria,
   ) async {
-    await Supabase.instance.client.from('transacciones').update({
-      'id_cuenta': idCuenta,
+    await ApiService.put('/transacciones/$idIngreso', {
+      'cuenta_id': idCuenta,
       'descripcion': descripcion,
-      'monto_transaccion': montoTransaccion,
-      'tipo_transaccion': tipoTransaccion,
-      'fecha_transaccion': fechaTransaccion.toIso8601String(),
+      'monto': montoTransaccion,
+      'tipo': tipoTransaccion.toLowerCase(),
+      'fecha': fechaTransaccion.toUtc().toIso8601String(),
       'nombre_categoria': nombreCategoria,
-    }).eq('id_transaccion', idIngreso);
+    });
   }
 
   Future<void> deleteIngreso(String idIngreso) async {
-    await Supabase.instance.client
-        .from('transacciones')
-        .delete()
-        .eq('id_transaccion', idIngreso);
+    await ApiService.delete('/transacciones/$idIngreso');
   }
 
   Future<void> deleteIngresoPorCuenta(String idCuenta) async {
-    await Supabase.instance.client
-        .from('transacciones')
-        .delete()
-        .eq('id_cuenta', idCuenta);
+    await ApiService.delete('/transacciones', query: {'cuenta_id': idCuenta});
   }
 }

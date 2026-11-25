@@ -33,7 +33,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
   bool isGastosSelected = true;
   String? selectedCategory;
   DateTime selectedDate = DateTime.now();
-  int? selectedCuentaId;
+  String? selectedCuentaId;
 
   final TextEditingController _cantidadController = TextEditingController();
   final TextEditingController _descripcionController = TextEditingController();
@@ -308,7 +308,7 @@ class _TransaccionEditState extends State<TransaccionEdit> {
                           ),
                         ))
                     .toList(),
-                onChanged: (int? newValue) {
+                onChanged: (String? newValue) {
                   setState(() {
                     selectedCuentaId = newValue;
                   });

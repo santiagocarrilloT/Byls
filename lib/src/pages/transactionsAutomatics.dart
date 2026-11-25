@@ -3,18 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:byls_app/services/sesion.dart';
 import 'package:workmanager/workmanager.dart';
 
 void callBackDispatcher() {
   Workmanager().executeTask(
     (task, inputData) async {
-//Inicialización de Supabase
-      await Supabase.initialize(
-        url: 'https://vjfdvqliwmkhlkigitnt.supabase.co/',
-        anonKey:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqZmR2cWxpd21raGxraWdpdG50Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjU5MDQyMTMsImV4cCI6MjA0MTQ4MDIxM30._Q3oHnqPGwFElb9N-VL2KgW0_-V6LNjy1uygEQDIRrI',
-      );
+// Carga la sesión guardada para que las llamadas a la API lleven el token
+      await Sesion.cargar();
 
       IngresosController ingresosController = IngresosController();
       final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -41,6 +37,8 @@ void callBackDispatcher() {
           montoTransaccion!,
           tipoTransaccion!,
           fechaTransaccion,
+          // Si Workmanager reintenta la tarea, el backend no duplica el movimiento.
+          idLocal: 'auto-$idCuenta-${inputData['fechaHoraNotificacion']}',
         );
         print('TRANSACCION INSERTADA///////////////////');
 

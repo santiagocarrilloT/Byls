@@ -276,7 +276,7 @@ class Botones extends StatelessWidget {
                   return onError(
                       'La nueva contraseña debe ser diferente a la anterior');
                 }
-                //return onError(error.toString());
+                return onError(capturaError.replaceFirst('Exception: ', ''));
               }
             },
             style: ButtonStyle(

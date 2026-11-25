@@ -33,7 +33,7 @@ class _GraphicsViewState extends State<GraphicsView> {
   String selectedType = 'Ingreso';
   IngresosController ingresosController = IngresosController();
   List<CuentaModel> cuentas = [];
-  int? selectedCuentaId;
+  String? selectedCuentaId;
   Map<String, String> categoriasUsuariosColor = {};
   Map<String, String> categoriasUsuariosIcono = {};
   FormatoUtils formatoUtils = FormatoUtils();
@@ -57,7 +57,7 @@ class _GraphicsViewState extends State<GraphicsView> {
       cuentas = cuentasUsuario;
       if (cuentas.isNotEmpty) {
         //Opciones para seleccionar la cuenta por defecto
-        if (Opciones.selectedCuentaId == 0 ||
+        if (Opciones.selectedCuentaId == '' ||
             Opciones.selectedCuentaId == null) {
           selectedCuentaId = cuentas[0].idCuenta;
         } else {
@@ -71,7 +71,7 @@ class _GraphicsViewState extends State<GraphicsView> {
   }
 
   // Método para obtener los ingresos a partir del idCuenta seleccionado
-  void fetchTransacciones(int idCuenta) async {
+  void fetchTransacciones(String idCuenta) async {
     try {
       List<IncomeModel> transacciones =
           await IncomeModel.getTransacciones(idCuenta);
@@ -167,7 +167,7 @@ class _GraphicsViewState extends State<GraphicsView> {
                 height: 2,
                 color: const Color(0xFF006064),
               ),
-              onChanged: (int? newValue) {
+              onChanged: (String? newValue) {
                 setState(
                   () {
                     selectedCuentaId = newValue;
@@ -175,8 +175,8 @@ class _GraphicsViewState extends State<GraphicsView> {
                   },
                 );
               },
-              items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
-                return DropdownMenuItem<int>(
+              items: cuentas.map<DropdownMenuItem<String>>((CuentaModel cuenta) {
+                return DropdownMenuItem<String>(
                   value: cuenta.idCuenta,
                   child: Text(
                     cuenta.nombreCuenta,
@@ -212,7 +212,7 @@ class _GraphicsViewState extends State<GraphicsView> {
                   height: 2,
                   color: const Color.fromARGB(255, 255, 255, 255),
                 ),
-                onChanged: (int? newValue) {
+                onChanged: (String? newValue) {
                   setState(
                     () {
                       selectedCuentaId = newValue;
@@ -220,8 +220,8 @@ class _GraphicsViewState extends State<GraphicsView> {
                     },
                   );
                 },
-                items: cuentas.map<DropdownMenuItem<int>>((CuentaModel cuenta) {
-                  return DropdownMenuItem<int>(
+                items: cuentas.map<DropdownMenuItem<String>>((CuentaModel cuenta) {
+                  return DropdownMenuItem<String>(
                     value: cuenta.idCuenta,
                     child: Text(
                       cuenta.nombreCuenta,
